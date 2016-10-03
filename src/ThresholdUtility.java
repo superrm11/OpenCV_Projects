@@ -1,21 +1,28 @@
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.plaf.synth.SynthSeparatorUI;
 
 import org.opencv.core.*;
 import org.opencv.highgui.Highgui;
@@ -119,6 +126,12 @@ public class ThresholdUtility implements java.io.Serializable {
 	public static JLabel label;
 	public static ImageIcon icon;
 	public static JFrame frame;
+	public static JMenuBar menu;
+	public static JMenu imageMenu;
+	public static JMenuItem openImage;
+	
+	public static boolean isOpeningImage = false;
+	public static boolean imageIsOpen = false;
 
 	/**
 	 * Starts or refreshes the main frame showing the altered video
@@ -130,12 +143,23 @@ public class ThresholdUtility implements java.io.Serializable {
 	 *            The image that is to be displayed
 	 * @throws Exception
 	 */
-	public static void imShow(imShowValue val, BufferedImage i) {
+ 	public static void imShow(imShowValue val, BufferedImage i) {
 		switch (val) {
 		case Start:
 			frame = new JFrame();
 			frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			frame.setBounds(600, 0, 0, 0);
+			frame.setBounds(600, 0, 400, 300);
+			menu = new JMenuBar();
+			frame.setJMenuBar(menu);
+			imageMenu = new JMenu("Image");
+			menu.add(imageMenu);
+			openImage = new JMenuItem("Open Image");
+			imageMenu.add(openImage);
+			openImage.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent arg0) {
+					isOpeningImage = true;
+				}
+			});
 			icon = new ImageIcon(i);
 			label = new JLabel(icon);
 			frame.getContentPane().add(label);
@@ -345,6 +369,28 @@ public class ThresholdUtility implements java.io.Serializable {
 		frameLowerBound.setVisible(true);
 	}
 
+	public static String saveName;
+	public static Mat openedImage;
+	@SuppressWarnings("unused")
+	private static void beginOpening() {
+		JFileChooser fileChooser = new JFileChooser();
+
+		int rVal = fileChooser.showOpenDialog(fileChooser);
+		if (rVal == JFileChooser.APPROVE_OPTION) {
+			saveName = fileChooser.getSelectedFile().getAbsolutePath();
+			if (!saveName.toLowerCase().contains(".jpg"))
+				saveName = saveName.concat(".jpg");
+			File file = new File(saveName);
+			if (!file.exists()) {
+				JOptionPane.showMessageDialog(fileChooser, "The File Does Not Exist!");
+				beginOpening();
+			} else {
+				openedImage = Highgui.imread("saveName");
+			}
+		}
+	}
+
+	
 	/**
 	 * 
 	 * Conatains mundane tasks
@@ -389,4 +435,6 @@ public class ThresholdUtility implements java.io.Serializable {
 			}
 		}
 	}
+
+
 }
