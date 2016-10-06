@@ -6,8 +6,14 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -23,10 +29,12 @@ import javax.swing.JSpinner;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.opencv.core.*;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
+import org.opencv.imgproc.Imgproc;
 
 public class ThresholdUtility implements java.io.Serializable {
 
@@ -35,15 +43,16 @@ public class ThresholdUtility implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	public static VideoCapture video;
+	public static Mat mat;
+
 	public static void main(String[] args) throws InterruptedException, IOException {
 		// Load the main OpenCV libraries
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		Mat mat = new Mat();
-		VideoCapture video = new VideoCapture();
-		// Open the camera on the default port
-		video.open(0);
-		// put the read image into Matrix mat
-		video.read(mat);
+		mat = new Mat();
+		Mat alteredMat = new Mat();
+		video = new VideoCapture();
+		// video.read(mat);
 		// open the default system camera dialogue
 		video.set(Highgui.CV_CAP_PROP_SETTINGS, 0);
 		// create the frame with the upper bound values
@@ -52,7 +61,7 @@ public class ThresholdUtility implements java.io.Serializable {
 		createSlideBarLowerBound();
 		// start the main frame that will hold the video
 
-		imShow(imShowValue.Start, convertToImage(mat));
+		imShow(imShowValue.Start, null);
 		Scalar upperBoundScalar;
 		Scalar lowerBoundScalar;
 		Scalar brightnessScalar;
@@ -64,27 +73,49 @@ public class ThresholdUtility implements java.io.Serializable {
 		b.start();
 		try {
 			while (true) {
-				brightnessConstant = (brightnessSlider.getValue() - 50) * 2.55;
+				brightnessConstant = ((int) brightnessSpinner.getValue());
 				brightnessScalar = new Scalar(brightnessConstant, brightnessConstant, brightnessConstant);
 				// set the lower bound scalar to the sliders in the Lower Bound
 				// frame
-				lowerBoundScalar = new Scalar(blueSliderLowerBound.getValue() * 2.55,
-						greenSliderLowerBound.getValue() * 2.55, redSliderLowerBound.getValue() * 2.55);
+				lowerBoundScalar = new Scalar((int) blueSpinnerLowerBound.getValue(),
+						(int) greenSpinnerLowerBound.getValue(), (int) redSpinnerLowerBound.getValue());
 				// set the upper bound scalar to the sliders in the Upper Bound
 				// frame
-				upperBoundScalar = new Scalar(blueSliderUpperBound.getValue() * 2.55,
-						greenSliderUpperBound.getValue() * 2.55, redSliderUpperBound.getValue() * 2.55);
-				video.read(mat);
-				Core.add(mat, brightnessScalar, mat);
-				// Threshold based on the scalar values declared
-				Core.inRange(mat, lowerBoundScalar, upperBoundScalar, mat);
-				// Refresh the frame
-				imShow(imShowValue.Refresh, convertToImage(mat));
+				upperBoundScalar = new Scalar((int) blueSpinnerUpperBound.getValue(),
+						(int) greenSpinnerUpperBound.getValue(), (int) redSpinnerUpperBound.getValue());
+				try {
+					if (video.isOpened()) {
+						video.retrieve(mat);
+						Imgproc.resize(mat, mat, new Size(400, 300));
+						alteredMat = mat.clone();
+						Core.add(alteredMat, brightnessScalar, alteredMat);
+						// Threshold based on the scalar values declared
+						Core.inRange(alteredMat, lowerBoundScalar, upperBoundScalar, alteredMat);
+						// Refresh the frame
+						imShow(imShowValue.Refresh, convertToImage(alteredMat));
+					} else {
+						if (mat != null) {
+							if (mat.size().width > 400) {
+								Imgproc.resize(mat, mat, new Size(400, 300));
+							}
+							alteredMat = mat.clone();
+							Core.add(alteredMat, brightnessScalar, alteredMat);
+							// Threshold based on the scalar values declared
+							Core.inRange(alteredMat, lowerBoundScalar, upperBoundScalar, alteredMat);
+							imShow(imShowValue.Refresh, convertToImage(alteredMat));
+						}
+					}
+				} catch (Exception e) {
+
+				}
+
 				// Determines the FPS value
 				Thread.sleep(33);
 				if (BackgroundProcesses.exitProgram)
 					break;
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			video.release();
 			System.exit(0);
@@ -123,13 +154,35 @@ public class ThresholdUtility implements java.io.Serializable {
 		Refresh, Start
 	}
 
+	public static enum updateFrameVal {
+		Image, Camera
+	}
+
+	public static Mat updateFrame(updateFrameVal val) {
+		Mat m = new Mat();
+		switch (val) {
+		case Image:
+			m = openImage();
+			return m;
+		case Camera:
+			video.read(m);
+			return m;
+		}
+		return null;
+
+	}
+
 	public static JLabel label;
 	public static ImageIcon icon;
 	public static JFrame frame;
 	public static JMenuBar menu;
 	public static JMenu imageMenu;
+	public static JMenu cameraMenu;
 	public static JMenuItem openImage;
-	
+	public static JMenuItem camera1, camera2, camera3;
+	public static JMenu file;
+	public static JMenuItem saveConfig, openConfig;
+
 	public static boolean isOpeningImage = false;
 	public static boolean imageIsOpen = false;
 
@@ -143,34 +196,93 @@ public class ThresholdUtility implements java.io.Serializable {
 	 *            The image that is to be displayed
 	 * @throws Exception
 	 */
- 	public static void imShow(imShowValue val, BufferedImage i) {
+	public static void imShow(imShowValue val, BufferedImage i) {
 		switch (val) {
 		case Start:
 			frame = new JFrame();
 			frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			frame.setBounds(600, 0, 400, 300);
 			menu = new JMenuBar();
 			frame.setJMenuBar(menu);
 			imageMenu = new JMenu("Image");
+			cameraMenu = new JMenu("Camera");
 			menu.add(imageMenu);
+			imageMenu.add(cameraMenu);
 			openImage = new JMenuItem("Open Image");
-			imageMenu.add(openImage);
-			openImage.addActionListener(new ActionListener(){
+			camera1 = new JMenuItem("camera 1 (default)");
+			camera2 = new JMenuItem("camera 2");
+			camera3 = new JMenuItem("camera 3");
+			cameraMenu.add(camera1);
+			cameraMenu.add(camera2);
+			cameraMenu.add(camera3);
+
+			camera1.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					isOpeningImage = true;
+					video.open(0);
 				}
 			});
-			icon = new ImageIcon(i);
+
+			camera2.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					video.open(1);
+				}
+			});
+
+			camera3.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					video.open(2);
+				}
+			});
+
+			imageMenu.add(openImage);
+			openImage.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					video.release();
+					mat = openImage();
+				}
+			});
+		
+			file = new JMenu("File");
+			menu.add(file);
+			
+			saveConfig = new JMenuItem("Save Configuration");
+			file.add(saveConfig);
+			saveConfig.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						saveConfig();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+			});
+			
+			openConfig = new JMenuItem("Open Configuration");
+			file.add(openConfig);
+			openConfig.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e) {
+					try {
+						openConfig();
+					} catch (ClassNotFoundException | IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				
+			});
+			
+			icon = new ImageIcon();
 			label = new JLabel(icon);
 			frame.getContentPane().add(label);
 			frame.pack();
 			frame.setVisible(true);
 			frame.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
-					System.out.println("imShowAltered");
 					BackgroundProcesses.exitProgram = true;
 				}
 			});
+			frame.setBounds(600, 0, 400, 300);
 			break;
 		case Refresh:
 			frame.getContentPane().remove(label);
@@ -337,7 +449,7 @@ public class ThresholdUtility implements java.io.Serializable {
 		redSpinnerLowerBound.addChangeListener(new ChangeListener() {
 
 			public void stateChanged(ChangeEvent arg0) {
-				redSliderLowerBound.setValue((int) Math.round((int)redSpinnerLowerBound.getValue() / 2.55));
+				redSliderLowerBound.setValue((int) Math.round((int) redSpinnerLowerBound.getValue() / 2.55));
 			}
 
 		});
@@ -370,9 +482,8 @@ public class ThresholdUtility implements java.io.Serializable {
 	}
 
 	public static String saveName;
-	public static Mat openedImage;
-	@SuppressWarnings("unused")
-	private static void beginOpening() {
+
+	private static Mat openImage() {
 		JFileChooser fileChooser = new JFileChooser();
 
 		int rVal = fileChooser.showOpenDialog(fileChooser);
@@ -383,21 +494,99 @@ public class ThresholdUtility implements java.io.Serializable {
 			File file = new File(saveName);
 			if (!file.exists()) {
 				JOptionPane.showMessageDialog(fileChooser, "The File Does Not Exist!");
-				beginOpening();
+				openImage();
 			} else {
-				openedImage = Highgui.imread("saveName");
+				Mat m = Highgui.imread(saveName);
+				return m;
+			}
+		}
+		return null;
+	}
+
+	private static ObjectOutputStream oos;
+	private static FileOutputStream fos;
+
+	private static void saveConfig() throws IOException {
+		JFileChooser fileChooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("Configuration Files", "cfg");
+		fileChooser.setFileFilter(filter);
+
+		int rVal = fileChooser.showSaveDialog(fileChooser);
+		if (rVal == JFileChooser.APPROVE_OPTION) {
+			saveName = fileChooser.getSelectedFile().getAbsolutePath();
+			System.out.println(saveName);
+			if (!saveName.toLowerCase().contains(".cfg"))
+				saveName = saveName.concat(".cfg");
+
+			File file = new File(saveName);
+			if (!file.exists()) {
+				int[] config = { (int) redSpinnerLowerBound.getValue(), (int) greenSpinnerLowerBound.getValue(),
+						(int) blueSpinnerLowerBound.getValue(), (int) redSpinnerUpperBound.getValue(),
+						(int) greenSpinnerUpperBound.getValue(), (int) blueSpinnerUpperBound.getValue(),
+						(int) brightnessSpinner.getValue() };
+				fos = new FileOutputStream(saveName);
+				oos = new ObjectOutputStream(fos);
+				oos.writeObject(config);
+				oos.flush();
+				oos.close();
+			} else {
+				int result = JOptionPane.showConfirmDialog(fileChooser, "File Already Exists. Overwrite?");
+				switch (result) {
+				case JOptionPane.YES_OPTION:
+					int[] config={(int)redSpinnerLowerBound.getValue(),(int)greenSpinnerLowerBound.getValue(),(int)blueSpinnerLowerBound.getValue(),(int)redSpinnerUpperBound.getValue(),(int)greenSpinnerUpperBound.getValue(),(int)blueSpinnerUpperBound.getValue(),(int)brightnessSpinner.getValue()};
+					fos = new FileOutputStream(saveName);
+					oos = new ObjectOutputStream(fos);
+					oos.writeObject(config);
+					oos.flush();
+					oos.close();
+					return;
+				case JOptionPane.NO_OPTION:
+					saveConfig();
+					return;
+
+				}
+			}
+
+		}
+	}
+
+	private static ObjectInputStream ois;
+	private static FileInputStream fis;
+
+	private static void openConfig() throws IOException, ClassNotFoundException {
+		JFileChooser fileChooser = new JFileChooser();
+
+		int rVal = fileChooser.showOpenDialog(fileChooser);
+		if (rVal == JFileChooser.APPROVE_OPTION) {
+			saveName = fileChooser.getSelectedFile().getAbsolutePath();
+			if (!saveName.toLowerCase().contains(".cfg"))
+				saveName = saveName.concat(".cfg");
+			File file = new File(saveName);
+			if (!file.exists()) {
+				JOptionPane.showMessageDialog(fileChooser, "The File Does Not Exist!");
+				openImage();
+			} else {
+				fis = new FileInputStream(saveName);
+				ois = new ObjectInputStream(fis);
+				int[] config = (int[]) ois.readObject();
+				redSpinnerLowerBound.setValue(config[0]);
+				greenSpinnerLowerBound.setValue(config[1]);
+				blueSpinnerLowerBound.setValue(config[2]);
+				redSpinnerUpperBound.setValue(config[3]);
+				greenSpinnerUpperBound.setValue(config[4]);
+				blueSpinnerUpperBound.setValue(config[5]);
+				brightnessSpinner.setValue(config[6]);
 			}
 		}
 	}
 
-	
 	/**
 	 * 
 	 * Conatains mundane tasks
 	 *
 	 */
 	public static class BackgroundProcesses extends Thread {
-		
+
 		public static boolean exitProgram = false;
 
 		public void run() {
@@ -411,21 +600,26 @@ public class ThresholdUtility implements java.io.Serializable {
 			while (!exitProgram) {
 
 				if (ThresholdUtility.redSliderLowerBound.getValueIsAdjusting())
-					ThresholdUtility.redSpinnerLowerBound.setValue((int) Math.round(ThresholdUtility.redSliderLowerBound.getValue() * 2.55));
+					ThresholdUtility.redSpinnerLowerBound
+							.setValue((int) Math.round(ThresholdUtility.redSliderLowerBound.getValue() * 2.55));
 				if (ThresholdUtility.greenSliderLowerBound.getValueIsAdjusting())
 					ThresholdUtility.greenSpinnerLowerBound
 							.setValue((int) Math.round(ThresholdUtility.greenSliderLowerBound.getValue() * 2.55));
 				if (ThresholdUtility.blueSliderLowerBound.getValueIsAdjusting())
-					ThresholdUtility.blueSpinnerLowerBound.setValue((int) Math.round(ThresholdUtility.blueSliderLowerBound.getValue() * 2.55));
+					ThresholdUtility.blueSpinnerLowerBound
+							.setValue((int) Math.round(ThresholdUtility.blueSliderLowerBound.getValue() * 2.55));
 				if (ThresholdUtility.redSliderUpperBound.getValueIsAdjusting())
-					ThresholdUtility.redSpinnerUpperBound.setValue((int) Math.round(ThresholdUtility.redSliderUpperBound.getValue() * 2.55));
+					ThresholdUtility.redSpinnerUpperBound
+							.setValue((int) Math.round(ThresholdUtility.redSliderUpperBound.getValue() * 2.55));
 				if (ThresholdUtility.greenSliderUpperBound.getValueIsAdjusting())
 					ThresholdUtility.greenSpinnerUpperBound
 							.setValue((int) Math.round(ThresholdUtility.greenSliderUpperBound.getValue() * 2.55));
 				if (ThresholdUtility.blueSliderUpperBound.getValueIsAdjusting())
-					ThresholdUtility.blueSpinnerUpperBound.setValue((int) Math.round(ThresholdUtility.blueSliderUpperBound.getValue() * 2.55));
+					ThresholdUtility.blueSpinnerUpperBound
+							.setValue((int) Math.round(ThresholdUtility.blueSliderUpperBound.getValue() * 2.55));
 				if (ThresholdUtility.brightnessSlider.getValueIsAdjusting())
-					ThresholdUtility.brightnessSpinner.setValue((int) Math.round((ThresholdUtility.brightnessSlider.getValue() - 50) * 2.55));
+					ThresholdUtility.brightnessSpinner
+							.setValue((int) Math.round((ThresholdUtility.brightnessSlider.getValue() - 50) * 2.55));
 				try {
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
@@ -435,6 +629,5 @@ public class ThresholdUtility implements java.io.Serializable {
 			}
 		}
 	}
-
 
 }
