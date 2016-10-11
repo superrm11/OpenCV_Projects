@@ -11,8 +11,9 @@ import javax.swing.JSpinner;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JRadioButton;
 
-public class SlideBarTest extends JFrame {
+public class WindowBuilder extends JFrame {
 
 	private JPanel contentPane;
 
@@ -23,7 +24,7 @@ public class SlideBarTest extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					SlideBarTest frame = new SlideBarTest();
+					WindowBuilder frame = new WindowBuilder();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -35,10 +36,10 @@ public class SlideBarTest extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public SlideBarTest() {
+	public WindowBuilder() {
 		setTitle("Lower Bound");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 450, 450);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -89,16 +90,52 @@ public class SlideBarTest extends JFrame {
 		spinner_2.setBounds(338, 124, 55, 26);
 		contentPane.add(spinner_2);
 		
-		JSlider slider_3 = new JSlider();
-		slider_3.setBounds(123, 166, 200, 26);
-		contentPane.add(slider_3);
+		JSpinner erosionSpinner = new JSpinner();
+		erosionSpinner.setBounds(15, 206, 55, 26);
+		contentPane.add(erosionSpinner);
 		
-		JLabel lblBrightness = new JLabel("Brightness");
-		lblBrightness.setBounds(39, 172, 82, 20);
-		contentPane.add(lblBrightness);
+		JSpinner dilationSpinner = new JSpinner();
+		dilationSpinner.setBounds(181, 205, 55, 26);
+		contentPane.add(dilationSpinner);
 		
-		JSpinner spinner_3 = new JSpinner();
-		spinner_3.setBounds(338, 166, 55, 26);
-		contentPane.add(spinner_3);
+		JLabel lblErosion = new JLabel("Erosion");
+		lblErosion.setBounds(49, 172, 69, 20);
+		contentPane.add(lblErosion);
+		
+		JRadioButton recButtonErosion = new JRadioButton("Rec");
+		recButtonErosion.setBounds(81, 205, 69, 29);
+		contentPane.add(recButtonErosion);
+		
+		JRadioButton ellipseButtonErosion = new JRadioButton("Ellipse");
+		ellipseButtonErosion.setBounds(81, 242, 83, 29);
+		contentPane.add(ellipseButtonErosion);
+		
+		JRadioButton crossButtonErosion = new JRadioButton("Cross");
+		crossButtonErosion.setBounds(81, 279, 83, 29);
+		contentPane.add(crossButtonErosion);
+		
+		JLabel lblDilation = new JLabel("Dilation");
+		lblDilation.setBounds(224, 172, 69, 20);
+		contentPane.add(lblDilation);
+		
+		JLabel lblIterations = new JLabel("Iterations");
+		lblIterations.setBounds(1, 230, 69, 20);
+		contentPane.add(lblIterations);
+		
+		JLabel label = new JLabel("Iterations");
+		label.setBounds(167, 230, 69, 20);
+		contentPane.add(label);
+		
+		JRadioButton recButtonDilation = new JRadioButton("Rec");
+		recButtonDilation.setBounds(259, 205, 69, 29);
+		contentPane.add(recButtonDilation);
+		
+		JRadioButton ellipseButtonDilation = new JRadioButton("Ellipse");
+		ellipseButtonDilation.setBounds(259, 242, 83, 29);
+		contentPane.add(ellipseButtonDilation);
+		
+		JRadioButton crossButtonDilation = new JRadioButton("Cross");
+		crossButtonDilation.setBounds(259, 279, 83, 29);
+		contentPane.add(crossButtonDilation);
 	}
 }
