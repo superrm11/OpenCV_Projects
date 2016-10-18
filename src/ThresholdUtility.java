@@ -70,6 +70,7 @@ public class ThresholdUtility implements java.io.Serializable {
 		Scalar lowerBoundScalar;
 		Scalar brightnessScalar;
 		ArrayList<MatOfPoint> arrayOfPoints = new ArrayList<MatOfPoint>();
+		Mat hierarchy = new Mat();
 		boolean videoIsOn = false;
 
 		double brightnessConstant;
@@ -98,9 +99,8 @@ public class ThresholdUtility implements java.io.Serializable {
 						Core.add(alteredMat, brightnessScalar, alteredMat);
 						// Threshold based on the scalar values declared
 						Core.inRange(alteredMat, lowerBoundScalar, upperBoundScalar, alteredMat);
-//						Imgproc.findContours(alteredMat, arrayOfPoints, new Mat(), Imgproc.RETR_LIST,
-//								Imgproc.CHAIN_APPROX_SIMPLE);
-//						Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255,0,0), Imgproc.RETR_FLOODFILL);
+						Imgproc.findContours(alteredMat, arrayOfPoints, hierarchy, Imgproc.RETR_TREE,
+								Imgproc.CHAIN_APPROX_SIMPLE);
 						// Refresh the frame
 						imShow(ImShowVal.Refresh, convertToImage(alteredMat));
 					} else {

@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.net.SocketAddress;
 
@@ -23,27 +24,33 @@ import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
-public class Test_Client implements java.io.Serializable{
+public class Test_Client implements java.io.Serializable {
 	public static void main(String[] args) throws InterruptedException, IOException, ClassNotFoundException {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		long len;
-		Mat mat = new Mat();
-		BufferedImage bufImage;
+		VideoCapture cap = new VideoCapture();
+		cap.open(0);
+		Mat m = new Mat();
+		cap.retrieve(m);
+		Core.add(m, new Scalar(-33, -33, -33), m);
+		Core.inRange(m, new Scalar(0, 22, 0), new Scalar(31, 107, 4), m);
+		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(11,11));
+		Imgproc.dilate(m, m, element);
+		ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+		Imgproc.findContours(m, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.drawContours(m, contours, -1, new Scalar(200, 0, 0,255), Core.FILLED);
+		MatOfPoint points = new MatOfPoint(contours.get(0).toArray());
+		Rect rect = Imgproc.boundingRect(points);
+		
+		Core.rectangle(m, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 0, 0));
+
 		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		imageIcon = new ImageIcon();
+		imageIcon = new ImageIcon(convertToImage(m));
 		label = new JLabel(imageIcon);
 		frame.getContentPane().add(label);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.pack();
 		frame.setVisible(true);
-		
-		ObjectInputStream ois;
-		Socket socket = new Socket("localhost", 9090);
-		ois = new ObjectInputStream(socket.getInputStream());
-
-		while (true) {
-
-			Thread.sleep(30);
-		}
+		cap.release();
 	}
 
 	private static JLabel label;
