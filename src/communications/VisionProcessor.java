@@ -3,12 +3,19 @@ package communications;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class VisionProcessor {
-	SearchForClient a;
+	private static SearchForClient a;
+
+	public static void main(String[] args) {
+		startServer(9090, 9091);
+
+		setThresholdValues(255, 255, 255, 255, 255, 255, 255);
+	}
 
 	/**
 	 * Starts the server wait for the vision processing client to connect.
@@ -20,7 +27,7 @@ public class VisionProcessor {
 	 * @param sendPort
 	 *            The port that will send data to the client.
 	 */
-	public void startServer(int receivePort, int sendPort) {
+	public static void startServer(int receivePort, int sendPort) {
 		a = new SearchForClient(receivePort, sendPort);
 		a.start();
 	}
@@ -33,8 +40,10 @@ public class VisionProcessor {
 	public void requestProcessedImage() {
 		a.requestProcessedImage = true;
 	}
+
 	/**
-	 * Sets the threshold boundaries in BGR format, with an added Scalar for brightness
+	 * Sets the threshold boundaries in BGR format, with an added Scalar for
+	 * brightness
 	 * 
 	 * @param blueLowerBound
 	 * @param greenLowerBound
@@ -46,17 +55,17 @@ public class VisionProcessor {
 	 * 
 	 * @author Ryan McGee
 	 */
-	public void setThresholdValues(int blueLowerBound, int greenLowerBound, int redLowerBound, int blueUpperBound,
-			int greenUpperBound, int redUpperBound, int brightness) {
-		
-		a.blueLowerBound = blueLowerBound;
-		a.greenLowerBound = greenLowerBound;
-		a.redLowerBound = redLowerBound;
-		a.blueUpperBound = blueUpperBound;
-		a.greenUpperBound = greenUpperBound;
-		a.redUpperBound = redUpperBound;
-		a.brightness = brightness;
-		
+	public static void setThresholdValues(int blueLowerBound, int greenLowerBound, int redLowerBound,
+			int blueUpperBound, int greenUpperBound, int redUpperBound, int brightness) {
+
+		a.thresholdValues[0] = blueLowerBound;
+		a.thresholdValues[1] = greenLowerBound;
+		a.thresholdValues[2] = redLowerBound;
+		a.thresholdValues[3] = blueUpperBound;
+		a.thresholdValues[4] = greenUpperBound;
+		a.thresholdValues[5] = redUpperBound;
+		a.thresholdValues[6] = brightness;
+
 		a.setThresholdValues = true;
 	}
 
@@ -66,20 +75,21 @@ public class VisionProcessor {
 
 		boolean requestProcessedImage = false;
 
-		int redLowerBound = 0;
-		int greenLowerBound = 0;
-		int blueLowerBound = 0;
-		int redUpperBound = 0;
-		int greenUpperBound = 0;
-		int blueUpperBound = 0;
-		int brightness = 0;
+		/**
+		 * [0] = blueLowerBound [1] = greenLowerBound [2] = redLowerBound [3] =
+		 * blueUpperBound [4] = greenUpperBound [5] = redUpperBound [6] =
+		 * brightness
+		 */
+		int[] thresholdValues = new int[7];
 
 		boolean setThresholdValues = false;
 
-		// a two dimensional array that will store 1: the blobs and their
-		// indexes, and 2: the xy coordinates of the bounding rectangle of each
-		// of those blobs
-		int[][] blobs;
+		/**
+		 * a two dimensional array that will store 1: the blobs and their
+		 * indexes, and 2: the xy coordinates of the bounding rectangle of each
+		 * of those blobs
+		 **/
+		int[][] blobs = null;
 
 		public SearchForClient(int receivePort, int sendPort) {
 			this.receivePort = receivePort;
@@ -90,32 +100,39 @@ public class VisionProcessor {
 			try {
 				ServerSocket receiveListener = new ServerSocket(receivePort);
 				ServerSocket sendListener = new ServerSocket(sendPort);
-
+				System.out.println("Listeners Created");
 				Socket receiveSocket = receiveListener.accept();
 				Socket sendSocket = sendListener.accept();
+				System.out.println("sockets created");
+				ObjectOutputStream oos = new ObjectOutputStream(sendSocket.getOutputStream());
+				ObjectInputStream ois = new ObjectInputStream(receiveSocket.getInputStream());
 
-				OutputStream os = sendSocket.getOutputStream();
-				InputStream is = receiveSocket.getInputStream();
-
-				ObjectInputStream ois = new ObjectInputStream(sendSocket.getInputStream());
+				System.out.println("I/O streams created");
+				Thread.sleep(1000);
 
 				while (true) {
-
+					// Requests an array of rectangles' x and y coordinates
 					if (requestProcessedImage = true) {
-						os.write(-1);
-						os.flush();
-						blobs = (int[][]) ois.readObject();
-						requestProcessedImage = false;
+						oos.writeByte(-1);
+						oos.flush();
+						System.out.println("requested processed image");
+						// If the input stream has data, write it to blobs
+						if (ois.available() > 0) {
+							blobs = (int[][]) ois.readObject();
+							requestProcessedImage = false;
+						}
 					}
-
+					
 					if (setThresholdValues) {
-						os.write(-2);
-						os.flush();
+						oos.writeByte(-2);
+						oos.flush();
+						oos.writeObject(thresholdValues);
+						oos.flush();
 						setThresholdValues = false;
 					}
 
 				}
-			} catch (IOException | ClassNotFoundException e) {
+			} catch (IOException | ClassNotFoundException | InterruptedException e) {
 				e.printStackTrace();
 			}
 
