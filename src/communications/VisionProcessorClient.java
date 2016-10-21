@@ -21,14 +21,14 @@ public class VisionProcessorClient {
 			System.out.println("Set up I/O Streams");
 			int command;
 			int port = 2002;
-			while(true){
-				
+			while (true) {
+
 				// If there is data in the input stream, reaSd it
-				if(ois.available() > 0){
+				if (ois.available() > 0) {
 					command = ois.readInt();
 					System.out.println(command);
 					// -3 is the code for create new Processor
-					if(command == -3){
+					if (command == -3) {
 						System.out.println("Command is -3");
 						port = ois.readInt();
 						System.out.println(port);
@@ -37,24 +37,38 @@ public class VisionProcessorClient {
 				}
 				Thread.sleep(100);
 			}
-			
-			
+
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
-	
-	
-	public static class Processor extends Thread{
+	/**
+	 * This is the class that does the processing of the image, and can be
+	 * called as many times as necessary.
+	 * 
+	 * 		PROCESSOR COMMANDS:
+	 * 		-1: process image and send it over the socket
+	 * 		-2: set the threshold values from the socket
+	 * 		-3: reserved just in case for the main socket
+	 * 			 for requesting new sockets
+	 * 		
+	 * 		
+	 * @author Ryan McGee
+	 *
+	 */
+	public static class Processor extends Thread {
 		int sendPort;
 		int receivePort;
-		public Processor(int sendPort, int receivePort){
+
+		public Processor(int sendPort, int receivePort) {
 			this.sendPort = sendPort;
 			this.receivePort = receivePort;
 		}
-		public void run(){
+
+		public void run() {
 			try {
+				// Create the sockets based on the ports given
 				Socket sendSocket = new Socket("localhost", sendPort);
 				Socket receiveSocket = new Socket("localhost", receivePort);
 				System.out.println("Sockets created");
@@ -63,13 +77,15 @@ public class VisionProcessorClient {
 				System.out.println("I/O streams created");
 				int command = 0;
 				while (true) {
-					// If the input stream is available, 
+					// If the input stream is available, read the command
 					if (ois.available() > 0) {
 						command = ois.readInt();
 						if (command == -2) {
 							setThresholdValues((int[]) ois.readObject());
-							System.out.println("Set th vals to " + lowerBound);
-						} else if (command == -1) {
+							System.out.println("Set Lower bound to " + lowerBound);
+							System.out.println("Set Upper bound to " + upperBound);
+							System.out.println("Set brightness to " + brightness);
+						} else if (command == -1) { 
 							processImage();
 						}
 					}
@@ -80,20 +96,22 @@ public class VisionProcessorClient {
 				e.printStackTrace();
 			}
 		}
+
 		private static Scalar lowerBound = new Scalar(0, 0, 0);
 		private static Scalar upperBound = new Scalar(0, 0, 0);
 		private static Scalar brightness = new Scalar(0, 0, 0);
 
 		private static void setThresholdValues(int[] thresholdValues) {
-			lowerBound.set(
-					new double[] { (double) thresholdValues[0], (double) thresholdValues[1], (double) thresholdValues[2] });
-			upperBound.set(
-					new double[] { (double) thresholdValues[3], (double) thresholdValues[4], (double) thresholdValues[5] });
+			lowerBound.set(new double[] { (double) thresholdValues[0], (double) thresholdValues[1],
+					(double) thresholdValues[2] });
+			upperBound.set(new double[] { (double) thresholdValues[3], (double) thresholdValues[4],
+					(double) thresholdValues[5] });
 			brightness.set(new double[] { thresholdValues[6], thresholdValues[6], thresholdValues[6] });
 
 		}
 
-		// TODO implement the processImage method based on the given functionalities
+		// TODO implement the processImage method based on the given
+		// functionalities
 		// and order of operations.
 		private static int[][] processImage() {
 			int[][] blobs = null;
@@ -101,7 +119,7 @@ public class VisionProcessorClient {
 			return blobs;
 		}
 	}
-	
+
 	private final static String IP_ADDRESS = "localhost";
 
 }

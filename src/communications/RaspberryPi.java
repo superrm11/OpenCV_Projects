@@ -77,6 +77,7 @@ public class RaspberryPi extends Thread {
 	 */
 	public void requestNewThread() {
 		requestNewThread++;
+		updatePorts();
 		System.out.println(sendPort);
 	}
 

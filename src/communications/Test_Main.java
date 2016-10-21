@@ -7,10 +7,7 @@ public class Test_Main {
 		VisionProcessor vp = new VisionProcessor(rPi.getSendPort(), rPi.getReceivePort());
 		rPi.requestNewThread();
 		
-		rPi.updatePorts();
-		
-		VisionProcessor vp1 = new VisionProcessor(rPi.getSendPort(), rPi.getReceivePort());
-		rPi.requestNewThread();
+		vp.setThresholdValues(100, 200, 0, 150, 250, 50, -50);
 		
 	}
 

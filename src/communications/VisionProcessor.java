@@ -100,7 +100,7 @@ public class VisionProcessor extends Thread{
 	 * 
 	 * @author Ryan McGee
 	 */
-	public static void setThresholdValues(int blueLowerBound, int greenLowerBound, int redLowerBound,
+	public void setThresholdValues(int blueLowerBound, int greenLowerBound, int redLowerBound,
 			int blueUpperBound, int greenUpperBound, int redUpperBound, int brightness) {
 
 		thresholdValues[0] = blueLowerBound;
@@ -110,6 +110,8 @@ public class VisionProcessor extends Thread{
 		thresholdValues[4] = greenUpperBound;
 		thresholdValues[5] = redUpperBound;
 		thresholdValues[6] = brightness;
+		
+		setThresholdValues = true;
 	}
 
 }
