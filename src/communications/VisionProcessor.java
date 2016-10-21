@@ -7,8 +7,23 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
-public class VisionProcessor extends Thread{
+/**
+ * This is the class that does the processing of the image, and can be
+ * called as many times as necessary.
+ * 
+ * PROCESSOR COMMANDS: 
+ * 			-1: process image and send it over the socket 
+ * 			-2: set	the threshold values from the socket 
+ * 			-3: reserved just in case for the main socket 
+ * 				for requesting new sockets
+ * 			-4: sets the operations and their parameters (such as Dilation and Erosion)
+ * 
+ * @author Ryan McGee
+ *
+ */
+public class VisionProcessor extends Thread {
 	int receivePort;
 	int sendPort;
 
@@ -17,7 +32,9 @@ public class VisionProcessor extends Thread{
 		this.sendPort = sendPort;
 		this.start();
 	}
-	
+
+	private ArrayList<int[]> order = new ArrayList<int[]>();
+
 	boolean requestProcessedImage = false;
 
 	/**
@@ -36,7 +53,7 @@ public class VisionProcessor extends Thread{
 	 **/
 	int[][] blobs = null;
 
-	public void run(){
+	public void run() {
 		try {
 			ServerSocket receiveListener = new ServerSocket(receivePort);
 			ServerSocket sendListener = new ServerSocket(sendPort);
@@ -62,13 +79,21 @@ public class VisionProcessor extends Thread{
 						requestProcessedImage = false;
 					}
 				}
-				
+
 				if (setThresholdValues) {
 					oos.writeInt(-2);
 					oos.flush();
 					oos.writeObject(thresholdValues);
 					oos.flush();
 					setThresholdValues = false;
+				}
+
+				if (sendOperations) {
+					oos.writeInt(-4);
+					oos.flush();
+					oos.writeObject(operations);
+					oos.flush();
+					sendOperations = false;
 				}
 
 			}
@@ -100,8 +125,8 @@ public class VisionProcessor extends Thread{
 	 * 
 	 * @author Ryan McGee
 	 */
-	public void setThresholdValues(int blueLowerBound, int greenLowerBound, int redLowerBound,
-			int blueUpperBound, int greenUpperBound, int redUpperBound, int brightness) {
+	public void setThresholdValues(int blueLowerBound, int greenLowerBound, int redLowerBound, int blueUpperBound,
+			int greenUpperBound, int redUpperBound, int brightness) {
 
 		thresholdValues[0] = blueLowerBound;
 		thresholdValues[1] = greenLowerBound;
@@ -110,8 +135,22 @@ public class VisionProcessor extends Thread{
 		thresholdValues[4] = greenUpperBound;
 		thresholdValues[5] = redUpperBound;
 		thresholdValues[6] = brightness;
-		
+
 		setThresholdValues = true;
+	}
+
+	int[][] operations;
+	boolean sendOperations = false;
+
+	/**
+	 * Tells the thread to send the order of operations and their parameters and order
+	 */
+	public void sendOperations() {
+		operations = new int[order.size()][];
+		for (int i = 0; i < order.size(); i++) {
+			operations[i] = order.get(i);
+		}
+		sendOperations = true;
 	}
 
 }

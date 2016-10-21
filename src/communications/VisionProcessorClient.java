@@ -10,6 +10,12 @@ import java.net.Socket;
 import org.opencv.core.Scalar;
 
 public class VisionProcessorClient {
+	/**
+	 * This is the main class that will accept thread requests and create new
+	 * Processor classes for each request.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		try {
 			// Set up the sockets that create the main processing sockets.
@@ -47,13 +53,13 @@ public class VisionProcessorClient {
 	 * This is the class that does the processing of the image, and can be
 	 * called as many times as necessary.
 	 * 
-	 * 		PROCESSOR COMMANDS:
-	 * 		-1: process image and send it over the socket
-	 * 		-2: set the threshold values from the socket
-	 * 		-3: reserved just in case for the main socket
-	 * 			 for requesting new sockets
-	 * 		
-	 * 		
+	 * PROCESSOR COMMANDS: 
+	 * 			-1: process image and send it over the socket 
+	 * 			-2: set	the threshold values from the socket 
+	 * 			-3: reserved just in case for the main socket 
+	 * 				for requesting new sockets
+	 * 
+	 * 
 	 * @author Ryan McGee
 	 *
 	 */
@@ -61,11 +67,21 @@ public class VisionProcessorClient {
 		int sendPort;
 		int receivePort;
 
+		/**
+		 * @param sendPort
+		 *            The port data will be sent over
+		 * @param receivePort
+		 *            The port data will be received from
+		 */
 		public Processor(int sendPort, int receivePort) {
 			this.sendPort = sendPort;
 			this.receivePort = receivePort;
 		}
 
+		/**
+		 * This is the method everything will be run in; It is the "main method"
+		 * of new threads
+		 */
 		public void run() {
 			try {
 				// Create the sockets based on the ports given
@@ -85,7 +101,7 @@ public class VisionProcessorClient {
 							System.out.println("Set Lower bound to " + lowerBound);
 							System.out.println("Set Upper bound to " + upperBound);
 							System.out.println("Set brightness to " + brightness);
-						} else if (command == -1) { 
+						} else if (command == -1) {
 							processImage();
 						}
 					}
@@ -101,6 +117,19 @@ public class VisionProcessorClient {
 		private static Scalar upperBound = new Scalar(0, 0, 0);
 		private static Scalar brightness = new Scalar(0, 0, 0);
 
+		/**
+		 * Sets the threshold scalars based on the integer array given
+		 * 
+		 * @param thresholdValues
+		 *            The integer array with the values:
+		 *            thresholdValues[0] = blue lower boundary
+		 *            thresholdValues[1] = green lower boundary
+		 *            thresholdValues[2] = red lower boundary
+		 *            thresholdValues[3] = blue upper boundary
+		 *            thresholdValues[4] = green upper boundary
+		 *            thresholdValues[5] = red upper boundary
+		 *            thresholdValues[6] = brightness
+		 */
 		private static void setThresholdValues(int[] thresholdValues) {
 			lowerBound.set(new double[] { (double) thresholdValues[0], (double) thresholdValues[1],
 					(double) thresholdValues[2] });

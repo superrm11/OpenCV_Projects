@@ -8,33 +8,37 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-
+/**
+ * This class controls the creation of new VisionProcessor classes
+ * on the Raspberry Pi end of things.
+ * 		COMMANDS:
+ * 			-3: reserved for creating new classes on the Raspberry Pi
+ * 
+ * @author Ryan McGee
+ *
+ */
 public class RaspberryPi extends Thread {
-	String ipAddress;
-
-	public RaspberryPi(String ipAddress) {
-		this.ipAddress = ipAddress;
-		this.start();
-	}
-
-	public int receivePort = 2003;
-	public int sendPort = 2002;
+	private int receivePort = 2003;
+	private int sendPort = 2002;
 	
 	public ArrayList<Integer> ports	= new ArrayList<Integer>();
 
 	public void run() {
 		try {
 			ports.add(sendPort);
+			//Create the servers for the Raspberry Pi to connect
 			ServerSocket sendListener = new ServerSocket(2000);
 			ServerSocket receiveListener = new ServerSocket(2001);
 
 			System.out.println("Rpi Listeners created");
-
+			
+			//Waits until the Raspberry Pi has connected
 			Socket sendSocket = sendListener.accept();
 			Socket receiveSocket = receiveListener.accept();
 
 			System.out.println("Rpi Sockets created");
 
+			//Creates the I/O streams for the Pi and Roborio to communicate over
 			ObjectOutputStream oos = new ObjectOutputStream(sendSocket.getOutputStream());
 			ObjectInputStream ois = new ObjectInputStream(receiveSocket.getInputStream());
 
@@ -48,6 +52,7 @@ public class RaspberryPi extends Thread {
 					// The command code for requesting a new thread is -3.
 					
 				}
+				// If there is a queue for requesting new threads, create all of them
 				if (requestNewThread > 0) {
 					for (int i = 0; i < requestNewThread; i++) {
 						oos.writeInt(-3);
@@ -81,15 +86,25 @@ public class RaspberryPi extends Thread {
 		System.out.println(sendPort);
 	}
 
+	/**
+	 * 
+	 * @return The port data is sent TO the 
+	 * 		   Raspberry pi: SAME as the Raspberry Pi's receive port
+	 */
 	public int getSendPort() {
 		return sendPort;
 	}
-
+	
+	/**
+	 * 
+	 * @return The port data is received FROM the 
+	 * 		   Raspberry pi: SAME as the Raspberry Pi's send port
+	 */
 	public int getReceivePort() {
 		return receivePort;
 	}
 	
-	public void updatePorts() {
+	private void updatePorts() {
 		sendPort +=2;
 		receivePort +=2;
 		ports.add(sendPort);
