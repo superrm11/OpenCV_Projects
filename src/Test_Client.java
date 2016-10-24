@@ -37,7 +37,7 @@ public class Test_Client implements java.io.Serializable {
 		Imgproc.dilate(m, m, element);
 		ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(m, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-		Imgproc.drawContours(m, contours, -1, new Scalar(200, 0, 0,255), Core.FILLED);
+		Imgproc.drawContours(m, contours, -1, new Scalar(200, 0, 0), Core.FILLED);
 		MatOfPoint points = new MatOfPoint(contours.get(0).toArray());
 		Rect rect = Imgproc.boundingRect(points);
 		

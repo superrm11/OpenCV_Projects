@@ -101,6 +101,7 @@ public class ThresholdUtility implements java.io.Serializable {
 						Core.inRange(alteredMat, lowerBoundScalar, upperBoundScalar, alteredMat);
 						Imgproc.findContours(alteredMat, arrayOfPoints, hierarchy, Imgproc.RETR_TREE,
 								Imgproc.CHAIN_APPROX_SIMPLE);
+						Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 0, 0, 255), Imgproc.RETR_FLOODFILL);
 						// Refresh the frame
 						imShow(ImShowVal.Refresh, convertToImage(alteredMat));
 					} else {
@@ -610,9 +611,9 @@ public class ThresholdUtility implements java.io.Serializable {
 
 			File file = new File(saveName);
 			if (!file.exists()) {
-				int[] config = { (int) redSpinnerLowerBound.getValue(), (int) greenSpinnerLowerBound.getValue(),
-						(int) blueSpinnerLowerBound.getValue(), (int) redSpinnerUpperBound.getValue(),
-						(int) greenSpinnerUpperBound.getValue(), (int) blueSpinnerUpperBound.getValue(),
+				int[] config = { (int) blueSpinnerLowerBound.getValue(), (int) greenSpinnerLowerBound.getValue(),
+						(int) redSpinnerLowerBound.getValue(), (int) blueSpinnerUpperBound.getValue(),
+						(int) greenSpinnerUpperBound.getValue(), (int) redSpinnerUpperBound.getValue(),
 						(int) brightnessSpinner.getValue() };
 				fos = new FileOutputStream(saveName);
 				oos = new ObjectOutputStream(fos);
@@ -680,12 +681,12 @@ public class ThresholdUtility implements java.io.Serializable {
 				fis = new FileInputStream(saveName);
 				ois = new ObjectInputStream(fis);
 				int[] config = (int[]) ois.readObject();
-				redSpinnerLowerBound.setValue(config[0]);
+				blueSpinnerLowerBound.setValue(config[0]);
 				greenSpinnerLowerBound.setValue(config[1]);
-				blueSpinnerLowerBound.setValue(config[2]);
-				redSpinnerUpperBound.setValue(config[3]);
+				redSpinnerLowerBound.setValue(config[2]);
+				blueSpinnerUpperBound.setValue(config[3]);
 				greenSpinnerUpperBound.setValue(config[4]);
-				blueSpinnerUpperBound.setValue(config[5]);
+				redSpinnerUpperBound.setValue(config[5]);
 				brightnessSpinner.setValue(config[6]);
 			}
 		}
