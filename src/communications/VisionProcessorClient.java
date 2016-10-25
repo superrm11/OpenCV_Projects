@@ -31,10 +31,11 @@ public class VisionProcessorClient {
 		image = new Mat();
 		cap = new VideoCapture();
 		cap.open(0);
+		System.out.println(cap.isOpened());
 		try {
 			// Set up the sockets that create the main processing sockets.
 			Socket socket = new Socket(IP_ADDRESS, 2000);
-			System.out.println("Set up sockets");
+			System.out.println("Set up socket");
 			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 			System.out.println("Set up I/O Streams");
 			int command;
@@ -63,7 +64,7 @@ public class VisionProcessorClient {
 	public static VideoCapture cap;
 
 	public static Mat getCapturedImage() {
-		if (cap.isOpened() == false) {
+		if (cap.isOpened() == true) {
 			cap.retrieve(image);
 			return image;
 		} else {
@@ -116,12 +117,14 @@ public class VisionProcessorClient {
 					if (ois.available() > 0) {
 						command = ois.readInt();
 						if (command == -2) {
+							System.out.println("Received set threshold values command");
 							setThresholdValues((int[]) ois.readObject());
 							System.out.println("Set Lower bound to " + lowerBound);
 							System.out.println("Set Upper bound to " + upperBound);
 							System.out.println("Set brightness to " + brightness);
 							command = 0;
 						} else if (command == -1) {
+							System.out.println("Received process image command");
 							blobs = processImage();
 							if (blobs != null) {
 								oos.writeObject(blobs);
@@ -129,6 +132,7 @@ public class VisionProcessorClient {
 								command = 0;
 							}
 						} else if (command == -4) {
+							System.out.println("Received set operations command");
 							operations = (ArrayList<int[]>) ois.readObject();
 							if (operations != null) {
 								System.out.println("Successfully read operations arraylist");
@@ -137,6 +141,7 @@ public class VisionProcessorClient {
 							}
 							command = 0;
 						} else if (command == -5) {
+							System.out.println("Received run continuously command");
 							isRunningContinuously = true;
 							command = 0;
 						}
@@ -181,7 +186,7 @@ public class VisionProcessorClient {
 		/**
 		 * Will process a mat based on the order set by the RoboRIO COMMANDS:
 		 * the first integer of every int array in the ArrayList 1: dilate 2:
-		 * erode
+		 * erode 3: threshold
 		 * 
 		 * @return
 		 */
