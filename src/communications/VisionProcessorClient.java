@@ -63,8 +63,12 @@ public class VisionProcessorClient {
 	public static VideoCapture cap;
 
 	public static Mat getCapturedImage() {
-		cap.retrieve(image);
-		return image;
+		if (cap.isOpened() == false) {
+			cap.retrieve(image);
+			return image;
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -119,14 +123,16 @@ public class VisionProcessorClient {
 							command = 0;
 						} else if (command == -1) {
 							blobs = processImage();
-							oos.writeObject(blobs);
-							oos.flush();
-							command = 0;
+							if (blobs != null) {
+								oos.writeObject(blobs);
+								oos.flush();
+								command = 0;
+							}
 						} else if (command == -4) {
 							operations = (ArrayList<int[]>) ois.readObject();
-							if(operations != null){
+							if (operations != null) {
 								System.out.println("Successfully read operations arraylist");
-							}else{
+							} else {
 								System.out.println("Failed to read operations arrayList");
 							}
 							command = 0;
@@ -189,6 +195,9 @@ public class VisionProcessorClient {
 			}
 
 			m = VisionProcessorClient.getCapturedImage();
+			if (m == null) {
+				return null;
+			}
 			for (int i = 0; i < operations.size(); i++) {
 				if (operations.get(i)[0] == 1) {
 					m = dilate(m, operations.get(i)[1], operations.get(i)[2]);

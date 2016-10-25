@@ -10,10 +10,9 @@ public class Test_Main {
 		
 		vp.setThresholdValues(0, 22, 0, 31, 107, 4, -33);
 		vp.threshold();
-//		vp.dilate(11, 2);
+		vp.dilate(11, 2);
 		vp.sendOperations();
-//		Thread.sleep(5000);
-//		vp.requestSingleProcessedImage();
+		vp.requestSingleProcessedImage();
 //		if (vp.blobs != null) {
 //			for (int i = 0; i < vp.blobs.size(); i++) {
 //				for (int k = 0; k < vp.blobs.get(i).length; k++) {
