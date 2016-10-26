@@ -12,6 +12,7 @@ public class Test_Main {
 		vp.threshold();
 		vp.dilate(11, 2);
 		vp.sendOperations();
+		vp.saveRawImage("C:/users/Ryan McGee/documents");
 		vp.requestSingleProcessedImage();
 //		if (vp.blobs != null) {
 //			for (int i = 0; i < vp.blobs.size(); i++) {

@@ -18,12 +18,16 @@ import java.util.ArrayList;
  * 			-2: set the threshold values from the socket 
  * 			-3: reserved just in case for the main socket for requesting new sockets 
  * 			-4: sets the operations and their parameters (such as Dilation and Erosion)
+ * 			-5: requests the thread to continuously process images
+ * 			-6: requests to save the raw image to the destination provided
+ * 			-7: requests to save the processed image to the destination provided
  * 
  * @author Ryan McGee
  *
  */
 public class VisionProcessor extends Thread {
 	int port;
+
 	public VisionProcessor(int port) {
 		this.port = port;
 		this.start();
@@ -68,19 +72,9 @@ public class VisionProcessor extends Thread {
 
 			System.out.println("Vision Processor I/O streams created");
 			Thread.sleep(1000);
-
+			boolean alreadyRequested = false;
+			int command = 0;
 			while (true) {
-				// Requests an array of rectangles' x and y coordinates
-				if (requestSingleProcessedImage) {
-					oos.writeInt(-1);
-					oos.flush();
-					System.out.println("requested processed image");
-					if (ois.available() > 0 && ois.readInt() == -5) {
-						blobs = (ArrayList<int[]>) ois.readObject();
-						requestSingleProcessedImage = false;
-					}
-				}
-
 				if (setThresholdValues) {
 					oos.writeInt(-2);
 					oos.writeObject(thresholdValues);
@@ -101,10 +95,37 @@ public class VisionProcessor extends Thread {
 					isRunningContinuously = true;
 					runContinuously = false;
 				}
+				// Requests an array of rectangles' x and y coordinates
+				if (requestSingleProcessedImage) {
+					if (alreadyRequested == false) {
+						oos.writeInt(-1);
+						oos.flush();
+						System.out.println("requested processed image");
+						alreadyRequested = true;
+						blobs = (ArrayList<int[]>) ois.readObject();
+						if (blobs != null && blobs.size() > 0)
+							System.out.println(blobs.get(0)[0]);
+						requestSingleProcessedImage = false;
+					}
+				}
 
+				if (saveRawImage) {
+					System.out.println("Requesting to save unprocessed image");
+					oos.write(-6);
+					oos.writeObject(destination);
+					oos.flush();
+				}
+
+				if (saveProcessedImage) {
+					System.out.println("Requesting to save processed image");
+					oos.write(-7);
+					oos.writeObject(destination);
+					oos.flush();
+				}
 			}
 		} catch (IOException | ClassNotFoundException | InterruptedException e) {
 			e.printStackTrace();
+
 		}
 
 	}
@@ -212,5 +233,21 @@ public class VisionProcessor extends Thread {
 		operations.add(threshold);
 		return true;
 	}
+
+	boolean saveRawImage = false;
+
+	public void saveRawImage(String destination) {
+		this.destination = destination;
+		saveRawImage = true;
+	}
+
+	boolean saveProcessedImage = false;
+
+	public void saveProcessedImage(String destination) {
+		this.destination = destination;
+		saveProcessedImage = true;
+	}
+
+	String destination;
 
 }

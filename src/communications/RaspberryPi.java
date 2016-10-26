@@ -66,6 +66,7 @@ public class RaspberryPi extends Thread {
 
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
