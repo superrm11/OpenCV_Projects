@@ -412,6 +412,7 @@ public class ThresholdUtility implements java.io.Serializable {
 	public static JSpinner dilationSpinner;
 	public static JSpinner erosionSpinner;
 
+	
 	/**
 	 * Creates the frame with the Lower Bound sliders for Thresholding
 	 */
@@ -419,7 +420,7 @@ public class ThresholdUtility implements java.io.Serializable {
 		frameLowerBound = new JFrame("Lower Bound");
 		frameLowerBound.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frameLowerBound.setSize(400, 300);
-		frameLowerBound.setBounds(100, 100, 450, 450);
+		frameLowerBound.setBounds(100, 100, 450, 300);
 		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		frameLowerBound.setContentPane(contentPane);
@@ -483,90 +484,6 @@ public class ThresholdUtility implements java.io.Serializable {
 				blueSliderLowerBound.setValue((int) Math.round((int) blueSpinnerLowerBound.getValue() / 2.55));
 			}
 
-		});
-
-		erosionSpinner = new JSpinner();
-		erosionSpinner.setBounds(15, 206, 55, 26);
-		contentPane.add(erosionSpinner);
-
-		dilationSpinner = new JSpinner();
-		dilationSpinner.setBounds(181, 205, 55, 26);
-		contentPane.add(dilationSpinner);
-
-		JLabel lblErosion = new JLabel("Erosion");
-		lblErosion.setBounds(49, 172, 69, 20);
-		contentPane.add(lblErosion);
-
-		recButtonErosion = new JRadioButton("Rec");
-		recButtonErosion.setBounds(81, 205, 69, 29);
-		contentPane.add(recButtonErosion);
-		recButtonErosion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				ellipseButtonErosion.setSelected(false);
-				crossButtonErosion.setSelected(false);
-			}
-		});
-
-		ellipseButtonErosion = new JRadioButton("Ellipse");
-		ellipseButtonErosion.setBounds(81, 242, 83, 29);
-		contentPane.add(ellipseButtonErosion);
-		ellipseButtonErosion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				recButtonErosion.setSelected(false);
-				crossButtonErosion.setSelected(false);
-			}
-		});
-
-		crossButtonErosion = new JRadioButton("Cross");
-		crossButtonErosion.setBounds(81, 279, 83, 29);
-		contentPane.add(crossButtonErosion);
-		crossButtonErosion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				recButtonErosion.setSelected(false);
-				ellipseButtonErosion.setSelected(false);
-			}
-		});
-
-		JLabel lblDilation = new JLabel("Dilation");
-		lblDilation.setBounds(224, 172, 69, 20);
-		contentPane.add(lblDilation);
-
-		JLabel lblIterations = new JLabel("Iterations");
-		lblIterations.setBounds(1, 230, 69, 20);
-		contentPane.add(lblIterations);
-
-		JLabel lblIteration_1 = new JLabel("Iterations");
-		lblIteration_1.setBounds(167, 230, 69, 20);
-		contentPane.add(lblIteration_1);
-
-		recButtonDilation = new JRadioButton("Rec");
-		recButtonDilation.setBounds(259, 205, 69, 29);
-		contentPane.add(recButtonDilation);
-		recButtonDilation.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				ellipseButtonDilation.setSelected(false);
-				crossButtonDilation.setSelected(false);
-			}
-		});
-
-		ellipseButtonDilation = new JRadioButton("Ellipse");
-		ellipseButtonDilation.setBounds(259, 242, 83, 29);
-		contentPane.add(ellipseButtonDilation);
-		ellipseButtonDilation.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				recButtonDilation.setSelected(false);
-				crossButtonDilation.setSelected(false);
-			}
-		});
-
-		crossButtonDilation = new JRadioButton("Cross");
-		crossButtonDilation.setBounds(259, 279, 83, 29);
-		contentPane.add(crossButtonDilation);
-		crossButtonDilation.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				recButtonDilation.setSelected(false);
-				ellipseButtonDilation.setSelected(false);
-			}
 		});
 
 		frameLowerBound.setVisible(true);
@@ -725,12 +642,6 @@ public class ThresholdUtility implements java.io.Serializable {
 					blueSpinnerUpperBound.setValue((int) Math.round(blueSliderUpperBound.getValue() * 2.55));
 				if (brightnessSlider.getValueIsAdjusting())
 					brightnessSpinner.setValue((int) Math.round((brightnessSlider.getValue() - 50) * 2.55));
-
-				if ((int) dilationSpinner.getValue() < 0)
-					dilationSpinner.setValue(0);
-				if ((int) erosionSpinner.getValue() < 0) {
-					erosionSpinner.setValue(0);
-				}
 
 				try {
 					Thread.sleep(50);

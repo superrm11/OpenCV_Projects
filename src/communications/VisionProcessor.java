@@ -135,7 +135,7 @@ public class VisionProcessor extends Thread {
 	}
 	
 	/**
-	 * @WIP Load a configuration file saved from the Threshold Utility.
+	 *  Load a configuration file saved from the Threshold Utility.
 	 * @param destination
 	 */
 	public void loadConfig(String destination) {

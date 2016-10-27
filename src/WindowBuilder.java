@@ -12,6 +12,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButton;
+import javax.swing.JComboBox;
 
 public class WindowBuilder extends JFrame {
 
@@ -33,109 +34,98 @@ public class WindowBuilder extends JFrame {
 		});
 	}
 
+	public static JComboBox[] operations = new JComboBox[10];
+	
 	/**
 	 * Create the frame.
 	 */
 	public WindowBuilder() {
 		setTitle("Lower Bound");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 450);
-		
-		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
-		
-		JMenu mnFile = new JMenu("File");
-		menuBar.add(mnFile);
-		
-		JMenuItem mntmOpenimage = new JMenuItem("OpenImage");
-		mnFile.add(mntmOpenimage);
+		setBounds(100, 100, 653, 228);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JSlider slider = new JSlider();
-		slider.setBounds(123, 16, 200, 26);
-		contentPane.add(slider);
+		operations[0] = new JComboBox();
+		operations[0].setBounds(22, 41, 93, 20);
+		contentPane.add(operations[0]);
 		
-		JSlider slider_1 = new JSlider();
-		slider_1.setBounds(123, 71, 200, 26);
-		contentPane.add(slider_1);
+		JLabel lblOperation = new JLabel("Operation 1");
+		lblOperation.setBounds(22, 11, 67, 14);
+		contentPane.add(lblOperation);
 		
-		JSlider slider_2 = new JSlider();
-		slider_2.setBounds(123, 124, 200, 26);
-		contentPane.add(slider_2);
+		operations[1] = new JComboBox();
+		operations[1].setBounds(151, 41, 93, 20);
+		contentPane.add(operations[1]);
 		
-		JLabel lblRed = new JLabel("Red");
-		lblRed.setBounds(39, 16, 69, 20);
-		contentPane.add(lblRed);
+		operations[2] = new JLabel("Operation 2");
+		operations[2].setBounds(151, 11, 67, 14);
+		contentPane.add(operations[2]);
 		
-		JLabel lblGreen = new JLabel("Green");
-		lblGreen.setBounds(39, 77, 69, 20);
-		contentPane.add(lblGreen);
+		JComboBox comboBox_2 = new JComboBox();
+		comboBox_2.setBounds(277, 41, 93, 20);
+		contentPane.add(comboBox_2);
 		
-		JLabel lblBlue = new JLabel("Blue");
-		lblBlue.setBounds(39, 124, 69, 20);
-		contentPane.add(lblBlue);
+		JLabel lblOperation_2 = new JLabel("Operation 3\r\n");
+		lblOperation_2.setBounds(277, 11, 67, 14);
+		contentPane.add(lblOperation_2);
 		
-		JSpinner spinner = new JSpinner();
-		spinner.setBounds(338, 16, 55, 26);
-		contentPane.add(spinner);
+		JComboBox comboBox_3 = new JComboBox();
+		comboBox_3.setBounds(407, 41, 93, 20);
+		contentPane.add(comboBox_3);
 		
-		JSpinner spinner_1 = new JSpinner();
-		spinner_1.setBounds(338, 71, 55, 26);
-		contentPane.add(spinner_1);
+		JLabel lblOperation_3 = new JLabel("Operation 4");
+		lblOperation_3.setBounds(407, 11, 67, 14);
+		contentPane.add(lblOperation_3);
 		
-		JSpinner spinner_2 = new JSpinner();
-		spinner_2.setBounds(338, 124, 55, 26);
-		contentPane.add(spinner_2);
+		JComboBox comboBox_4 = new JComboBox();
+		comboBox_4.setBounds(528, 41, 93, 20);
+		contentPane.add(comboBox_4);
 		
-		JSpinner erosionSpinner = new JSpinner();
-		erosionSpinner.setBounds(15, 206, 55, 26);
-		contentPane.add(erosionSpinner);
+		JLabel lblOperation_4 = new JLabel("Operation 5");
+		lblOperation_4.setBounds(528, 11, 67, 14);
+		contentPane.add(lblOperation_4);
 		
-		JSpinner dilationSpinner = new JSpinner();
-		dilationSpinner.setBounds(181, 205, 55, 26);
-		contentPane.add(dilationSpinner);
+		JComboBox comboBox_5 = new JComboBox();
+		comboBox_5.setBounds(22, 148, 93, 20);
+		contentPane.add(comboBox_5);
 		
-		JLabel lblErosion = new JLabel("Erosion");
-		lblErosion.setBounds(49, 172, 69, 20);
-		contentPane.add(lblErosion);
+		JLabel lblOperation_5 = new JLabel("Operation 6");
+		lblOperation_5.setBounds(22, 118, 67, 14);
+		contentPane.add(lblOperation_5);
 		
-		JRadioButton recButtonErosion = new JRadioButton("Rec");
-		recButtonErosion.setBounds(81, 205, 69, 29);
-		contentPane.add(recButtonErosion);
+		JComboBox comboBox_6 = new JComboBox();
+		comboBox_6.setBounds(151, 148, 93, 20);
+		contentPane.add(comboBox_6);
 		
-		JRadioButton ellipseButtonErosion = new JRadioButton("Ellipse");
-		ellipseButtonErosion.setBounds(81, 242, 83, 29);
-		contentPane.add(ellipseButtonErosion);
+		JLabel lblOperation_6 = new JLabel("Operation 7");
+		lblOperation_6.setBounds(151, 118, 67, 14);
+		contentPane.add(lblOperation_6);
 		
-		JRadioButton crossButtonErosion = new JRadioButton("Cross");
-		crossButtonErosion.setBounds(81, 279, 83, 29);
-		contentPane.add(crossButtonErosion);
+		JComboBox comboBox_7 = new JComboBox();
+		comboBox_7.setBounds(277, 148, 93, 20);
+		contentPane.add(comboBox_7);
 		
-		JLabel lblDilation = new JLabel("Dilation");
-		lblDilation.setBounds(224, 172, 69, 20);
-		contentPane.add(lblDilation);
+		JLabel lblOperation_7 = new JLabel("Operation 8");
+		lblOperation_7.setBounds(277, 118, 67, 14);
+		contentPane.add(lblOperation_7);
 		
-		JLabel lblIterations = new JLabel("Iterations");
-		lblIterations.setBounds(1, 230, 69, 20);
-		contentPane.add(lblIterations);
+		JComboBox comboBox_8 = new JComboBox();
+		comboBox_8.setBounds(407, 148, 93, 20);
+		contentPane.add(comboBox_8);
 		
-		JLabel label = new JLabel("Iterations");
-		label.setBounds(167, 230, 69, 20);
-		contentPane.add(label);
+		JLabel lblOperation_8 = new JLabel("Operation 9");
+		lblOperation_8.setBounds(407, 118, 67, 14);
+		contentPane.add(lblOperation_8);
 		
-		JRadioButton recButtonDilation = new JRadioButton("Rec");
-		recButtonDilation.setBounds(259, 205, 69, 29);
-		contentPane.add(recButtonDilation);
+		JComboBox comboBox_9 = new JComboBox();
+		comboBox_9.setBounds(528, 148, 93, 20);
+		contentPane.add(comboBox_9);
 		
-		JRadioButton ellipseButtonDilation = new JRadioButton("Ellipse");
-		ellipseButtonDilation.setBounds(259, 242, 83, 29);
-		contentPane.add(ellipseButtonDilation);
-		
-		JRadioButton crossButtonDilation = new JRadioButton("Cross");
-		crossButtonDilation.setBounds(259, 279, 83, 29);
-		contentPane.add(crossButtonDilation);
+		JLabel lblOperation_9 = new JLabel("Operation 10");
+		lblOperation_9.setBounds(528, 118, 67, 14);
+		contentPane.add(lblOperation_9);
 	}
 }
