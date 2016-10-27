@@ -34,14 +34,14 @@ public class Test_Client implements java.io.Serializable {
 		Core.add(m, new Scalar(-33, -33, -33), m);
 		Core.inRange(m, new Scalar(0, 22, 0), new Scalar(31, 107, 4), m);
 		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(11,11));
-		Imgproc.dilate(m, m, element);
+		Imgproc.dilate(m, m, element, new Point(-1,-1), 1);
 		ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(m, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 		Imgproc.drawContours(m, contours, -1, new Scalar(200, 0, 0), Core.FILLED);
 		MatOfPoint points = new MatOfPoint(contours.get(0).toArray());
 		Rect rect = Imgproc.boundingRect(points);
 		
-		Core.rectangle(m, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 0, 0));
+		Core.rectangle(m, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(200, 0, 0));
 
 		JFrame frame = new JFrame();
 		imageIcon = new ImageIcon(convertToImage(m));

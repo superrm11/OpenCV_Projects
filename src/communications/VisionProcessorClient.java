@@ -1,10 +1,8 @@
 package communications;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -75,14 +73,17 @@ public class VisionProcessorClient {
 	}
 
 	/**
-	 * This is the class that does the processing of the image, and can be
-	 * called as many times as necessary.
+	 * This is the class that does the processing of the image, and can be called as
+	 * many times as necessary.
 	 * 
-	 * PROCESSOR COMMANDS: -1: process image and send it over the socket -2: set
-	 * the threshold values from the socket -3: reserved just in case for the
-	 * main socket for requesting new sockets -4: sets the operations and their
-	 * parameters (such as Dilation and Erosion)
-	 * 
+	 * 		PROCESSOR COMMANDS: 
+	 * 			-1: process image and send it over the socket 
+	 * 			-2: set the threshold values from the socket 
+	 * 			-3: reserved just in case for the main socket for requesting new sockets 
+	 * 			-4: sets the operations and their parameters (such as Dilation and Erosion)
+	 * 			-5: requests the thread to continuously process images
+	 * 			-6: requests to save the raw image to the destination provided
+	 * 			-7: requests to save the processed image to the destination provided
 	 * 
 	 * @author Ryan McGee
 	 *
@@ -118,44 +119,46 @@ public class VisionProcessorClient {
 					// If the input stream is available, read the command
 					if (ois.available() > 0) {
 						command = ois.readInt();
-						if (command == -2) {
-							System.out.println("Received set threshold values command");
-							setThresholdValues((int[]) ois.readObject());
-							System.out.println("Set Lower bound to " + lowerBound);
-							System.out.println("Set Upper bound to " + upperBound);
-							System.out.println("Set brightness to " + brightness);
+					}
+					if (command == -2) {
+						System.out.println("Received set threshold values command");
+						setThresholdValues((int[]) ois.readObject());
+						System.out.println("Set Lower bound to " + lowerBound);
+						System.out.println("Set Upper bound to " + upperBound);
+						System.out.println("Set brightness to " + brightness);
+						command = 0;
+					} else if (command == -1) {
+						System.out.println("Received process image command");
+						blobs = processImage();
+						if (blobs != null) {
+							oos.writeObject(blobs);
+							oos.flush();
 							command = 0;
-						} else if (command == -1) {
-							System.out.println("Received process image command");
-							blobs = processImage();
-							if (blobs != null) {
-								oos.writeObject(blobs);
-								oos.flush();
-								command = 0;
-							} else
-								System.out.println("blobs are null!");
-						} else if (command == -4) {
-							System.out.println("Received set operations command");
-							operations = (ArrayList<int[]>) ois.readObject();
-							if (operations != null) {
-								System.out.println("Successfully read operations arraylist");
-							} else {
-								System.out.println("Failed to read operations arrayList");
-							}
-							command = 0;
-						} else if (command == -5) {
-							System.out.println("Received run continuously command");
-							isRunningContinuously = true;
-							command = 0;
-						} else if (command == -6) {
-							saveRawImage = true;
-							destination = (String) ois.readObject();
-							command = 0;
-						} else if (command == -7) {
-							saveProcessedImage = true;
-							destination = (String) ois.readObject();
-							command = 0;
+						} else
+							System.out.println("blobs are null!");
+					} else if (command == -4) {
+						System.out.println("Received set operations command");
+						operations = (ArrayList<int[]>) ois.readObject();
+						if (operations != null) {
+							System.out.println("Successfully read operations arraylist");
+						} else {
+							System.out.println("Failed to read operations arrayList");
 						}
+						command = 0;
+					} else if (command == -5) {
+						System.out.println("Received run continuously command");
+						isRunningContinuously = true;
+						command = 0;
+					} else if (command == -6) {
+						destination = (String) ois.readObject();
+						System.out.println(destination);
+						saveRawImage = true;
+						command = 0;
+					} else if (command == -7) {
+						destination = (String) ois.readObject();
+						System.out.println(destination);
+						saveProcessedImage = true;
+						command = 0;
 					}
 
 					if (isRunningContinuously) {
@@ -164,27 +167,32 @@ public class VisionProcessorClient {
 
 				}
 
-			} catch (IOException | ClassNotFoundException e) {
+			} catch (IOException |
+
+					ClassNotFoundException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
 		}
 
-		private static Scalar lowerBound = new Scalar(0, 0, 0);
-		private static Scalar upperBound = new Scalar(0, 0, 0);
-		private static Scalar brightness = new Scalar(0, 0, 0);
+		private Scalar lowerBound = new Scalar(0, 0, 0);
+		private Scalar upperBound = new Scalar(0, 0, 0);
+		private Scalar brightness = new Scalar(0, 0, 0);
+
+		private int brightness_value = 0;
 
 		/**
 		 * Sets the threshold scalars based on the integer array given
 		 * 
 		 * @param thresholdValues
-		 *            The integer array with the values: thresholdValues[0] =
-		 *            blue lower boundary thresholdValues[1] = green lower
-		 *            boundary thresholdValues[2] = red lower boundary
+		 *            The integer array with the values: 
+		 *            thresholdValues[0] = blue lower boundary 
+		 *            thresholdValues[1] = green lower boundary 
+		 *            thresholdValues[2] = red lower boundary
 		 *            thresholdValues[3] = blue upper boundary
 		 *            thresholdValues[4] = green upper boundary
-		 *            thresholdValues[5] = red upper boundary thresholdValues[6]
-		 *            = brightness
+		 *            thresholdValues[5] = red upper boundary 
+		 *            thresholdValues[6] = brightness
 		 */
 		private void setThresholdValues(int[] thresholdValues) {
 			lowerBound.set(new double[] { (double) thresholdValues[0], (double) thresholdValues[1],
@@ -192,6 +200,7 @@ public class VisionProcessorClient {
 			upperBound.set(new double[] { (double) thresholdValues[3], (double) thresholdValues[4],
 					(double) thresholdValues[5] });
 			brightness.set(new double[] { thresholdValues[6], thresholdValues[6], thresholdValues[6] });
+			brightness_value = thresholdValues[6];
 
 		}
 
@@ -205,7 +214,11 @@ public class VisionProcessorClient {
 		 * the first integer of every int array in the ArrayList 1: dilate 2:
 		 * erode 3: threshold
 		 * 
-		 * @return
+		 * @return ArrayList of integer arrays, containing blob information.
+		 * 			blobs[0] = x coordinate
+		 * 			blobs[1] = y coordinate
+		 * 			blobs[2] = width
+		 * 			blobs[3] = height
 		 */
 		private ArrayList<int[]> processImage() {
 			ArrayList<int[]> blobs = new ArrayList<int[]>();
@@ -222,10 +235,14 @@ public class VisionProcessorClient {
 			}
 
 			if (saveRawImage) {
+				Mat m1 = m.clone();
+				if (brightness_value > 0) {
+					Core.add(m1, brightness, m1);
+				}
 				if (destination.charAt(destination.length() - 1) == '/')
-					Highgui.imwrite(new String(destination + "rawImage_" + fileNumber + ".jpg"), m);
+					Highgui.imwrite(new String(destination + "rawImage_" + fileNumber + ".jpg"), m1);
 				else
-					Highgui.imwrite(new String(destination + "/rawImage_" + fileNumber + ".jpg"), m);
+					Highgui.imwrite(new String(destination + "/rawImage_" + fileNumber + ".jpg"), m1);
 				saveRawImage = false;
 			}
 
@@ -233,47 +250,76 @@ public class VisionProcessorClient {
 				if (operations.get(i)[0] == 1) {
 					m = dilate(m, operations.get(i)[1], operations.get(i)[2]);
 				} else if (operations.get(i)[0] == 2) {
-					erode(m, operations.get(i)[1], operations.get(i)[2]);
+					m = erode(m, operations.get(i)[1], operations.get(i)[2]);
 				} else if (operations.get(i)[0] == 3) {
-					threshold(m, upperBound, lowerBound, brightness);
+					m = threshold(m, upperBound, lowerBound, brightness);
 				}
 			}
 			ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-			Imgproc.findContours(m, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.RETR_LIST);
+			Imgproc.findContours(m, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 			for (int i = 0; i < contours.size(); i++) {
 				Rect rect = Imgproc.boundingRect(contours.get(i));
 				blobs.add(new int[] { rect.x, rect.y, rect.width, rect.height });
-				System.out.println(blobs.get(i)[0]);
+				System.out.println("width of blob " + i + ": " + blobs.get(i)[2]);
+
 			}
-			
-			if(saveProcessedImage){
-				if (destination.charAt(destination.length() - 1) == '/')
+
+			if (saveProcessedImage) {
+				Imgproc.drawContours(m, contours, -1, new Scalar(200, 0, 0), Core.FILLED);
+				for (int i = 0; i < blobs.size(); i++) {
+					Core.rectangle(m, new Point(blobs.get(i)[0], blobs.get(i)[1]),
+							new Point(blobs.get(i)[0] + blobs.get(i)[2], blobs.get(i)[1] + blobs.get(i)[3]),
+							new Scalar(200, 0, 0));
+				}
+				if (destination.charAt(destination.length() - 1) == '/') {
 					Highgui.imwrite(new String(destination + "processedImage_" + fileNumber + ".jpg"), m);
-				else
+				} else {
 					Highgui.imwrite(new String(destination + "/processedImage_" + fileNumber + ".jpg"), m);
+				}
 				saveProcessedImage = false;
 			}
-			
+
 			return blobs;
 		}
 
 		private ArrayList<int[]> operations = new ArrayList<int[]>();
-
+		/**
+		 * Dilates the blobs (all blobs grow)
+		 * @param m input matrix (image)
+		 * @param size how big the blobs should be dilated
+		 * @param iterations how many times the blobs should be dilated
+		 * @return the matrix after dilating the blobs
+		 */
 		private Mat dilate(Mat m, int size, int iterations) {
 			System.out.println("Dilating with " + size + " size and " + iterations + " iterations");
 
-			Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(size, size));
+			Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
 			Imgproc.dilate(m, m, element, new Point(-1, -1), iterations);
 			return m;
 		}
-
+		/**
+		 * Erodes all blobs (all blobs shrink)
+		 * @param m input matrix (image)
+		 * @param size how small the blobs should shrink
+		 * @param iterations how many times the blobs should be eroded
+		 * @return the matrix after eroding the blobs
+		 */
 		private Mat erode(Mat m, int size, int iterations) {
 			System.out.println("Eroding with " + size + " size and " + iterations + " iterations");
-			Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(size, size));
+			Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
 			Imgproc.erode(m, m, element, new Point(-1, -1), iterations);
 			return m;
 		}
-
+		/**
+		 * Thresholds the image based on the scalar values
+		 * @param m input matrix, or image
+		 * @param upperBound the scalar for the upper boundary BGR values
+		 * @param lowerBound the scalar for the loser boundary BGR values
+		 * @param brightness the scalar that is added to the matrix before thresholding.
+		 * 			if the brightness is negative, that amount will be subtracted, therefore
+		 * 			lowering the brightness.
+		 * @return the matrix after thresholding the blobs
+		 */
 		private Mat threshold(Mat m, Scalar upperBound, Scalar lowerBound, Scalar brightness) {
 			System.out.println("Thresholding image");
 			Core.add(m, brightness, m);
@@ -282,7 +328,9 @@ public class VisionProcessorClient {
 		}
 
 	}
-
+	/**
+	 * The location the server is being hosted on.
+	 */
 	private final static String IP_ADDRESS = "localhost";
 
 }

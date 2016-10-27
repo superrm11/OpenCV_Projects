@@ -46,7 +46,7 @@ public class ThresholdUtility implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static VideoCapture video;
+//	public static VideoCapture video;
 	public static Mat mat;
 
 	public static void main(String[] args) throws InterruptedException, IOException {
@@ -54,11 +54,11 @@ public class ThresholdUtility implements java.io.Serializable {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		mat = new Mat();
 		Mat alteredMat = new Mat();
-		video = new VideoCapture();
+//		video = new VideoCapture();
 		// video.read(mat);
-		video.open(0);
+//		video.open(0);
 		// open the default system camera dialogue
-		video.set(Highgui.CV_CAP_PROP_SETTINGS, 0);
+//		video.set(Highgui.CV_CAP_PROP_SETTINGS, 0);
 		// create the frame with the upper bound values
 		createSlideBarUpperBound();
 		// create the frame with the lower bound values
@@ -92,29 +92,29 @@ public class ThresholdUtility implements java.io.Serializable {
 				upperBoundScalar = new Scalar((int) blueSpinnerUpperBound.getValue(),
 						(int) greenSpinnerUpperBound.getValue(), (int) redSpinnerUpperBound.getValue());
 				try {
-					if (video.isOpened()) {
-						video.retrieve(mat);
-						Imgproc.resize(mat, mat, new Size(400, 300));
-						alteredMat = mat.clone();
-						Core.add(alteredMat, brightnessScalar, alteredMat);
-						// Threshold based on the scalar values declared
-						Core.inRange(alteredMat, lowerBoundScalar, upperBoundScalar, alteredMat);
-						Imgproc.findContours(alteredMat, arrayOfPoints, hierarchy, Imgproc.RETR_TREE,
-								Imgproc.CHAIN_APPROX_SIMPLE);
-						Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 0, 0, 255), Imgproc.RETR_FLOODFILL);
-						// Refresh the frame
-						imShow(ImShowVal.Refresh, convertToImage(alteredMat));
-					} else {
+//					if (video.isOpened()) {
+//						video.retrieve(mat);
+//						Imgproc.resize(mat, mat, new Size(400, 300));
+//						alteredMat = mat.clone();
+//						Core.add(alteredMat, brightnessScalar, alteredMat);
+//						// Threshold based on the scalar values declared
+//						Core.inRange(alteredMat, lowerBoundScalar, upperBoundScalar, alteredMat);
+//						Imgproc.findContours(alteredMat, arrayOfPoints, hierarchy, Imgproc.RETR_TREE,
+//								Imgproc.CHAIN_APPROX_SIMPLE);
+//						Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 0, 0, 255), Imgproc.RETR_FLOODFILL);
+//						// Refresh the frame
+//						imShow(ImShowVal.Refresh, convertToImage(alteredMat));
+//					} else {
 						if (mat != null) {
 							if (mat.size().width > 400) {
-								Imgproc.resize(mat, mat, new Size(400, 300));
+								Imgproc.resize(mat, mat, new Size(320, 240));
 							}
 							alteredMat = mat.clone();
 							Core.add(alteredMat, brightnessScalar, alteredMat);
 							// Threshold based on the scalar values declared
 							Core.inRange(alteredMat, lowerBoundScalar, upperBoundScalar, alteredMat);
 							imShow(ImShowVal.Refresh, convertToImage(alteredMat));
-						}
+//						}
 					}
 				} catch (Exception e) {
 					if(videoIsOn)
@@ -129,7 +129,7 @@ public class ThresholdUtility implements java.io.Serializable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			video.release();
+//			video.release();
 			System.exit(0);
 		}
 
@@ -215,26 +215,26 @@ public class ThresholdUtility implements java.io.Serializable {
 
 			camera1.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					video.open(0);
+//					video.open(0);
 				}
 			});
 
 			camera2.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					video.open(1);
+//					video.open(1);
 				}
 			});
 
 			camera3.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					video.open(2);
+//					video.open(2);
 				}
 			});
 
 			imageMenu.add(openImage);
 			openImage.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					video.release();
+//					video.release();
 					mat = openImage();
 				}
 			});
