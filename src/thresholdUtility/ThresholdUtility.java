@@ -48,15 +48,17 @@ public class ThresholdUtility implements java.io.Serializable {
 	// public static VideoCapture video;
 	public static Mat mat;
 
+	public static ThresholdWindows thresholdWindows = null;
+
 	public static void main(String[] args) throws InterruptedException, IOException {
 		// Load the main OpenCV libraries
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		mat = null;
 		Mat alteredMat = new Mat();
-		
+
 		OperationsWindow operationsWindow = new OperationsWindow();
 		operationsWindow.setVisible(true);
-		
+
 		imShow(ImShowVal.Start, null);
 		Scalar upperBoundScalar;
 		Scalar lowerBoundScalar;
@@ -71,44 +73,29 @@ public class ThresholdUtility implements java.io.Serializable {
 		b.start();
 
 		while (true) {
-			arrayOfPoints.clear();
-			brightnessConstant = ((int) ThresholdWindows.brightnessSpinner.getValue());
-			brightnessScalar = new Scalar(brightnessConstant, brightnessConstant, brightnessConstant);
-			// set the lower bound scalar to the sliders in the Lower Bound
-			// frame
-			lowerBoundScalar = new Scalar((int) ThresholdWindows.blueSpinnerLowerBound.getValue(),
-					(int) ThresholdWindows.greenSpinnerLowerBound.getValue(), (int) ThresholdWindows.redSpinnerLowerBound.getValue());
-			// set the upper bound scalar to the sliders in the Upper Bound
-			// frame
-			upperBoundScalar = new Scalar((int) ThresholdWindows.blueSpinnerUpperBound.getValue(),
-					(int) ThresholdWindows.greenSpinnerUpperBound.getValue(), (int) ThresholdWindows.redSpinnerUpperBound.getValue());
-			// if (video.isOpened()) {
-			// video.retrieve(mat);
-			// Imgproc.resize(mat, mat, new Size(400, 300));
+
+			if (OperationsWindow.hasThresholdOperation()) {
+				lowerBoundScalar = new Scalar(thresholdWindows.getParams()[0], thresholdWindows.getParams()[1],
+						thresholdWindows.getParams()[2]);
+				upperBoundScalar = new Scalar(thresholdWindows.getParams()[3], thresholdWindows.getParams()[4],
+						thresholdWindows.getParams()[5]);
+				brightnessScalar = new Scalar(thresholdWindows.getParams()[6], thresholdWindows.getParams()[6],
+						thresholdWindows.getParams()[6]);
+
+			}
+
+			// if (mat != null) {
+			// if (mat.size().width > 320) {
+			// Imgproc.resize(mat, mat, new Size(320, 240));
+			// }
 			// alteredMat = mat.clone();
 			// Core.add(alteredMat, brightnessScalar, alteredMat);
 			// // Threshold based on the scalar values declared
-			// Core.inRange(alteredMat, lowerBoundScalar,
-			// upperBoundScalar, alteredMat);
-			// Imgproc.findContours(alteredMat, arrayOfPoints,
-			// hierarchy, Imgproc.RETR_TREE,
-			// Imgproc.CHAIN_APPROX_SIMPLE);
-			// Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new
-			// Scalar(255, 0, 0, 255), Imgproc.RETR_FLOODFILL);
-			// // Refresh the frame
+			// Core.inRange(alteredMat, lowerBoundScalar, upperBoundScalar,
+			// alteredMat);
 			// imShow(ImShowVal.Refresh, convertToImage(alteredMat));
-			// } else {
-			if (mat != null) {
-				if (mat.size().width > 320) {
-					Imgproc.resize(mat, mat, new Size(320, 240));
-				}
-				alteredMat = mat.clone();
-				Core.add(alteredMat, brightnessScalar, alteredMat);
-				// Threshold based on the scalar values declared
-				Core.inRange(alteredMat, lowerBoundScalar, upperBoundScalar, alteredMat);
-				imShow(ImShowVal.Refresh, convertToImage(alteredMat));
-				// }
-			}
+			// // }
+			// }
 
 			// Determines the FPS value
 			Thread.sleep(33);
@@ -274,50 +261,60 @@ public class ThresholdUtility implements java.io.Serializable {
 	private static FileOutputStream fos;
 
 	private static void saveConfig() throws IOException {
-		JFileChooser fileChooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("Configuration Files", "cfg");
-		fileChooser.setFileFilter(filter);
-
-		int rVal = fileChooser.showSaveDialog(fileChooser);
-		if (rVal == JFileChooser.APPROVE_OPTION) {
-			saveName = fileChooser.getSelectedFile().getAbsolutePath();
-			System.out.println(saveName);
-			if (!saveName.toLowerCase().contains(".cfg"))
-				saveName = saveName.concat(".cfg");
-
-			File file = new File(saveName);
-			if (!file.exists()) {
-				int[] config = { (int) ThresholdWindows.blueSpinnerLowerBound.getValue(), (int) ThresholdWindows.greenSpinnerLowerBound.getValue(),
-						(int) ThresholdWindows.redSpinnerLowerBound.getValue(), (int) ThresholdWindows.blueSpinnerUpperBound.getValue(),
-						(int) ThresholdWindows.greenSpinnerUpperBound.getValue(), (int) ThresholdWindows.redSpinnerUpperBound.getValue(),
-						(int) ThresholdWindows.brightnessSpinner.getValue() };
-				fos = new FileOutputStream(saveName);
-				oos = new ObjectOutputStream(fos);
-				oos.writeObject(config);
-				oos.flush();
-				oos.close();
-			} else {
-				int result = JOptionPane.showConfirmDialog(fileChooser, "File Already Exists. Overwrite?");
-				switch (result) {
-				case JOptionPane.YES_OPTION:
-					int[] config = { (int) ThresholdWindows.redSpinnerLowerBound.getValue(), (int) ThresholdWindows.greenSpinnerLowerBound.getValue(),
-							(int) ThresholdWindows.blueSpinnerLowerBound.getValue(), (int) ThresholdWindows.redSpinnerUpperBound.getValue(),
-							(int) ThresholdWindows.greenSpinnerUpperBound.getValue(), (int) ThresholdWindows.blueSpinnerUpperBound.getValue(),
-							(int) ThresholdWindows.brightnessSpinner.getValue() };
-					fos = new FileOutputStream(saveName);
-					oos = new ObjectOutputStream(fos);
-					oos.writeObject(config);
-					oos.flush();
-					oos.close();
-					return;
-				case JOptionPane.NO_OPTION:
-					saveConfig();
-					return;
-
-				}
-			}
-
-		}
+		// JFileChooser fileChooser = new JFileChooser();
+		// FileNameExtensionFilter filter = new
+		// FileNameExtensionFilter("Configuration Files", "cfg");
+		// fileChooser.setFileFilter(filter);
+		//
+		// int rVal = fileChooser.showSaveDialog(fileChooser);
+		// if (rVal == JFileChooser.APPROVE_OPTION) {
+		// saveName = fileChooser.getSelectedFile().getAbsolutePath();
+		// System.out.println(saveName);
+		// if (!saveName.toLowerCase().contains(".cfg"))
+		// saveName = saveName.concat(".cfg");
+		//
+		// File file = new File(saveName);
+		// if (!file.exists()) {
+		// int[] config = { (int)
+		// ThresholdWindows.blueSpinnerLowerBound.getValue(), (int)
+		// ThresholdWindows.greenSpinnerLowerBound.getValue(),
+		// (int) ThresholdWindows.redSpinnerLowerBound.getValue(), (int)
+		// ThresholdWindows.blueSpinnerUpperBound.getValue(),
+		// (int) ThresholdWindows.greenSpinnerUpperBound.getValue(), (int)
+		// ThresholdWindows.redSpinnerUpperBound.getValue(),
+		// (int) ThresholdWindows.brightnessSpinner.getValue() };
+		// fos = new FileOutputStream(saveName);
+		// oos = new ObjectOutputStream(fos);
+		// oos.writeObject(config);
+		// oos.flush();
+		// oos.close();
+		// } else {
+		// int result = JOptionPane.showConfirmDialog(fileChooser, "File Already
+		// Exists. Overwrite?");
+		// switch (result) {
+		// case JOptionPane.YES_OPTION:
+		// int[] config = { (int)
+		// ThresholdWindows.redSpinnerLowerBound.getValue(), (int)
+		// ThresholdWindows.greenSpinnerLowerBound.getValue(),
+		// (int) ThresholdWindows.blueSpinnerLowerBound.getValue(), (int)
+		// ThresholdWindows.redSpinnerUpperBound.getValue(),
+		// (int) ThresholdWindows.greenSpinnerUpperBound.getValue(), (int)
+		// ThresholdWindows.blueSpinnerUpperBound.getValue(),
+		// (int) ThresholdWindows.brightnessSpinner.getValue() };
+		// fos = new FileOutputStream(saveName);
+		// oos = new ObjectOutputStream(fos);
+		// oos.writeObject(config);
+		// oos.flush();
+		// oos.close();
+		// return;
+		// case JOptionPane.NO_OPTION:
+		// saveConfig();
+		// return;
+		//
+		// }
+		// }
+		//
+		// }
 	}
 
 	private static ObjectInputStream ois;
@@ -357,13 +354,13 @@ public class ThresholdUtility implements java.io.Serializable {
 				fis = new FileInputStream(saveName);
 				ois = new ObjectInputStream(fis);
 				int[] config = (int[]) ois.readObject();
-				ThresholdWindows.blueSpinnerLowerBound.setValue(config[0]);
-				ThresholdWindows.greenSpinnerLowerBound.setValue(config[1]);
-				ThresholdWindows.redSpinnerLowerBound.setValue(config[2]);
-				ThresholdWindows.blueSpinnerUpperBound.setValue(config[3]);
-				ThresholdWindows.greenSpinnerUpperBound.setValue(config[4]);
-				ThresholdWindows.redSpinnerUpperBound.setValue(config[5]);
-				ThresholdWindows.brightnessSpinner.setValue(config[6]);
+				// ThresholdWindows.blueSpinnerLowerBound.setValue(config[0]);
+				// ThresholdWindows.greenSpinnerLowerBound.setValue(config[1]);
+				// ThresholdWindows.redSpinnerLowerBound.setValue(config[2]);
+				// ThresholdWindows.blueSpinnerUpperBound.setValue(config[3]);
+				// ThresholdWindows.greenSpinnerUpperBound.setValue(config[4]);
+				// ThresholdWindows.redSpinnerUpperBound.setValue(config[5]);
+				// ThresholdWindows.brightnessSpinner.setValue(config[6]);
 			}
 		}
 	}
@@ -378,29 +375,49 @@ public class ThresholdUtility implements java.io.Serializable {
 		public static boolean exitProgram = false;
 
 		public void run() {
-			ThresholdWindows.redSliderLowerBound.setValue(0);
-			ThresholdWindows.greenSliderLowerBound.setValue(0);
-			ThresholdWindows.blueSliderLowerBound.setValue(0);
-			ThresholdWindows.redSliderUpperBound.setValue(0);
-			ThresholdWindows.greenSliderUpperBound.setValue(0);
-			ThresholdWindows.blueSliderUpperBound.setValue(0);
+			// ThresholdWindows.redSliderLowerBound.setValue(0);
+			// ThresholdWindows.greenSliderLowerBound.setValue(0);
+			// ThresholdWindows.blueSliderLowerBound.setValue(0);
+			// ThresholdWindows.redSliderUpperBound.setValue(0);
+			// ThresholdWindows.greenSliderUpperBound.setValue(0);
+			// ThresholdWindows.blueSliderUpperBound.setValue(0);
 
 			while (!exitProgram) {
-
-				if (ThresholdWindows.redSliderLowerBound.getValueIsAdjusting())
-					ThresholdWindows.redSpinnerLowerBound.setValue((int) Math.round(ThresholdWindows.redSliderLowerBound.getValue() * 2.55));
-				if (ThresholdWindows.greenSliderLowerBound.getValueIsAdjusting())
-					ThresholdWindows.greenSpinnerLowerBound.setValue((int) Math.round(ThresholdWindows.greenSliderLowerBound.getValue() * 2.55));
-				if (ThresholdWindows.blueSliderLowerBound.getValueIsAdjusting())
-					ThresholdWindows.blueSpinnerLowerBound.setValue((int) Math.round(ThresholdWindows.blueSliderLowerBound.getValue() * 2.55));
-				if (ThresholdWindows.redSliderUpperBound.getValueIsAdjusting())
-					ThresholdWindows.redSpinnerUpperBound.setValue((int) Math.round(ThresholdWindows.redSliderUpperBound.getValue() * 2.55));
-				if (ThresholdWindows.greenSliderUpperBound.getValueIsAdjusting())
-					ThresholdWindows.greenSpinnerUpperBound.setValue((int) Math.round(ThresholdWindows.greenSliderUpperBound.getValue() * 2.55));
-				if (ThresholdWindows.blueSliderUpperBound.getValueIsAdjusting())
-					ThresholdWindows.blueSpinnerUpperBound.setValue((int) Math.round(ThresholdWindows.blueSliderUpperBound.getValue() * 2.55));
-				if (ThresholdWindows.brightnessSlider.getValueIsAdjusting())
-					ThresholdWindows.brightnessSpinner.setValue((int) Math.round((ThresholdWindows.brightnessSlider.getValue() - 50) * 2.55));
+				//
+				// if
+				// (ThresholdWindows.redSliderLowerBound.getValueIsAdjusting())
+				// ThresholdWindows.redSpinnerLowerBound.setValue((int)
+				// Math.round(ThresholdWindows.redSliderLowerBound.getValue() *
+				// 2.55));
+				// if
+				// (ThresholdWindows.greenSliderLowerBound.getValueIsAdjusting())
+				// ThresholdWindows.greenSpinnerLowerBound.setValue((int)
+				// Math.round(ThresholdWindows.greenSliderLowerBound.getValue()
+				// * 2.55));
+				// if
+				// (ThresholdWindows.blueSliderLowerBound.getValueIsAdjusting())
+				// ThresholdWindows.blueSpinnerLowerBound.setValue((int)
+				// Math.round(ThresholdWindows.blueSliderLowerBound.getValue() *
+				// 2.55));
+				// if
+				// (ThresholdWindows.redSliderUpperBound.getValueIsAdjusting())
+				// ThresholdWindows.redSpinnerUpperBound.setValue((int)
+				// Math.round(ThresholdWindows.redSliderUpperBound.getValue() *
+				// 2.55));
+				// if
+				// (ThresholdWindows.greenSliderUpperBound.getValueIsAdjusting())
+				// ThresholdWindows.greenSpinnerUpperBound.setValue((int)
+				// Math.round(ThresholdWindows.greenSliderUpperBound.getValue()
+				// * 2.55));
+				// if
+				// (ThresholdWindows.blueSliderUpperBound.getValueIsAdjusting())
+				// ThresholdWindows.blueSpinnerUpperBound.setValue((int)
+				// Math.round(ThresholdWindows.blueSliderUpperBound.getValue() *
+				// 2.55));
+				// if (ThresholdWindows.brightnessSlider.getValueIsAdjusting())
+				// ThresholdWindows.brightnessSpinner.setValue((int)
+				// Math.round((ThresholdWindows.brightnessSlider.getValue() -
+				// 50) * 2.55));
 
 				try {
 					Thread.sleep(50);

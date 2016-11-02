@@ -1,5 +1,8 @@
 package thresholdUtility;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -11,16 +14,16 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class ThresholdWindows {
-	public static JSlider redSliderUpperBound;
-	public static JSlider greenSliderUpperBound;
-	public static JSlider blueSliderUpperBound;
-	public static JSpinner redSpinnerUpperBound;
-	public static JSpinner greenSpinnerUpperBound;
-	public static JSpinner blueSpinnerUpperBound;
-	public static JFrame frameUpperBound;
+	public JSlider redSliderUpperBound;
+	public JSlider greenSliderUpperBound;
+	public JSlider blueSliderUpperBound;
+	public JSpinner redSpinnerUpperBound;
+	public JSpinner greenSpinnerUpperBound;
+	public JSpinner blueSpinnerUpperBound;
+	public JFrame frameUpperBound;
 
-	public static JSlider brightnessSlider;
-	public static JSpinner brightnessSpinner;
+	public JSlider brightnessSlider;
+	public JSpinner brightnessSpinner;
 
 	private final int operationIndex;
 
@@ -34,32 +37,35 @@ public class ThresholdWindows {
 		return operationIndex;
 	}
 
-	public int[] getParams(){
-		int[] params = {(int) blueSpinnerLowerBound.getValue(), (int) greenSpinnerLowerBound.getValue(), (int) redSpinnerLowerBound.getValue(), (int) blueSpinnerUpperBound.getValue(), (int) greenSpinnerUpperBound.getValue(), (int) redSpinnerUpperBound.getValue(), (int) brightnessSpinner.getValue()};
+	public int[] getParams() {
+		int[] params = { (int) blueSpinnerLowerBound.getValue(), (int) greenSpinnerLowerBound.getValue(),
+				(int) redSpinnerLowerBound.getValue(), (int) blueSpinnerUpperBound.getValue(),
+				(int) greenSpinnerUpperBound.getValue(), (int) redSpinnerUpperBound.getValue(),
+				(int) brightnessSpinner.getValue() };
 		return params;
 	}
 
-	public static JSlider redSliderLowerBound;
-	public static JSlider greenSliderLowerBound;
-	public static JSlider blueSliderLowerBound;
-	public static JSpinner redSpinnerLowerBound;
-	public static JSpinner greenSpinnerLowerBound;
-	public static JSpinner blueSpinnerLowerBound;
-	public static JFrame frameLowerBound;
+	public JSlider redSliderLowerBound;
+	public JSlider greenSliderLowerBound;
+	public JSlider blueSliderLowerBound;
+	public JSpinner redSpinnerLowerBound;
+	public JSpinner greenSpinnerLowerBound;
+	public JSpinner blueSpinnerLowerBound;
+	public JFrame frameLowerBound;
 
-	public static JRadioButton crossButtonDilation;
-	public static JRadioButton ellipseButtonDilation;
-	public static JRadioButton recButtonDilation;
-	public static JRadioButton crossButtonErosion;
-	public static JRadioButton ellipseButtonErosion;
-	public static JRadioButton recButtonErosion;
-	public static JSpinner dilationSpinner;
-	public static JSpinner erosionSpinner;
+	public JRadioButton crossButtonDilation;
+	public JRadioButton ellipseButtonDilation;
+	public JRadioButton recButtonDilation;
+	public JRadioButton crossButtonErosion;
+	public JRadioButton ellipseButtonErosion;
+	public JRadioButton recButtonErosion;
+	public JSpinner dilationSpinner;
+	public JSpinner erosionSpinner;
 
 	/**
 	 * Creates the frame with the Lower Bound sliders for Thresholding
 	 */
-	public static void createSlideBarLowerBound() {
+	public void createSlideBarLowerBound() {
 		frameLowerBound = new JFrame("Lower Bound");
 		frameLowerBound.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frameLowerBound.setUndecorated(true);
@@ -129,14 +135,14 @@ public class ThresholdWindows {
 			}
 
 		});
-
+		
 		frameLowerBound.setVisible(true);
 	}
 
 	/**
 	 * Creates the frame with the Upper Bound sliders for Thresholding
 	 */
-	public static void createSlideBarUpperBound() {
+	public void createSlideBarUpperBound() {
 		frameUpperBound = new JFrame("Upper Bound");
 		frameUpperBound.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frameUpperBound.setUndecorated(true);
@@ -222,6 +228,7 @@ public class ThresholdWindows {
 			}
 
 		});
+		
 		frameUpperBound.setVisible(true);
 	}
 

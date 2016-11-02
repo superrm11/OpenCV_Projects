@@ -1,4 +1,5 @@
 package thresholdUtility;
+
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -29,6 +30,30 @@ public class OperationsWindow extends JFrame {
 	 * Create the frame.
 	 */
 	public OperationsWindow() {
+
+		Thread background = new Thread(new Runnable() {
+			public void run() {
+				while (true) {
+					if (ThresholdUtility.thresholdWindows != null
+							&& ThresholdUtility.thresholdWindows.frameLowerBound.isVisible()
+							&& ThresholdUtility.thresholdWindows.frameUpperBound.isVisible()) {
+						if (!(ThresholdUtility.thresholdWindows.frameLowerBound.isActive()
+								|| ThresholdUtility.thresholdWindows.frameUpperBound.isActive())) {
+							ThresholdUtility.thresholdWindows.frameLowerBound.dispose();
+							ThresholdUtility.thresholdWindows.frameUpperBound.dispose();
+						}
+					}
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+		});
+		background.start();
+
 		setTitle("Operations");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 653, 289);
@@ -116,61 +141,61 @@ public class OperationsWindow extends JFrame {
 		JLabel lblOperation_9 = new JLabel("Operation 10");
 		lblOperation_9.setBounds(528, 118, 67, 14);
 		contentPane.add(lblOperation_9);
-		
+
 		JButton[] btnParams = new JButton[10];
-		
-		btnParams[0]  = new JButton("Params");
+
+		btnParams[0] = new JButton("Params");
 		btnParams[0].setBounds(0, 83, 115, 29);
 		contentPane.add(btnParams[0]);
-		
-		btnParams[0].addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				switch(operationsComboBox[0].getSelectedIndex()){
+
+		btnParams[0].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switch (operationsComboBox[0].getSelectedIndex()) {
 				case 1:
-					
+
 					break;
 				case 2:
-					
+
 					break;
 				case 3:
-					
+					ThresholdUtility.thresholdWindows = new ThresholdWindows(0);
 					break;
 				}
 			}
 		});
-		
+
 		btnParams[1] = new JButton("Params");
 		btnParams[1].setBounds(130, 83, 115, 29);
 		contentPane.add(btnParams[1]);
-		
+
 		btnParams[2] = new JButton("Params");
 		btnParams[2].setBounds(260, 83, 115, 29);
 		contentPane.add(btnParams[2]);
-		
+
 		btnParams[3] = new JButton("Params");
 		btnParams[3].setBounds(390, 83, 115, 29);
 		contentPane.add(btnParams[3]);
-		
+
 		btnParams[4] = new JButton("Params");
 		btnParams[4].setBounds(516, 83, 115, 29);
 		contentPane.add(btnParams[4]);
-		
+
 		btnParams[5] = new JButton("Params");
 		btnParams[5].setBounds(516, 188, 115, 29);
 		contentPane.add(btnParams[5]);
-		
+
 		btnParams[6] = new JButton("Params");
 		btnParams[6].setBounds(390, 188, 115, 29);
 		contentPane.add(btnParams[6]);
-		
+
 		btnParams[7] = new JButton("Params");
 		btnParams[7].setBounds(260, 188, 115, 29);
 		contentPane.add(btnParams[7]);
-		
+
 		btnParams[8] = new JButton("Params");
 		btnParams[8].setBounds(130, 188, 115, 29);
 		contentPane.add(btnParams[8]);
-		
+
 		btnParams[9] = new JButton("Params");
 		btnParams[9].setBounds(0, 188, 115, 29);
 		contentPane.add(btnParams[9]);
@@ -182,12 +207,21 @@ public class OperationsWindow extends JFrame {
 			operationsComboBox[i].addItem("Threshold");
 
 		}
-		
+
 	}
-	
-	public static ArrayList<int[]> getOperations(){
+
+	public static boolean hasThresholdOperation() {
+		for (int i = 0; i < operations.size(); i++) {
+			if (operations.get(i)[0] == 3) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static ArrayList<int[]> getOperations() {
 		return operations;
 	}
-	
+
 	private static ArrayList<int[]> operations = new ArrayList<int[]>();
 }
