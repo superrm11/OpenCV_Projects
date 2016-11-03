@@ -20,40 +20,20 @@ import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 
-public class OperationsWindow extends JFrame {
+public class OperationsWindow extends JFrame
+{
 
 	private JPanel contentPane;
 
 	public static JComboBox[] operationsComboBox = new JComboBox[10];
-
+	
+	
 	/**
 	 * Create the frame.
 	 */
-	public OperationsWindow() {
-
-		Thread background = new Thread(new Runnable() {
-			public void run() {
-				while (true) {
-					if (ThresholdUtility.thresholdWindows != null
-							&& ThresholdUtility.thresholdWindows.frameLowerBound.isVisible()
-							&& ThresholdUtility.thresholdWindows.frameUpperBound.isVisible()) {
-						if (!(ThresholdUtility.thresholdWindows.frameLowerBound.isActive()
-								|| ThresholdUtility.thresholdWindows.frameUpperBound.isActive())) {
-							ThresholdUtility.thresholdWindows.frameLowerBound.dispose();
-							ThresholdUtility.thresholdWindows.frameUpperBound.dispose();
-						}
-					}
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-			}
-		});
-		background.start();
-
+	public OperationsWindow()
+	{
+		
 		setTitle("Operations");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 653, 289);
@@ -148,9 +128,12 @@ public class OperationsWindow extends JFrame {
 		btnParams[0].setBounds(0, 83, 115, 29);
 		contentPane.add(btnParams[0]);
 
-		btnParams[0].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				switch (operationsComboBox[0].getSelectedIndex()) {
+		btnParams[0].addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				switch (operationsComboBox[0].getSelectedIndex())
+				{
 				case 1:
 
 					break;
@@ -200,7 +183,8 @@ public class OperationsWindow extends JFrame {
 		btnParams[9].setBounds(0, 188, 115, 29);
 		contentPane.add(btnParams[9]);
 
-		for (int i = 0; i < operationsComboBox.length; i++) {
+		for (int i = 0; i < operationsComboBox.length; i++)
+		{
 			operationsComboBox[i].addItem("");
 			operationsComboBox[i].addItem("Dilate");
 			operationsComboBox[i].addItem("Erode");
@@ -210,16 +194,20 @@ public class OperationsWindow extends JFrame {
 
 	}
 
-	public static boolean hasThresholdOperation() {
-		for (int i = 0; i < operations.size(); i++) {
-			if (operations.get(i)[0] == 3) {
+	public static boolean hasThresholdOperation()
+	{
+		for (int i = 0; i < operations.size(); i++)
+		{
+			if (operations.get(i)[0] == 3)
+			{
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public static ArrayList<int[]> getOperations() {
+	public static ArrayList<int[]> getOperations()
+	{
 		return operations;
 	}
 
