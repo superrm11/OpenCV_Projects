@@ -26,14 +26,20 @@ public class OperationsWindow extends JFrame
 	private JPanel contentPane;
 
 	public static JComboBox[] operationsComboBox = new JComboBox[10];
+
+	public static String[] selectedOperationName = new String[10];
 	
-	
+
 	/**
 	 * Create the frame.
 	 */
 	public OperationsWindow()
 	{
-		
+		for (int i = 0; i < 10; i++)
+		{
+			operations.add(new int[1]);
+		}
+
 		setTitle("Operations");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 653, 289);
@@ -141,7 +147,7 @@ public class OperationsWindow extends JFrame
 
 					break;
 				case 3:
-					ThresholdUtility.thresholdWindows = new ThresholdWindows(0);
+					
 					break;
 				}
 			}
@@ -194,22 +200,16 @@ public class OperationsWindow extends JFrame
 
 	}
 
-	public static boolean hasThresholdOperation()
+	public void setOperations()
 	{
 		for (int i = 0; i < operations.size(); i++)
 		{
 			if (operations.get(i)[0] == 3)
 			{
-				return true;
+				ThresholdUtility.thresholdWindows.setParams(operations.get(i));
 			}
 		}
-		return false;
 	}
 
-	public static ArrayList<int[]> getOperations()
-	{
-		return operations;
-	}
-
-	private static ArrayList<int[]> operations = new ArrayList<int[]>();
+	public ArrayList<int[]> operations = new ArrayList<int[]>();
 }

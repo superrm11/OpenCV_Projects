@@ -8,7 +8,7 @@ public class Test_Main {
 		VisionProcessor vp = new VisionProcessor(rPi.port);
 		rPi.requestNewThread();
 
-		vp.setThresholdValues(1, 83, 0, -33, .1);
+		vp.setThresholdValues(0, 42, 87, -33, .1);
 		vp.threshold();
 		// vp.dilate(11, 1);
 		vp.sendOperations();

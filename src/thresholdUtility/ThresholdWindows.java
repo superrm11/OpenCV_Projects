@@ -37,6 +37,11 @@ public class ThresholdWindows
 		createSlideBarUpperBound();
 		createSlideBarLowerBound();
 	}
+	
+	public void redisplayWindows(){
+		frameUpperBound.setVisible(true);
+		frameLowerBound.setVisible(true);
+	}
 
 	public int getOperationsIndex()
 	{
@@ -45,10 +50,22 @@ public class ThresholdWindows
 
 	public int[] lastSetParams;
 
+	public void setParams(int[] params){
+		blueSpinnerLowerBound.setValue(params[1]);
+		greenSpinnerLowerBound.setValue(params[2]);
+		redSpinnerLowerBound.setValue(params[3]);
+		
+		blueSpinnerUpperBound.setValue(params[4]);
+		greenSpinnerUpperBound.setValue(params[5]);
+		redSpinnerUpperBound.setValue(params[6]);
+		
+		brightnessSpinner.setValue(params[7]);
+	}
+	
 	public int[] getParams()
 	{
 		int[] params =
-		{ (int) blueSpinnerLowerBound.getValue(), (int) greenSpinnerLowerBound.getValue(),
+		{ 3, (int) blueSpinnerLowerBound.getValue(), (int) greenSpinnerLowerBound.getValue(),
 				(int) redSpinnerLowerBound.getValue(), (int) blueSpinnerUpperBound.getValue(),
 				(int) greenSpinnerUpperBound.getValue(), (int) redSpinnerUpperBound.getValue(),
 				(int) brightnessSpinner.getValue() };
@@ -182,10 +199,10 @@ public class ThresholdWindows
 			{
 				blueSliderLowerBound.setValue(0);
 				blueSpinnerLowerBound.setValue(0);
-				
+
 				greenSliderLowerBound.setValue(0);
 				greenSpinnerLowerBound.setValue(0);
-				
+
 				redSliderLowerBound.setValue(0);
 				redSpinnerLowerBound.setValue(0);
 			}
@@ -196,7 +213,9 @@ public class ThresholdWindows
 
 			public void windowClosing(WindowEvent arg0)
 			{
+				lastSetParams = getParams();
 				frameUpperBound.dispose();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 			}
 
 			public void windowDeactivated(WindowEvent arg0)
@@ -260,8 +279,9 @@ public class ThresholdWindows
 		blueSliderUpperBound = new JSlider();
 		blueSliderUpperBound.setBounds(123, 16, 200, 26);
 		contentPane.add(blueSliderUpperBound);
-		
-		blueSliderUpperBound.addChangeListener(new ChangeListener(){
+
+		blueSliderUpperBound.addChangeListener(new ChangeListener()
+		{
 			public void stateChanged(ChangeEvent e)
 			{
 				blueSpinnerUpperBound.setValue((int) Math.round(blueSliderUpperBound.getValue() * 2.55));
@@ -322,8 +342,9 @@ public class ThresholdWindows
 		brightnessSlider = new JSlider();
 		brightnessSlider.setBounds(123, 166, 200, 26);
 		contentPane.add(brightnessSlider);
-		
-		brightnessSlider.addChangeListener(new ChangeListener(){
+
+		brightnessSlider.addChangeListener(new ChangeListener()
+		{
 			public void stateChanged(ChangeEvent e)
 			{
 				brightnessSpinner.setValue((int) Math.round((brightnessSlider.getValue() * 2.55) - 127.5));
@@ -354,13 +375,13 @@ public class ThresholdWindows
 			{
 				blueSliderUpperBound.setValue(0);
 				blueSpinnerUpperBound.setValue(0);
-				
+
 				greenSliderUpperBound.setValue(0);
 				greenSpinnerUpperBound.setValue(0);
-				
+
 				redSliderUpperBound.setValue(0);
 				redSpinnerUpperBound.setValue(0);
-				
+
 				brightnessSlider.setValue(50);
 				brightnessSpinner.setValue(0);
 			}
@@ -373,6 +394,7 @@ public class ThresholdWindows
 			{
 				lastSetParams = getParams();
 				frameLowerBound.dispose();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 			}
 
 			public void windowDeactivated(WindowEvent arg0)
