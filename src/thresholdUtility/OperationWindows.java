@@ -25,5 +25,6 @@ public interface OperationWindows
 	 */
 	public int getOperationIndex();
 	
-	public void setOperationIndex(int operationIndex);
+	public void displayWindows();
+	
 }

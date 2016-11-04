@@ -20,20 +20,19 @@ import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 
-public class OperationsWindow extends JFrame
+public class SelectOpsWindow extends JFrame
 {
 
 	private JPanel contentPane;
 
 	public static JComboBox[] operationsComboBox = new JComboBox[10];
 
-	public static String[] selectedOperationName = new String[10];
-	
+	public static OperationWindows[] operationWindows = new OperationWindows[10];
 
 	/**
 	 * Create the frame.
 	 */
-	public OperationsWindow()
+	public SelectOpsWindow()
 	{
 		for (int i = 0; i < 10; i++)
 		{
@@ -147,7 +146,14 @@ public class OperationsWindow extends JFrame
 
 					break;
 				case 3:
-					
+					if (operationWindows[0] == null
+							|| !operationWindows[0].getClass().getName().contains("ThresholdWindows")){
+						operationWindows[0] = new ThresholdWindows(0);
+						operationWindows[0].startWindows();
+					}
+					else
+						operationWindows[0].displayWindows();
+						
 					break;
 				}
 			}

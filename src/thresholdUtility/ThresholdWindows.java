@@ -16,7 +16,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class ThresholdWindows
+public class ThresholdWindows implements OperationWindows
 {
 	public JSlider redSliderUpperBound;
 	public JSlider greenSliderUpperBound;
@@ -34,11 +34,11 @@ public class ThresholdWindows
 	public ThresholdWindows(int operationIndex)
 	{
 		this.operationIndex = operationIndex;
-		createSlideBarUpperBound();
-		createSlideBarLowerBound();
+
 	}
-	
-	public void redisplayWindows(){
+
+	public void redisplayWindows()
+	{
 		frameUpperBound.setVisible(true);
 		frameLowerBound.setVisible(true);
 	}
@@ -50,18 +50,19 @@ public class ThresholdWindows
 
 	public int[] lastSetParams;
 
-	public void setParams(int[] params){
+	public void setParams(int[] params)
+	{
 		blueSpinnerLowerBound.setValue(params[1]);
 		greenSpinnerLowerBound.setValue(params[2]);
 		redSpinnerLowerBound.setValue(params[3]);
-		
+
 		blueSpinnerUpperBound.setValue(params[4]);
 		greenSpinnerUpperBound.setValue(params[5]);
 		redSpinnerUpperBound.setValue(params[6]);
-		
+
 		brightnessSpinner.setValue(params[7]);
 	}
-	
+
 	public int[] getParams()
 	{
 		int[] params =
@@ -220,14 +221,17 @@ public class ThresholdWindows
 
 			public void windowDeactivated(WindowEvent arg0)
 			{
+				frameUpperBound.pack();
 			}
 
 			public void windowDeiconified(WindowEvent arg0)
 			{
+				setParams(lastSetParams);
 			}
 
 			public void windowIconified(WindowEvent arg0)
 			{
+				lastSetParams = getParams();
 			}
 
 			public void windowOpened(WindowEvent arg0)
@@ -399,14 +403,18 @@ public class ThresholdWindows
 
 			public void windowDeactivated(WindowEvent arg0)
 			{
+				setParams(lastSetParams);
+				frameUpperBound.pack();
 			}
 
 			public void windowDeiconified(WindowEvent arg0)
 			{
+				
 			}
 
 			public void windowIconified(WindowEvent arg0)
 			{
+				lastSetParams = getParams();
 			}
 
 			public void windowOpened(WindowEvent arg0)
@@ -416,6 +424,27 @@ public class ThresholdWindows
 		});
 
 		frameUpperBound.setVisible(true);
+	}
+
+	@Override
+	public void startWindows()
+	{
+		createSlideBarUpperBound();
+		createSlideBarLowerBound();
+	}
+
+	@Override
+	public int getOperationIndex()
+	{
+		return operationIndex;
+	}
+
+	@Override
+	public void displayWindows()
+	{
+		frameUpperBound.setVisible(true);
+		frameLowerBound.setVisible(true);
+		setParams(lastSetParams);
 	}
 
 }

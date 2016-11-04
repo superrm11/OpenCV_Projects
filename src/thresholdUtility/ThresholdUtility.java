@@ -51,7 +51,7 @@ public class ThresholdUtility implements java.io.Serializable
 
 	public static ThresholdWindows thresholdWindows = null;
 
-	public static OperationsWindow operationsWindow = new OperationsWindow();
+	public static SelectOpsWindow operationsWindow = new SelectOpsWindow();
 
 	public static void main(String[] args) throws InterruptedException, IOException
 	{
