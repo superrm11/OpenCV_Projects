@@ -1,12 +1,7 @@
 package thresholdUtility;
 
 public interface OperationWindows
-{
-	/**
-	 * Starts the windows that contain the different operations and settings
-	 */
-	public void startWindows();
-	
+{	
 	/**
 	 * 
 	 * @return the parameters for the given operations for saving/displaying

@@ -33,6 +33,9 @@ public class ThresholdWindows implements OperationWindows
 
 	public ThresholdWindows(int operationIndex)
 	{
+
+		createSlideBarLowerBound();
+		createSlideBarUpperBound();
 		this.operationIndex = operationIndex;
 
 	}
@@ -48,17 +51,24 @@ public class ThresholdWindows implements OperationWindows
 		return operationIndex;
 	}
 
-	public int[] lastSetParams;
+	public int[] lastSetParams =
+	{ 3, 0, 0, 0, 0, 0, 0, 0 };
 
 	public void setParams(int[] params)
 	{
 		blueSpinnerLowerBound.setValue(params[1]);
+		blueSliderLowerBound.setValue((int) (Math.round(params[1] / 2.55)));
 		greenSpinnerLowerBound.setValue(params[2]);
+		greenSliderLowerBound.setValue((int) (Math.round(params[2] / 2.55)));
 		redSpinnerLowerBound.setValue(params[3]);
+		redSliderLowerBound.setValue((int) (Math.round(params[3] / 2.55)));
 
 		blueSpinnerUpperBound.setValue(params[4]);
+		blueSliderUpperBound.setValue((int) Math.round(params[4] / 2.55));
 		greenSpinnerUpperBound.setValue(params[5]);
+		greenSliderUpperBound.setValue((int) Math.round(params[5] / 2.55));
 		redSpinnerUpperBound.setValue(params[6]);
+		redSliderUpperBound.setValue((int) Math.round(params[6] / 2.55));
 
 		brightnessSpinner.setValue(params[7]);
 	}
@@ -198,14 +208,6 @@ public class ThresholdWindows implements OperationWindows
 		{
 			public void windowActivated(WindowEvent arg0)
 			{
-				blueSliderLowerBound.setValue(0);
-				blueSpinnerLowerBound.setValue(0);
-
-				greenSliderLowerBound.setValue(0);
-				greenSpinnerLowerBound.setValue(0);
-
-				redSliderLowerBound.setValue(0);
-				redSpinnerLowerBound.setValue(0);
 			}
 
 			public void windowClosed(WindowEvent arg0)
@@ -221,26 +223,22 @@ public class ThresholdWindows implements OperationWindows
 
 			public void windowDeactivated(WindowEvent arg0)
 			{
-				frameUpperBound.pack();
 			}
 
 			public void windowDeiconified(WindowEvent arg0)
 			{
-				setParams(lastSetParams);
 			}
 
 			public void windowIconified(WindowEvent arg0)
 			{
-				lastSetParams = getParams();
 			}
 
 			public void windowOpened(WindowEvent arg0)
 			{
+				setParams(lastSetParams);
 			}
 
 		});
-
-		frameLowerBound.setVisible(true);
 	}
 
 	/**
@@ -377,17 +375,6 @@ public class ThresholdWindows implements OperationWindows
 		{
 			public void windowActivated(WindowEvent arg0)
 			{
-				blueSliderUpperBound.setValue(0);
-				blueSpinnerUpperBound.setValue(0);
-
-				greenSliderUpperBound.setValue(0);
-				greenSpinnerUpperBound.setValue(0);
-
-				redSliderUpperBound.setValue(0);
-				redSpinnerUpperBound.setValue(0);
-
-				brightnessSlider.setValue(50);
-				brightnessSpinner.setValue(0);
 			}
 
 			public void windowClosed(WindowEvent arg0)
@@ -397,40 +384,30 @@ public class ThresholdWindows implements OperationWindows
 			public void windowClosing(WindowEvent arg0)
 			{
 				lastSetParams = getParams();
+				SelectOpsWindow.operations.set(operationIndex, lastSetParams);
 				frameLowerBound.dispose();
 				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 			}
 
 			public void windowDeactivated(WindowEvent arg0)
 			{
-				setParams(lastSetParams);
-				frameUpperBound.pack();
 			}
 
 			public void windowDeiconified(WindowEvent arg0)
 			{
-				
+
 			}
 
 			public void windowIconified(WindowEvent arg0)
 			{
-				lastSetParams = getParams();
 			}
 
 			public void windowOpened(WindowEvent arg0)
 			{
+				setParams(lastSetParams);
 			}
 
 		});
-
-		frameUpperBound.setVisible(true);
-	}
-
-	@Override
-	public void startWindows()
-	{
-		createSlideBarUpperBound();
-		createSlideBarLowerBound();
 	}
 
 	@Override

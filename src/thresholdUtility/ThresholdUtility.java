@@ -342,8 +342,8 @@ public class ThresholdUtility implements java.io.Serializable
 				fis = new FileInputStream(saveName);
 				ois = new ObjectInputStream(fis);
 				ArrayList<int[]> config = (ArrayList<int[]>) ois.readObject();
-				operationsWindow.operations = config;
-				operationsWindow.setOperations();
+				operationsWindow.setOperations(config);
+				
 
 			}
 		}

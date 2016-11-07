@@ -29,6 +29,7 @@ public class SelectOpsWindow extends JFrame
 
 	public static OperationWindows[] operationWindows = new OperationWindows[10];
 
+	private JButton[] btnParams = new JButton[10];
 	/**
 	 * Create the frame.
 	 */
@@ -127,7 +128,6 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_9.setBounds(528, 118, 67, 14);
 		contentPane.add(lblOperation_9);
 
-		JButton[] btnParams = new JButton[10];
 
 		btnParams[0] = new JButton("Params");
 		btnParams[0].setBounds(0, 83, 115, 29);
@@ -147,13 +147,12 @@ public class SelectOpsWindow extends JFrame
 					break;
 				case 3:
 					if (operationWindows[0] == null
-							|| !operationWindows[0].getClass().getName().contains("ThresholdWindows")){
+							|| !operationWindows[0].getClass().getName().contains("ThresholdWindows"))
+					{
 						operationWindows[0] = new ThresholdWindows(0);
-						operationWindows[0].startWindows();
 					}
-					else
-						operationWindows[0].displayWindows();
-						
+					operationWindows[0].displayWindows();
+
 					break;
 				}
 			}
@@ -206,16 +205,23 @@ public class SelectOpsWindow extends JFrame
 
 	}
 
-	public void setOperations()
+	public void setOperations(ArrayList<int[]> al)
 	{
-		for (int i = 0; i < operations.size(); i++)
+		for (int i = 0; i < al.size(); i++)
 		{
-			if (operations.get(i)[0] == 3)
+			if (al.get(i)[0] == 3)
 			{
-				ThresholdUtility.thresholdWindows.setParams(operations.get(i));
+				if (!operationWindows.getClass().getName().contains("Threshold")){
+					operationWindows[i] = new ThresholdWindows(i);
+					operationsComboBox[i].setSelectedIndex(3);
+				}
+				if (al.get(i) != null || operationWindows[i] != null)
+					operationWindows[i].setParams(al.get(i));
+				else
+					System.out.println("Did not work!");
 			}
 		}
 	}
 
-	public ArrayList<int[]> operations = new ArrayList<int[]>();
+	public static ArrayList<int[]> operations = new ArrayList<int[]>();
 }
