@@ -235,7 +235,11 @@ public class ThresholdWindows implements OperationWindows
 
 			public void windowOpened(WindowEvent arg0)
 			{
-				setParams(lastSetParams);
+				try{
+					setParams(ThresholdUtility.operationsWindow.operations.get(operationIndex));
+				}catch(IndexOutOfBoundsException e){
+					setParams(lastSetParams);
+				}
 			}
 
 		});
@@ -384,7 +388,6 @@ public class ThresholdWindows implements OperationWindows
 			public void windowClosing(WindowEvent arg0)
 			{
 				lastSetParams = getParams();
-				SelectOpsWindow.operations.set(operationIndex, lastSetParams);
 				frameLowerBound.dispose();
 				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 			}
@@ -404,7 +407,11 @@ public class ThresholdWindows implements OperationWindows
 
 			public void windowOpened(WindowEvent arg0)
 			{
-				setParams(lastSetParams);
+				try{
+					setParams(ThresholdUtility.operationsWindow.operations.get(operationIndex));
+				}catch(IndexOutOfBoundsException e){
+					setParams(lastSetParams);
+				}
 			}
 
 		});
