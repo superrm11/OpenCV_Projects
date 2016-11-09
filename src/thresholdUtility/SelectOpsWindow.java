@@ -140,8 +140,12 @@ public class SelectOpsWindow extends JFrame
 				switch (operationsComboBox[0].getSelectedIndex())
 				{
 				case 1:
-
-					break;
+					if (operationWindows[0] == null || !operationWindows[0].getClass().getName().contains("DilateWindow"))
+					{
+						operationWindows[0] = new DilateWindow(0);
+					}
+					operationWindows[0].displayWindows();
+						break;
 				case 2:
 
 					break;
