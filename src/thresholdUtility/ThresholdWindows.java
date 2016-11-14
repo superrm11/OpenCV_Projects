@@ -1,9 +1,6 @@
 package thresholdUtility;
 
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
@@ -40,12 +37,6 @@ public class ThresholdWindows implements OperationWindows
 
 	}
 
-	public void redisplayWindows()
-	{
-		frameUpperBound.setVisible(true);
-		frameLowerBound.setVisible(true);
-	}
-
 	public int getOperationsIndex()
 	{
 		return operationIndex;
@@ -57,18 +48,12 @@ public class ThresholdWindows implements OperationWindows
 	public void setParams(int[] params)
 	{
 		blueSpinnerLowerBound.setValue(params[1]);
-		blueSliderLowerBound.setValue((int) (Math.round(params[1] / 2.55)));
 		greenSpinnerLowerBound.setValue(params[2]);
-		greenSliderLowerBound.setValue((int) (Math.round(params[2] / 2.55)));
 		redSpinnerLowerBound.setValue(params[3]);
-		redSliderLowerBound.setValue((int) (Math.round(params[3] / 2.55)));
 
 		blueSpinnerUpperBound.setValue(params[4]);
-		blueSliderUpperBound.setValue((int) Math.round(params[4] / 2.55));
 		greenSpinnerUpperBound.setValue(params[5]);
-		greenSliderUpperBound.setValue((int) Math.round(params[5] / 2.55));
 		redSpinnerUpperBound.setValue(params[6]);
-		redSliderUpperBound.setValue((int) Math.round(params[6] / 2.55));
 
 		brightnessSpinner.setValue(params[7]);
 	}
@@ -117,11 +102,13 @@ public class ThresholdWindows implements OperationWindows
 		redSliderLowerBound = new JSlider();
 		redSliderLowerBound.setBounds(123, 124, 200, 26);
 		contentPane.add(redSliderLowerBound);
-
+		redSliderLowerBound.setValue(0);
 		redSliderLowerBound.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent arg0)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				redSpinnerLowerBound.setValue((int) Math.round(redSliderLowerBound.getValue() * 2.55));
 			}
 		});
@@ -129,11 +116,13 @@ public class ThresholdWindows implements OperationWindows
 		greenSliderLowerBound = new JSlider();
 		greenSliderLowerBound.setBounds(123, 71, 200, 26);
 		contentPane.add(greenSliderLowerBound);
-
+		greenSliderLowerBound.setValue(0);
 		greenSliderLowerBound.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent arg0)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				greenSpinnerLowerBound.setValue((int) Math.round(greenSliderLowerBound.getValue() * 2.55));
 			}
 		});
@@ -141,11 +130,13 @@ public class ThresholdWindows implements OperationWindows
 		blueSliderLowerBound = new JSlider();
 		blueSliderLowerBound.setBounds(123, 16, 200, 26);
 		contentPane.add(blueSliderLowerBound);
-
+		blueSliderLowerBound.setValue(0);
 		blueSliderLowerBound.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent arg0)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				blueSpinnerLowerBound.setValue((int) Math.round(blueSliderLowerBound.getValue() * 2.55));
 			}
 
@@ -172,6 +163,8 @@ public class ThresholdWindows implements OperationWindows
 
 			public void stateChanged(ChangeEvent arg0)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				redSliderLowerBound.setValue((int) Math.round((int) redSpinnerLowerBound.getValue() / 2.55));
 			}
 
@@ -186,6 +179,8 @@ public class ThresholdWindows implements OperationWindows
 
 			public void stateChanged(ChangeEvent arg0)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				greenSliderLowerBound.setValue((int) Math.round((int) greenSpinnerLowerBound.getValue() / 2.55));
 			}
 
@@ -200,49 +195,65 @@ public class ThresholdWindows implements OperationWindows
 
 			public void stateChanged(ChangeEvent arg0)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				blueSliderLowerBound.setValue((int) Math.round((int) blueSpinnerLowerBound.getValue() / 2.55));
 			}
 
 		});
-		frameLowerBound.addWindowListener(new WindowListener()
-		{
+		
+		frameLowerBound.addWindowListener(new WindowListener(){
+
+			@Override
 			public void windowActivated(WindowEvent arg0)
 			{
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
 			public void windowClosed(WindowEvent arg0)
 			{
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
 			public void windowClosing(WindowEvent arg0)
 			{
-				lastSetParams = getParams();
 				frameUpperBound.dispose();
-				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 			}
 
+			@Override
 			public void windowDeactivated(WindowEvent arg0)
 			{
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
 			public void windowDeiconified(WindowEvent arg0)
 			{
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
 			public void windowIconified(WindowEvent arg0)
 			{
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
 			public void windowOpened(WindowEvent arg0)
 			{
-				try{
-					setParams(ThresholdUtility.operationsWindow.operations.get(operationIndex));
-				}catch(IndexOutOfBoundsException e){
-					setParams(lastSetParams);
-				}
+				// TODO Auto-generated method stub
+				
 			}
-
+			
 		});
+
 	}
 
 	/**
@@ -261,11 +272,13 @@ public class ThresholdWindows implements OperationWindows
 		redSliderUpperBound = new JSlider();
 		redSliderUpperBound.setBounds(123, 124, 200, 26);
 		contentPane.add(redSliderUpperBound);
-
+		redSliderUpperBound.setValue(0);
 		redSliderUpperBound.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				redSpinnerUpperBound.setValue((int) Math.round(redSliderUpperBound.getValue() * 2.55));
 			}
 		});
@@ -273,11 +286,13 @@ public class ThresholdWindows implements OperationWindows
 		greenSliderUpperBound = new JSlider();
 		greenSliderUpperBound.setBounds(123, 71, 200, 26);
 		contentPane.add(greenSliderUpperBound);
-
+		greenSliderUpperBound.setValue(0);
 		greenSliderUpperBound.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				greenSpinnerUpperBound.setValue((int) Math.round(greenSliderUpperBound.getValue() * 2.55));
 			}
 		});
@@ -285,11 +300,13 @@ public class ThresholdWindows implements OperationWindows
 		blueSliderUpperBound = new JSlider();
 		blueSliderUpperBound.setBounds(123, 16, 200, 26);
 		contentPane.add(blueSliderUpperBound);
-
+		blueSliderUpperBound.setValue(0);
 		blueSliderUpperBound.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				blueSpinnerUpperBound.setValue((int) Math.round(blueSliderUpperBound.getValue() * 2.55));
 			}
 		});
@@ -314,6 +331,8 @@ public class ThresholdWindows implements OperationWindows
 
 			public void stateChanged(ChangeEvent arg0)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				redSliderUpperBound.setValue((int) Math.round((int) redSpinnerUpperBound.getValue() / 2.55));
 			}
 
@@ -327,6 +346,8 @@ public class ThresholdWindows implements OperationWindows
 
 			public void stateChanged(ChangeEvent arg0)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				greenSliderUpperBound.setValue((int) Math.round((int) greenSpinnerUpperBound.getValue() / 2.55));
 			}
 
@@ -340,6 +361,8 @@ public class ThresholdWindows implements OperationWindows
 
 			public void stateChanged(ChangeEvent arg0)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				blueSliderUpperBound.setValue((int) Math.round((int) blueSpinnerUpperBound.getValue() / 2.55));
 			}
 
@@ -348,11 +371,13 @@ public class ThresholdWindows implements OperationWindows
 		brightnessSlider = new JSlider();
 		brightnessSlider.setBounds(123, 166, 200, 26);
 		contentPane.add(brightnessSlider);
-
+		
 		brightnessSlider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				brightnessSpinner.setValue((int) Math.round((brightnessSlider.getValue() * 2.55) - 127.5));
 			}
 		});
@@ -370,50 +395,63 @@ public class ThresholdWindows implements OperationWindows
 
 			public void stateChanged(ChangeEvent arg0)
 			{
+				lastSetParams = getParams();
+				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 				brightnessSlider.setValue((int) Math.round(((int) brightnessSpinner.getValue() / 2.55) + 50));
 			}
 
 		});
+		
+		frameUpperBound.addWindowListener(new WindowListener(){
 
-		frameUpperBound.addWindowListener(new WindowListener()
-		{
+			@Override
 			public void windowActivated(WindowEvent arg0)
 			{
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
 			public void windowClosed(WindowEvent arg0)
 			{
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
 			public void windowClosing(WindowEvent arg0)
 			{
-				lastSetParams = getParams();
 				frameLowerBound.dispose();
-				ThresholdUtility.operationsWindow.operations.set(operationIndex, lastSetParams);
 			}
 
+			@Override
 			public void windowDeactivated(WindowEvent arg0)
 			{
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
 			public void windowDeiconified(WindowEvent arg0)
 			{
-
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
 			public void windowIconified(WindowEvent arg0)
 			{
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
 			public void windowOpened(WindowEvent arg0)
 			{
-				try{
-					setParams(ThresholdUtility.operationsWindow.operations.get(operationIndex));
-				}catch(IndexOutOfBoundsException e){
-					setParams(lastSetParams);
-				}
+				// TODO Auto-generated method stub
+				
 			}
-
+			
 		});
 	}
 
@@ -428,6 +466,10 @@ public class ThresholdWindows implements OperationWindows
 	{
 		frameUpperBound.setVisible(true);
 		frameLowerBound.setVisible(true);
+
+		if (ThresholdUtility.operationsWindow.operations.get(operationIndex) != null
+				&& ThresholdUtility.operationsWindow.operations.get(operationIndex)[0] == 3)
+			lastSetParams = ThresholdUtility.operationsWindow.operations.get(operationIndex);
 		setParams(lastSetParams);
 	}
 

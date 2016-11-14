@@ -8,8 +8,7 @@ public class Test_Main {
 		VisionProcessor vp = new VisionProcessor(rPi.port);
 		rPi.requestNewThread();
 
-		vp.setThresholdValues(0, 42, 87, -33, .1);
-		vp.threshold();
+		vp.threshold(0, 171, 0, 0, 214, 79, -102);
 		// vp.dilate(11, 1);
 		vp.sendOperations();
 		vp.saveRawImage("C:/Users/Ryan McGee/Documents");

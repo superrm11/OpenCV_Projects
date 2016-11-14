@@ -73,9 +73,36 @@ public class ThresholdUtility implements java.io.Serializable
 		// start the background processes with mundane tasks in a different
 		// thread
 
+		ArrayList<int[]> config = new ArrayList<int[]>();
+
 		while (true)
 		{
-
+			config = operationsWindow.operations;
+			if (config != null && mat != null && !mat.empty())
+			{
+				alteredMat = mat.clone();
+				for (int i = 0; i < config.size(); i++)
+				{
+					if (config.get(i)[0] == 3)
+					{
+						Core.add(alteredMat, new Scalar(config.get(i)[7]), alteredMat);
+						Core.inRange(alteredMat, new Scalar(config.get(i)[1], config.get(i)[2], config.get(i)[3]),
+								new Scalar(config.get(i)[4], config.get(i)[5], config.get(i)[6]), alteredMat);
+					} else if (config.get(i)[0] == 2)
+					{
+						Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(config.get(i)[1], config.get(i)[1]));
+						Imgproc.erode(alteredMat, alteredMat, element, new Point(-1, -1), config.get(i)[2]);
+					} else if (config.get(i)[0] == 1)
+					{
+						Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(config.get(i)[1], config.get(i)[1]));
+						Imgproc.dilate(alteredMat, alteredMat, element, new Point(-1, -1), config.get(i)[2]);
+					}
+				}
+				
+				Imgproc.findContours(alteredMat, arrayOfPoints, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+				Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 0 , 0), Core.FILLED);
+				imShow(ImShowVal.Refresh, convertToImage(alteredMat));
+			}
 			// Determines the FPS value
 			Thread.sleep(33);
 		}
@@ -343,8 +370,7 @@ public class ThresholdUtility implements java.io.Serializable
 				ois = new ObjectInputStream(fis);
 				ArrayList<int[]> config = (ArrayList<int[]>) ois.readObject();
 				operationsWindow.setOperations(config);
-				operationsWindow.operations = config;
-				
+				operationsWindow.operations = new ArrayList<int[]>(config);
 
 			}
 		}

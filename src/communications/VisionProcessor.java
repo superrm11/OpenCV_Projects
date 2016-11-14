@@ -46,7 +46,7 @@ public class VisionProcessor extends Thread {
 	 * [5] = redUpperBound 
 	 * [6] = brightness
 	 */
-	static int[] thresholdValues = new int[7];
+	static int[] thresholdValues = new int[8];
 
 	boolean setThresholdValues = false;
 
@@ -212,17 +212,18 @@ public class VisionProcessor extends Thread {
 	 * 
 	 * @author Ryan McGee
 	 */
-	public void setThresholdValues(int blueLowerBound, int greenLowerBound, int redLowerBound, int blueUpperBound,
+	public void threshold(int blueLowerBound, int greenLowerBound, int redLowerBound, int blueUpperBound,
 			int greenUpperBound, int redUpperBound, int brightness) {
+		thresholdValues[0] = 3;
+		thresholdValues[1] = blueLowerBound;
+		thresholdValues[2] = greenLowerBound;
+		thresholdValues[3] = redLowerBound;
+		thresholdValues[4] = blueUpperBound;
+		thresholdValues[5] = greenUpperBound;
+		thresholdValues[6] = redUpperBound;
+		thresholdValues[7] = brightness;
 
-		thresholdValues[0] = blueLowerBound;
-		thresholdValues[1] = greenLowerBound;
-		thresholdValues[2] = redLowerBound;
-		thresholdValues[3] = blueUpperBound;
-		thresholdValues[4] = greenUpperBound;
-		thresholdValues[5] = redUpperBound;
-		thresholdValues[6] = brightness;
-
+		operations.add(thresholdValues);
 		setThresholdValues = true;
 	}
 	/**
@@ -235,14 +236,16 @@ public class VisionProcessor extends Thread {
 	 * @param brightness brightness value, added to BGR matrix as a scalar
 	 * @param percentError percentage value expressed as a number between 0 and 1
 	 */
-	public void setThresholdValues(int blue, int green, int red, int brightness, double percentError){
-		thresholdValues[0] = (int) testForNegative(blue - (255 * percentError));
-		thresholdValues[1] = (int) testForNegative(green - (255 * percentError));
-		thresholdValues[2] = (int) testForNegative(red - (255 * percentError));
-		thresholdValues[3] = (int) (blue + (255 * percentError));
-		thresholdValues[4] = (int) (green + (255 * percentError));
-		thresholdValues[5] = (int) (red + (255 * percentError));
-		thresholdValues[6] = brightness;
+	public void threshold(int blue, int green, int red, int brightness, double percentError){
+		thresholdValues[0] = 3;
+		thresholdValues[1] = (int) testForNegative(blue - (255 * percentError));
+		thresholdValues[2] = (int) testForNegative(green - (255 * percentError));
+		thresholdValues[3] = (int) testForNegative(red - (255 * percentError));
+		thresholdValues[4] = (int) (blue + (255 * percentError));
+		thresholdValues[5] = (int) (green + (255 * percentError));
+		thresholdValues[6] = (int) (red + (255 * percentError));
+		thresholdValues[7] = brightness;
+		operations.add(thresholdValues);
 		
 		setThresholdValues = true;
 	}
@@ -285,15 +288,6 @@ public class VisionProcessor extends Thread {
 	public void erode(int size, int iterations) {
 		int[] erosion = { 2, size, iterations };
 		operations.add(erosion);
-	}
-	/**
-	 * Sends the command to threshold the image, 
-	 * for the sake of order of operations.
-	 * 
-	 */
-	public void threshold() {
-		int[] threshold = { 3 };
-		operations.add(threshold);
 	}
 
 	boolean saveRawImage = false;

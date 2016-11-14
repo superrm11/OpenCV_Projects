@@ -140,14 +140,20 @@ public class SelectOpsWindow extends JFrame
 				switch (operationsComboBox[0].getSelectedIndex())
 				{
 				case 1:
-					if (operationWindows[0] == null || !operationWindows[0].getClass().getName().contains("DilateWindow"))
+					if (operationWindows[0] == null
+							|| !operationWindows[0].getClass().getName().contains("DilateWindow"))
 					{
 						operationWindows[0] = new DilateWindow(0);
 					}
 					operationWindows[0].displayWindows();
-						break;
+					break;
 				case 2:
-
+					if (operationWindows[0] == null
+							|| !operationWindows[0].getClass().getName().contains("ErodeWindow"))
+					{
+						operationWindows[0] = new ErodeWindow(0);
+					}
+					operationWindows[0].displayWindows();
 					break;
 				case 3:
 					if (operationWindows[0] == null
@@ -215,10 +221,26 @@ public class SelectOpsWindow extends JFrame
 		{
 			if (al.get(i)[0] == 3)
 			{
-				if (!operationWindows.getClass().getName().contains("Threshold"))
+				if (operationWindows[i] == null || !operationWindows[i].getClass().getName().contains("Threshold"))
 				{
 					operationWindows[i] = new ThresholdWindows(i);
 					operationsComboBox[i].setSelectedIndex(3);
+				}
+				operationWindows[i].setParams(al.get(i));
+			} else if (al.get(i)[0] == 2)
+			{
+				if (operationWindows[i] == null || !operationWindows[i].getClass().getName().contains("Erode"))
+				{
+					operationWindows[i] = new ErodeWindow(i);
+					operationsComboBox[i].setSelectedIndex(2);
+				}
+				operationWindows[i].setParams(al.get(i));
+			} else if (al.get(i)[0] == 1)
+			{
+				if (operationWindows[i] == null || !operationWindows[i].getClass().getName().contains("Dilate"))
+				{
+					operationWindows[i] = new DilateWindow(i);
+					operationsComboBox[i].setSelectedIndex(1);
 				}
 				operationWindows[i].setParams(al.get(i));
 			}
