@@ -236,10 +236,6 @@ public class VisionProcessorClient
 			if (saveRawImage)
 			{
 				Mat m1 = m.clone();
-				if (brightness_value > 0)
-				{
-					Core.add(m1, brightness, m1);
-				}
 				if (destination.charAt(destination.length() - 1) == '/')
 					Highgui.imwrite(new String(destination + "rawImage_" + fileNumber + ".jpg"), m1);
 				else

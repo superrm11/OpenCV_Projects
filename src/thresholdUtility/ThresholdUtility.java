@@ -63,20 +63,17 @@ public class ThresholdUtility implements java.io.Serializable
 		operationsWindow.setVisible(true);
 
 		imShow(ImShowVal.Start, null);
-		Scalar upperBoundScalar;
-		Scalar lowerBoundScalar;
-		Scalar brightnessScalar;
 		ArrayList<MatOfPoint> arrayOfPoints = new ArrayList<MatOfPoint>();
 		Mat hierarchy = new Mat();
-
-		double brightnessConstant;
+		Mat displayMat = new Mat();
 		// start the background processes with mundane tasks in a different
 		// thread
 
 		ArrayList<int[]> config = new ArrayList<int[]>();
-
+		boolean hasThreshold;
 		while (true)
 		{
+			hasThreshold = false;
 			config = operationsWindow.operations;
 			if (config != null && mat != null && !mat.empty())
 			{
@@ -85,23 +82,30 @@ public class ThresholdUtility implements java.io.Serializable
 				{
 					if (config.get(i)[0] == 3)
 					{
-						Core.add(alteredMat, new Scalar(config.get(i)[7]), alteredMat);
+						hasThreshold = true;
+						Core.add(alteredMat, new Scalar(config.get(i)[7], config.get(i)[7], config.get(i)[7]), alteredMat);
 						Core.inRange(alteredMat, new Scalar(config.get(i)[1], config.get(i)[2], config.get(i)[3]),
 								new Scalar(config.get(i)[4], config.get(i)[5], config.get(i)[6]), alteredMat);
 					} else if (config.get(i)[0] == 2)
 					{
-						Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(config.get(i)[1], config.get(i)[1]));
+						Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT,
+								new Size(config.get(i)[1], config.get(i)[1]));
 						Imgproc.erode(alteredMat, alteredMat, element, new Point(-1, -1), config.get(i)[2]);
 					} else if (config.get(i)[0] == 1)
 					{
-						Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(config.get(i)[1], config.get(i)[1]));
+						Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT,
+								new Size(config.get(i)[1], config.get(i)[1]));
 						Imgproc.dilate(alteredMat, alteredMat, element, new Point(-1, -1), config.get(i)[2]);
 					}
 				}
-				
-				Imgproc.findContours(alteredMat, arrayOfPoints, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-				Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 0 , 0), Core.FILLED);
-				imShow(ImShowVal.Refresh, convertToImage(alteredMat));
+				if (hasThreshold == true)
+				{
+					Imgproc.findContours(alteredMat, arrayOfPoints, hierarchy, Imgproc.RETR_LIST,
+							Imgproc.CHAIN_APPROX_SIMPLE);
+					displayMat = new Mat(alteredMat.type());
+					Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(255, 0, 0), Core.FILLED);
+				}
+				imShow(ImShowVal.Refresh, convertToImage(displayMat));
 			}
 			// Determines the FPS value
 			Thread.sleep(33);

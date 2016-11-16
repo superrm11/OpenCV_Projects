@@ -48,7 +48,6 @@ public class VisionProcessor extends Thread {
 	 */
 	static int[] thresholdValues = new int[8];
 
-	boolean setThresholdValues = false;
 
 	/**
 	 * ArrayList of integer arrays, containing blob information.
@@ -77,13 +76,6 @@ public class VisionProcessor extends Thread {
 			boolean alreadyRequested = false;
 			int command = 0;
 			while (true) {
-				if (setThresholdValues) {
-					oos.writeInt(-2);
-					oos.writeObject(thresholdValues);
-					oos.flush();
-					setThresholdValues = false;
-				}
-
 				if (sendOperations) {
 					oos.writeInt(-4);
 					oos.writeObject(operations);
@@ -145,7 +137,6 @@ public class VisionProcessor extends Thread {
 
 			thresholdValues = (int[]) ois.readObject();
 
-			setThresholdValues = true;
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -224,7 +215,6 @@ public class VisionProcessor extends Thread {
 		thresholdValues[7] = brightness;
 
 		operations.add(thresholdValues);
-		setThresholdValues = true;
 	}
 	/**
 	 * Sets the threshold values in BGR format, ranging from 0-255 and brightness from -255 to 255.
@@ -246,8 +236,6 @@ public class VisionProcessor extends Thread {
 		thresholdValues[6] = (int) (red + (255 * percentError));
 		thresholdValues[7] = brightness;
 		operations.add(thresholdValues);
-		
-		setThresholdValues = true;
 	}
 	
 	private double testForNegative(double i){
