@@ -83,24 +83,22 @@ public class ThresholdUtility implements java.io.Serializable
 					if (config.get(i)[0] == 3)
 					{
 						hasThreshold = true;
-						Core.add(alteredMat, new Scalar(config.get(i)[7], config.get(i)[7], config.get(i)[7]), alteredMat);
-						Core.inRange(alteredMat, new Scalar(config.get(i)[1], config.get(i)[2], config.get(i)[3]),
-								new Scalar(config.get(i)[4], config.get(i)[5], config.get(i)[6]), alteredMat);
+						alteredMat = threshold(alteredMat,
+								new Scalar(config.get(i)[1], config.get(i)[2], config.get(i)[3]),
+								new Scalar(config.get(i)[4], config.get(i)[5], config.get(i)[6]),
+								new Scalar(config.get(i)[7], config.get(i)[7], config.get(i)[7]));
+
 					} else if (config.get(i)[0] == 2)
 					{
-						Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT,
-								new Size(config.get(i)[1], config.get(i)[1]));
-						Imgproc.erode(alteredMat, alteredMat, element, new Point(-1, -1), config.get(i)[2]);
+						alteredMat = erode(alteredMat, config.get(i)[1], config.get(i)[2]);
 					} else if (config.get(i)[0] == 1)
 					{
-						Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT,
-								new Size(config.get(i)[1], config.get(i)[1]));
-						Imgproc.dilate(alteredMat, alteredMat, element, new Point(-1, -1), config.get(i)[2]);
+						alteredMat = dilate(alteredMat, config.get(i)[1], config.get(i)[2]);
 					}
 				}
 				if (hasThreshold == true)
 				{
-					Imgproc.findContours(alteredMat, arrayOfPoints, hierarchy, Imgproc.RETR_LIST,
+					Imgproc.findContours(alteredMat, arrayOfPoints, new Mat(), Imgproc.RETR_LIST,
 							Imgproc.CHAIN_APPROX_SIMPLE);
 					displayMat = new Mat(alteredMat.type());
 					Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(255, 0, 0), Core.FILLED);
@@ -378,5 +376,60 @@ public class ThresholdUtility implements java.io.Serializable
 
 			}
 		}
+	}
+
+	/**
+	 * Dilates the blobs (all blobs grow)
+	 * @param m input matrix (image)
+	 * @param size how big the blobs should be dilated
+	 * @param iterations how many times the blobs should be dilated
+	 * @return the matrix after dilating the blobs
+	 */
+	private static Mat dilate(Mat m, int size, int iterations)
+	{
+		Mat alteredMat = new Mat();
+		alteredMat = m.clone();
+		System.out.println("Dilating with " + size + " size and " + iterations + " iterations");
+
+		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
+		Imgproc.dilate(alteredMat, alteredMat, element, new Point(-1, -1), iterations);
+		return alteredMat;
+	}
+
+	/**
+	 * Erodes all blobs (all blobs shrink)
+	 * @param m input matrix (image)
+	 * @param size how small the blobs should shrink
+	 * @param iterations how many times the blobs should be eroded
+	 * @return the matrix after eroding the blobs
+	 */
+	private static Mat erode(Mat m, int size, int iterations)
+	{
+		Mat alteredMat = new Mat();
+		alteredMat = m.clone();
+		System.out.println("Eroding with " + size + " size and " + iterations + " iterations");
+		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
+		Imgproc.erode(alteredMat, alteredMat, element, new Point(-1, -1), iterations);
+		return alteredMat;
+	}
+
+	/**
+	 * Thresholds the image based on the scalar values
+	 * @param m input matrix, or image
+	 * @param upperBound the scalar for the upper boundary BGR values
+	 * @param lowerBound the scalar for the loser boundary BGR values
+	 * @param brightness the scalar that is added to the matrix before thresholding.
+	 * 			if the brightness is negative, that amount will be subtracted, therefore
+	 * 			lowering the brightness.
+	 * @return the matrix after thresholding the blobs
+	 */
+	private static Mat threshold(Mat m, Scalar lowerBound, Scalar upperBound, Scalar brightness)
+	{
+		Mat alteredMat = new Mat();
+		alteredMat = m.clone();
+		System.out.println("Thresholding image");
+		Core.add(alteredMat, brightness, alteredMat);
+		Core.inRange(alteredMat, lowerBound, upperBound, alteredMat);
+		return alteredMat;
 	}
 }
