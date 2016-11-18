@@ -76,6 +76,7 @@ public class ThresholdUtility implements java.io.Serializable
 			hasThreshold = false;
 			config = operationsWindow.operations;
 			if (config != null && mat != null && !mat.empty())
+
 			{
 				alteredMat = mat.clone();
 				for (int i = 0; i < config.size(); i++)
@@ -83,6 +84,7 @@ public class ThresholdUtility implements java.io.Serializable
 					if (config.get(i)[0] == 3)
 					{
 						hasThreshold = true;
+						System.out.println("Thresholding...");
 						alteredMat = threshold(alteredMat,
 								new Scalar(config.get(i)[1], config.get(i)[2], config.get(i)[3]),
 								new Scalar(config.get(i)[4], config.get(i)[5], config.get(i)[6]),
@@ -100,10 +102,9 @@ public class ThresholdUtility implements java.io.Serializable
 				{
 					Imgproc.findContours(alteredMat, arrayOfPoints, new Mat(), Imgproc.RETR_LIST,
 							Imgproc.CHAIN_APPROX_SIMPLE);
-					displayMat = new Mat(alteredMat.type());
-					Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(255, 0, 0), Core.FILLED);
+					Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 0, 0));
 				}
-				imShow(ImShowVal.Refresh, convertToImage(displayMat));
+				imShow(ImShowVal.Refresh, convertToImage(alteredMat));
 			}
 			// Determines the FPS value
 			Thread.sleep(33);
