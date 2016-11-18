@@ -1,7 +1,5 @@
 package thresholdUtility;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -9,19 +7,13 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JScrollBar;
-import javax.swing.JSlider;
 import javax.swing.JLabel;
-import javax.swing.JSpinner;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 
 public class SelectOpsWindow extends JFrame
 {
+
 
 	private JPanel contentPane;
 
@@ -49,7 +41,7 @@ public class SelectOpsWindow extends JFrame
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		operationsComboBox[0] = new JComboBox();
+		operationsComboBox[0] = new JComboBox<Object>();
 		operationsComboBox[0].setBounds(22, 41, 93, 20);
 		contentPane.add(operationsComboBox[0]);
 
@@ -57,7 +49,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation.setBounds(22, 11, 67, 14);
 		contentPane.add(lblOperation);
 
-		operationsComboBox[1] = new JComboBox();
+		operationsComboBox[1] = new JComboBox<Object>();
 		operationsComboBox[1].setBounds(151, 41, 93, 20);
 		contentPane.add(operationsComboBox[1]);
 
@@ -65,7 +57,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_1.setBounds(151, 11, 67, 14);
 		contentPane.add(lblOperation_1);
 
-		operationsComboBox[2] = new JComboBox();
+		operationsComboBox[2] = new JComboBox<Object>();
 		operationsComboBox[2].setBounds(277, 41, 93, 20);
 		contentPane.add(operationsComboBox[2]);
 
@@ -73,7 +65,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_2.setBounds(277, 11, 67, 14);
 		contentPane.add(lblOperation_2);
 
-		operationsComboBox[3] = new JComboBox();
+		operationsComboBox[3] = new JComboBox<Object>();
 		operationsComboBox[3].setBounds(407, 41, 93, 20);
 		contentPane.add(operationsComboBox[3]);
 
@@ -81,7 +73,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_3.setBounds(407, 11, 67, 14);
 		contentPane.add(lblOperation_3);
 
-		operationsComboBox[4] = new JComboBox();
+		operationsComboBox[4] = new JComboBox<Object>();
 		operationsComboBox[4].setBounds(528, 41, 93, 20);
 		contentPane.add(operationsComboBox[4]);
 
@@ -89,7 +81,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_4.setBounds(528, 11, 67, 14);
 		contentPane.add(lblOperation_4);
 
-		operationsComboBox[5] = new JComboBox();
+		operationsComboBox[5] = new JComboBox<Object>();
 		operationsComboBox[5].setBounds(22, 148, 93, 20);
 		contentPane.add(operationsComboBox[5]);
 
@@ -97,7 +89,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_5.setBounds(22, 118, 67, 14);
 		contentPane.add(lblOperation_5);
 
-		operationsComboBox[6] = new JComboBox();
+		operationsComboBox[6] = new JComboBox<Object>();
 		operationsComboBox[6].setBounds(151, 148, 93, 20);
 		contentPane.add(operationsComboBox[6]);
 
@@ -105,7 +97,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_6.setBounds(151, 118, 67, 14);
 		contentPane.add(lblOperation_6);
 
-		operationsComboBox[7] = new JComboBox();
+		operationsComboBox[7] = new JComboBox<Object>();
 		operationsComboBox[7].setBounds(277, 148, 93, 20);
 		contentPane.add(operationsComboBox[7]);
 
@@ -113,7 +105,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_7.setBounds(277, 118, 67, 14);
 		contentPane.add(lblOperation_7);
 
-		operationsComboBox[8] = new JComboBox();
+		operationsComboBox[8] = new JComboBox<Object>();
 		operationsComboBox[8].setBounds(407, 148, 93, 20);
 		contentPane.add(operationsComboBox[8]);
 
@@ -121,7 +113,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_8.setBounds(407, 118, 67, 14);
 		contentPane.add(lblOperation_8);
 
-		operationsComboBox[9] = new JComboBox();
+		operationsComboBox[9] = new JComboBox<Object>();
 		operationsComboBox[9].setBounds(528, 148, 93, 20);
 		contentPane.add(operationsComboBox[9]);
 
@@ -139,6 +131,10 @@ public class SelectOpsWindow extends JFrame
 			{
 				switch (operationsComboBox[0].getSelectedIndex())
 				{
+				case 0:
+					operationWindows[0] = null;
+					ThresholdUtility.operationsWindow.operations.set(0, new int[1]);
+					break;
 				case 1:
 					if (operationWindows[0] == null
 							|| !operationWindows[0].getClass().getName().contains("DilateWindow"))
@@ -178,6 +174,10 @@ public class SelectOpsWindow extends JFrame
 			{
 				switch (operationsComboBox[1].getSelectedIndex())
 				{
+				case 0:
+					operationWindows[1] = null;
+					ThresholdUtility.operationsWindow.operations.set(1, new int[1]);
+					break;
 				case 1:
 					if (operationWindows[1] == null
 							|| !operationWindows[1].getClass().getName().contains("DilateWindow"))
@@ -217,6 +217,10 @@ public class SelectOpsWindow extends JFrame
 			{
 				switch (operationsComboBox[2].getSelectedIndex())
 				{
+				case 0:
+					operationWindows[2] = null;
+					ThresholdUtility.operationsWindow.operations.set(2, new int[1]);
+					break;
 				case 1:
 					if (operationWindows[2] == null
 							|| !operationWindows[2].getClass().getName().contains("DilateWindow"))
@@ -256,6 +260,10 @@ public class SelectOpsWindow extends JFrame
 			{
 				switch (operationsComboBox[3].getSelectedIndex())
 				{
+				case 0:
+					operationWindows[3] = null;
+					ThresholdUtility.operationsWindow.operations.set(3, new int[1]);
+					break;
 				case 1:
 					if (operationWindows[3] == null
 							|| !operationWindows[3].getClass().getName().contains("DilateWindow"))
@@ -295,6 +303,10 @@ public class SelectOpsWindow extends JFrame
 			{
 				switch (operationsComboBox[4].getSelectedIndex())
 				{
+				case 0:
+					operationWindows[4] = null;
+					ThresholdUtility.operationsWindow.operations.set(4, new int[1]);
+					break;
 				case 1:
 					if (operationWindows[4] == null
 							|| !operationWindows[4].getClass().getName().contains("DilateWindow"))
@@ -325,7 +337,7 @@ public class SelectOpsWindow extends JFrame
 		});
 
 		btnParams[5] = new JButton("Params");
-		btnParams[5].setBounds(516, 188, 115, 29);
+		btnParams[5].setBounds(0, 188, 115, 29);
 		contentPane.add(btnParams[5]);
 		
 		btnParams[5].addActionListener(new ActionListener()
@@ -334,6 +346,10 @@ public class SelectOpsWindow extends JFrame
 			{
 				switch (operationsComboBox[5].getSelectedIndex())
 				{
+				case 0:
+					operationWindows[5] = null;
+					ThresholdUtility.operationsWindow.operations.set(5, new int[1]);
+					break;
 				case 1:
 					if (operationWindows[5] == null
 							|| !operationWindows[5].getClass().getName().contains("DilateWindow"))
@@ -364,38 +380,42 @@ public class SelectOpsWindow extends JFrame
 		});
 
 		btnParams[6] = new JButton("Params");
-		btnParams[6].setBounds(390, 188, 115, 29);
+		btnParams[6].setBounds(130, 188, 115, 29);
 		contentPane.add(btnParams[6]);
 		
 		btnParams[6].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				switch (operationsComboBox[5].getSelectedIndex())
+				switch (operationsComboBox[6].getSelectedIndex())
 				{
+				case 0:
+					operationWindows[6] = null;
+					ThresholdUtility.operationsWindow.operations.set(6, new int[1]);
+					break;
 				case 1:
-					if (operationWindows[5] == null
-							|| !operationWindows[5].getClass().getName().contains("DilateWindow"))
+					if (operationWindows[6] == null
+							|| !operationWindows[6].getClass().getName().contains("DilateWindow"))
 					{
-						operationWindows[5] = new DilateWindow(5);
+						operationWindows[6] = new DilateWindow(6);
 					}
-					operationWindows[5].displayWindows();
+					operationWindows[6].displayWindows();
 					break;
 				case 2:
-					if (operationWindows[5] == null
-							|| !operationWindows[5].getClass().getName().contains("ErodeWindow"))
+					if (operationWindows[6] == null
+							|| !operationWindows[6].getClass().getName().contains("ErodeWindow"))
 					{
-						operationWindows[5] = new ErodeWindow(5);
+						operationWindows[6] = new ErodeWindow(6);
 					}
-					operationWindows[5].displayWindows();
+					operationWindows[6].displayWindows();
 					break;
 				case 3:
-					if (operationWindows[5] == null
-							|| !operationWindows[5].getClass().getName().contains("ThresholdWindows"))
+					if (operationWindows[6] == null
+							|| !operationWindows[6].getClass().getName().contains("ThresholdWindows"))
 					{
-						operationWindows[5] = new ThresholdWindows(5);
+						operationWindows[6] = new ThresholdWindows(6);
 					}
-					operationWindows[5].displayWindows();
+					operationWindows[6].displayWindows();
 
 					break;
 				}
@@ -412,6 +432,10 @@ public class SelectOpsWindow extends JFrame
 			{
 				switch (operationsComboBox[7].getSelectedIndex())
 				{
+				case 0:
+					operationWindows[7] = null;
+					ThresholdUtility.operationsWindow.operations.set(7, new int[1]);
+					break;
 				case 1:
 					if (operationWindows[7] == null
 							|| !operationWindows[7].getClass().getName().contains("DilateWindow"))
@@ -442,7 +466,7 @@ public class SelectOpsWindow extends JFrame
 		});
 
 		btnParams[8] = new JButton("Params");
-		btnParams[8].setBounds(130, 188, 115, 29);
+		btnParams[8].setBounds(390, 188, 115, 29);
 		contentPane.add(btnParams[8]);
 		
 		btnParams[8].addActionListener(new ActionListener()
@@ -451,6 +475,10 @@ public class SelectOpsWindow extends JFrame
 			{
 				switch (operationsComboBox[8].getSelectedIndex())
 				{
+				case 0:
+					operationWindows[8] = null;
+					ThresholdUtility.operationsWindow.operations.set(8, new int[1]);
+					break;
 				case 1:
 					if (operationWindows[8] == null
 							|| !operationWindows[8].getClass().getName().contains("DilateWindow"))
@@ -481,7 +509,7 @@ public class SelectOpsWindow extends JFrame
 		});
 
 		btnParams[9] = new JButton("Params");
-		btnParams[9].setBounds(0, 188, 115, 29);
+		btnParams[9].setBounds(516, 188, 115, 29);
 		contentPane.add(btnParams[9]);
 		
 		btnParams[9].addActionListener(new ActionListener()
@@ -490,6 +518,10 @@ public class SelectOpsWindow extends JFrame
 			{
 				switch (operationsComboBox[9].getSelectedIndex())
 				{
+				case 0:
+					operationWindows[9] = null;
+					ThresholdUtility.operationsWindow.operations.set(9, new int[1]);
+					break;
 				case 1:
 					if (operationWindows[9] == null
 							|| !operationWindows[9].getClass().getName().contains("DilateWindow"))

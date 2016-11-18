@@ -1,6 +1,8 @@
 package thresholdUtility;
 
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -52,6 +54,8 @@ public class ThresholdUtility implements java.io.Serializable
 	public static ThresholdWindows thresholdWindows = null;
 
 	public static SelectOpsWindow operationsWindow = new SelectOpsWindow();
+
+	public static Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public static void main(String[] args) throws InterruptedException, IOException
 	{
@@ -242,7 +246,21 @@ public class ThresholdUtility implements java.io.Serializable
 			frame.getContentPane().add(label);
 			frame.pack();
 			frame.setVisible(true);
-			frame.setBounds(600, 0, 400, 300);
+			frame.setBounds((int) Math.round(0.32421875 * d.getWidth()), (int) Math.round(0.146484375 * d.getHeight()),
+					400, 300);
+
+			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+
+			try
+			{
+				Thread.sleep(5000);
+			} catch (InterruptedException e1)
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			System.out.println(frame.getX() / d.getWidth());
+			System.out.println(frame.getY() / d.getHeight());
 			break;
 		case Refresh:
 			frame.getContentPane().remove(label);
@@ -391,7 +409,7 @@ public class ThresholdUtility implements java.io.Serializable
 	{
 		Mat alteredMat = new Mat();
 		alteredMat = m.clone();
-		if(size < 1)
+		if (size < 1)
 			return alteredMat;
 
 		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
@@ -410,7 +428,7 @@ public class ThresholdUtility implements java.io.Serializable
 	{
 		Mat alteredMat = new Mat();
 		alteredMat = m.clone();
-		if(size < 1)
+		if (size < 1)
 			return alteredMat;
 		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
 		Imgproc.erode(alteredMat, alteredMat, element, new Point(-1, -1), iterations);
