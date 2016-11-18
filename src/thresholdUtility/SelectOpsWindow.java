@@ -171,38 +171,353 @@ public class SelectOpsWindow extends JFrame
 		btnParams[1] = new JButton("Params");
 		btnParams[1].setBounds(130, 83, 115, 29);
 		contentPane.add(btnParams[1]);
+		
+		btnParams[1].addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				switch (operationsComboBox[1].getSelectedIndex())
+				{
+				case 1:
+					if (operationWindows[1] == null
+							|| !operationWindows[1].getClass().getName().contains("DilateWindow"))
+					{
+						operationWindows[1] = new DilateWindow(1);
+					}
+					operationWindows[1].displayWindows();
+					break;
+				case 2:
+					if (operationWindows[1] == null
+							|| !operationWindows[1].getClass().getName().contains("ErodeWindow"))
+					{
+						operationWindows[1] = new ErodeWindow(1);
+					}
+					operationWindows[1].displayWindows();
+					break;
+				case 3:
+					if (operationWindows[1] == null
+							|| !operationWindows[1].getClass().getName().contains("ThresholdWindows"))
+					{
+						operationWindows[1] = new ThresholdWindows(1);
+					}
+					operationWindows[1].displayWindows();
+
+					break;
+				}
+			}
+		});
 
 		btnParams[2] = new JButton("Params");
 		btnParams[2].setBounds(260, 83, 115, 29);
 		contentPane.add(btnParams[2]);
+		
+		btnParams[2].addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				switch (operationsComboBox[2].getSelectedIndex())
+				{
+				case 1:
+					if (operationWindows[2] == null
+							|| !operationWindows[2].getClass().getName().contains("DilateWindow"))
+					{
+						operationWindows[2] = new DilateWindow(2);
+					}
+					operationWindows[2].displayWindows();
+					break;
+				case 2:
+					if (operationWindows[2] == null
+							|| !operationWindows[2].getClass().getName().contains("ErodeWindow"))
+					{
+						operationWindows[2] = new ErodeWindow(2);
+					}
+					operationWindows[2].displayWindows();
+					break;
+				case 3:
+					if (operationWindows[2] == null
+							|| !operationWindows[2].getClass().getName().contains("ThresholdWindows"))
+					{
+						operationWindows[2] = new ThresholdWindows(2);
+					}
+					operationWindows[2].displayWindows();
+
+					break;
+				}
+			}
+		});
 
 		btnParams[3] = new JButton("Params");
 		btnParams[3].setBounds(390, 83, 115, 29);
 		contentPane.add(btnParams[3]);
+		
+		btnParams[3].addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				switch (operationsComboBox[3].getSelectedIndex())
+				{
+				case 1:
+					if (operationWindows[3] == null
+							|| !operationWindows[3].getClass().getName().contains("DilateWindow"))
+					{
+						operationWindows[3] = new DilateWindow(3);
+					}
+					operationWindows[3].displayWindows();
+					break;
+				case 2:
+					if (operationWindows[3] == null
+							|| !operationWindows[3].getClass().getName().contains("ErodeWindow"))
+					{
+						operationWindows[3] = new ErodeWindow(3);
+					}
+					operationWindows[3].displayWindows();
+					break;
+				case 3:
+					if (operationWindows[3] == null
+							|| !operationWindows[3].getClass().getName().contains("ThresholdWindows"))
+					{
+						operationWindows[3] = new ThresholdWindows(3);
+					}
+					operationWindows[3].displayWindows();
+
+					break;
+				}
+			}
+		});
 
 		btnParams[4] = new JButton("Params");
 		btnParams[4].setBounds(516, 83, 115, 29);
 		contentPane.add(btnParams[4]);
+		
+		btnParams[4].addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				switch (operationsComboBox[4].getSelectedIndex())
+				{
+				case 1:
+					if (operationWindows[4] == null
+							|| !operationWindows[4].getClass().getName().contains("DilateWindow"))
+					{
+						operationWindows[4] = new DilateWindow(4);
+					}
+					operationWindows[4].displayWindows();
+					break;
+				case 2:
+					if (operationWindows[4] == null
+							|| !operationWindows[4].getClass().getName().contains("ErodeWindow"))
+					{
+						operationWindows[4] = new ErodeWindow(4);
+					}
+					operationWindows[4].displayWindows();
+					break;
+				case 3:
+					if (operationWindows[4] == null
+							|| !operationWindows[4].getClass().getName().contains("ThresholdWindows"))
+					{
+						operationWindows[4] = new ThresholdWindows(4);
+					}
+					operationWindows[4].displayWindows();
+
+					break;
+				}
+			}
+		});
 
 		btnParams[5] = new JButton("Params");
 		btnParams[5].setBounds(516, 188, 115, 29);
 		contentPane.add(btnParams[5]);
+		
+		btnParams[5].addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				switch (operationsComboBox[5].getSelectedIndex())
+				{
+				case 1:
+					if (operationWindows[5] == null
+							|| !operationWindows[5].getClass().getName().contains("DilateWindow"))
+					{
+						operationWindows[5] = new DilateWindow(5);
+					}
+					operationWindows[5].displayWindows();
+					break;
+				case 2:
+					if (operationWindows[5] == null
+							|| !operationWindows[5].getClass().getName().contains("ErodeWindow"))
+					{
+						operationWindows[5] = new ErodeWindow(5);
+					}
+					operationWindows[5].displayWindows();
+					break;
+				case 3:
+					if (operationWindows[5] == null
+							|| !operationWindows[5].getClass().getName().contains("ThresholdWindows"))
+					{
+						operationWindows[5] = new ThresholdWindows(5);
+					}
+					operationWindows[5].displayWindows();
+
+					break;
+				}
+			}
+		});
 
 		btnParams[6] = new JButton("Params");
 		btnParams[6].setBounds(390, 188, 115, 29);
 		contentPane.add(btnParams[6]);
+		
+		btnParams[6].addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				switch (operationsComboBox[5].getSelectedIndex())
+				{
+				case 1:
+					if (operationWindows[5] == null
+							|| !operationWindows[5].getClass().getName().contains("DilateWindow"))
+					{
+						operationWindows[5] = new DilateWindow(5);
+					}
+					operationWindows[5].displayWindows();
+					break;
+				case 2:
+					if (operationWindows[5] == null
+							|| !operationWindows[5].getClass().getName().contains("ErodeWindow"))
+					{
+						operationWindows[5] = new ErodeWindow(5);
+					}
+					operationWindows[5].displayWindows();
+					break;
+				case 3:
+					if (operationWindows[5] == null
+							|| !operationWindows[5].getClass().getName().contains("ThresholdWindows"))
+					{
+						operationWindows[5] = new ThresholdWindows(5);
+					}
+					operationWindows[5].displayWindows();
+
+					break;
+				}
+			}
+		});
 
 		btnParams[7] = new JButton("Params");
 		btnParams[7].setBounds(260, 188, 115, 29);
 		contentPane.add(btnParams[7]);
+		
+		btnParams[7].addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				switch (operationsComboBox[7].getSelectedIndex())
+				{
+				case 1:
+					if (operationWindows[7] == null
+							|| !operationWindows[7].getClass().getName().contains("DilateWindow"))
+					{
+						operationWindows[7] = new DilateWindow(7);
+					}
+					operationWindows[7].displayWindows();
+					break;
+				case 2:
+					if (operationWindows[7] == null
+							|| !operationWindows[7].getClass().getName().contains("ErodeWindow"))
+					{
+						operationWindows[7] = new ErodeWindow(7);
+					}
+					operationWindows[7].displayWindows();
+					break;
+				case 3:
+					if (operationWindows[7] == null
+							|| !operationWindows[7].getClass().getName().contains("ThresholdWindows"))
+					{
+						operationWindows[7] = new ThresholdWindows(7);
+					}
+					operationWindows[7].displayWindows();
+
+					break;
+				}
+			}
+		});
 
 		btnParams[8] = new JButton("Params");
 		btnParams[8].setBounds(130, 188, 115, 29);
 		contentPane.add(btnParams[8]);
+		
+		btnParams[8].addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				switch (operationsComboBox[8].getSelectedIndex())
+				{
+				case 1:
+					if (operationWindows[8] == null
+							|| !operationWindows[8].getClass().getName().contains("DilateWindow"))
+					{
+						operationWindows[8] = new DilateWindow(8);
+					}
+					operationWindows[8].displayWindows();
+					break;
+				case 2:
+					if (operationWindows[8] == null
+							|| !operationWindows[8].getClass().getName().contains("ErodeWindow"))
+					{
+						operationWindows[8] = new ErodeWindow(8);
+					}
+					operationWindows[8].displayWindows();
+					break;
+				case 3:
+					if (operationWindows[8] == null
+							|| !operationWindows[8].getClass().getName().contains("ThresholdWindows"))
+					{
+						operationWindows[8] = new ThresholdWindows(8);
+					}
+					operationWindows[8].displayWindows();
+
+					break;
+				}
+			}
+		});
 
 		btnParams[9] = new JButton("Params");
 		btnParams[9].setBounds(0, 188, 115, 29);
 		contentPane.add(btnParams[9]);
+		
+		btnParams[9].addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				switch (operationsComboBox[9].getSelectedIndex())
+				{
+				case 1:
+					if (operationWindows[9] == null
+							|| !operationWindows[9].getClass().getName().contains("DilateWindow"))
+					{
+						operationWindows[9] = new DilateWindow(9);
+					}
+					operationWindows[9].displayWindows();
+					break;
+				case 2:
+					if (operationWindows[9] == null
+							|| !operationWindows[9].getClass().getName().contains("ErodeWindow"))
+					{
+						operationWindows[9] = new ErodeWindow(9);
+					}
+					operationWindows[9].displayWindows();
+					break;
+				case 3:
+					if (operationWindows[9] == null
+							|| !operationWindows[9].getClass().getName().contains("ThresholdWindows"))
+					{
+						operationWindows[9] = new ThresholdWindows(9);
+					}
+					operationWindows[9].displayWindows();
+
+					break;
+				}
+			}
+		});
 
 		for (int i = 0; i < operationsComboBox.length; i++)
 		{

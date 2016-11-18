@@ -78,13 +78,14 @@ public class ThresholdUtility implements java.io.Serializable
 			if (config != null && mat != null && !mat.empty())
 
 			{
+				Imgproc.resize(mat, mat, new Size(300, 400));
+				arrayOfPoints.clear();
 				alteredMat = mat.clone();
 				for (int i = 0; i < config.size(); i++)
 				{
 					if (config.get(i)[0] == 3)
 					{
 						hasThreshold = true;
-						System.out.println("Thresholding...");
 						alteredMat = threshold(alteredMat,
 								new Scalar(config.get(i)[1], config.get(i)[2], config.get(i)[3]),
 								new Scalar(config.get(i)[4], config.get(i)[5], config.get(i)[6]),
@@ -102,7 +103,7 @@ public class ThresholdUtility implements java.io.Serializable
 				{
 					Imgproc.findContours(alteredMat, arrayOfPoints, new Mat(), Imgproc.RETR_LIST,
 							Imgproc.CHAIN_APPROX_SIMPLE);
-					Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 0, 0));
+					Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 0, 0), -1);
 				}
 				imShow(ImShowVal.Refresh, convertToImage(alteredMat));
 			}
@@ -390,7 +391,8 @@ public class ThresholdUtility implements java.io.Serializable
 	{
 		Mat alteredMat = new Mat();
 		alteredMat = m.clone();
-		System.out.println("Dilating with " + size + " size and " + iterations + " iterations");
+		if(size < 1)
+			return alteredMat;
 
 		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
 		Imgproc.dilate(alteredMat, alteredMat, element, new Point(-1, -1), iterations);
@@ -408,7 +410,8 @@ public class ThresholdUtility implements java.io.Serializable
 	{
 		Mat alteredMat = new Mat();
 		alteredMat = m.clone();
-		System.out.println("Eroding with " + size + " size and " + iterations + " iterations");
+		if(size < 1)
+			return alteredMat;
 		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
 		Imgproc.erode(alteredMat, alteredMat, element, new Point(-1, -1), iterations);
 		return alteredMat;
@@ -428,7 +431,6 @@ public class ThresholdUtility implements java.io.Serializable
 	{
 		Mat alteredMat = new Mat();
 		alteredMat = m.clone();
-		System.out.println("Thresholding image");
 		Core.add(alteredMat, brightness, alteredMat);
 		Core.inRange(alteredMat, lowerBound, upperBound, alteredMat);
 		return alteredMat;

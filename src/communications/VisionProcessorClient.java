@@ -304,6 +304,8 @@ public class VisionProcessorClient
 		{
 			Mat alteredMat = new Mat();
 			alteredMat = m.clone();
+			if(size < 1)
+				return alteredMat;
 			System.out.println("Dilating with " + size + " size and " + iterations + " iterations");
 
 			Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
@@ -322,6 +324,8 @@ public class VisionProcessorClient
 		{
 			Mat alteredMat = new Mat();
 			alteredMat = m.clone();
+			if(size < 1)
+				return alteredMat;
 			System.out.println("Eroding with " + size + " size and " + iterations + " iterations");
 			Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
 			Imgproc.erode(alteredMat, alteredMat, element, new Point(-1, -1), iterations);

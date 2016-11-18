@@ -135,7 +135,7 @@ public class VisionProcessor extends Thread {
 			FileInputStream fis = new FileInputStream(destination);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 
-			thresholdValues = (int[]) ois.readObject();
+			operations = (ArrayList<int[]>) ois.readObject();
 
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
