@@ -559,7 +559,14 @@ public class SelectOpsWindow extends JFrame
 			operationsComboBox[i].addItem("Threshold");
 
 		}
-
+		try
+		{
+			Thread.sleep(5000);
+		} catch (InterruptedException e1)
+		{
+			e1.printStackTrace();
+		}
+		System.out.println(this.getX);
 	}
 
 	public void setOperations(ArrayList<int[]> al)
