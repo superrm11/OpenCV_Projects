@@ -10,11 +10,10 @@ import javax.swing.event.ChangeListener;
 public class RemoveSmObsWindow implements OperationWindows
 {
 	private final int operationIndex;
-	private int[] lastSetParams =
-	{ 4, 0, 0 };
 
 	public RemoveSmObsWindow(int operationIndex)
 	{
+		createSmObsWindow();
 		this.operationIndex = operationIndex;
 	}
 
@@ -41,7 +40,7 @@ public class RemoveSmObsWindow implements OperationWindows
 	@Override
 	public void displayWindows()
 	{
-		frame.setVisible(true);
+		this.frame.setVisible(true);
 	}
 
 	public JFrame frame;
@@ -51,10 +50,10 @@ public class RemoveSmObsWindow implements OperationWindows
 	private JSpinner iterationsSpinner;
 	private JSpinner sizeSpinner;
 
-	public void createDilationWindow()
+	public void createSmObsWindow()
 	{
 		frame = new JFrame();
-		frame.setTitle("Dilation");
+		frame.setTitle("Remove Small Objects");
 		frame.getContentPane().setLayout(null);
 		frame.setSize(400, 300);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -78,8 +77,6 @@ public class RemoveSmObsWindow implements OperationWindows
 			public void stateChanged(ChangeEvent e)
 			{
 				iterationsSpinner.setValue(iterationsSlider.getValue() / 10);
-
-				lastSetParams = getParams();
 				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 		});
@@ -95,8 +92,6 @@ public class RemoveSmObsWindow implements OperationWindows
 			public void stateChanged(ChangeEvent e)
 			{
 				sizeSpinner.setValue(sizeSlider.getValue() / 10);
-
-				lastSetParams = getParams();
 				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 
@@ -111,8 +106,6 @@ public class RemoveSmObsWindow implements OperationWindows
 			public void stateChanged(ChangeEvent e)
 			{
 				iterationsSlider.setValue((int) iterationsSpinner.getValue() * 10);
-
-				lastSetParams = getParams();
 				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 		});
@@ -126,8 +119,6 @@ public class RemoveSmObsWindow implements OperationWindows
 			public void stateChanged(ChangeEvent e)
 			{
 				sizeSlider.setValue((int) sizeSpinner.getValue() * 10);
-
-				lastSetParams = getParams();
 				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 		});

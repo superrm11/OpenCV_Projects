@@ -14,7 +14,6 @@ import javax.swing.JButton;
 public class SelectOpsWindow extends JFrame
 {
 
-
 	private JPanel contentPane;
 
 	public static JComboBox[] operationsComboBox = new JComboBox[10];
@@ -35,7 +34,8 @@ public class SelectOpsWindow extends JFrame
 
 		setTitle("Operations");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 653, 289);
+		setBounds((int) Math.round(0.2296875 * ThresholdUtility.dimension.getWidth()),
+				(int) Math.round(0.5107421875 * ThresholdUtility.dimension.getHeight()), 653, 289);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -158,7 +158,14 @@ public class SelectOpsWindow extends JFrame
 						operationWindows[0] = new ThresholdWindows(0);
 					}
 					operationWindows[0].displayWindows();
-
+					break;
+				case 4:
+					if (operationWindows[0] == null
+							|| !operationWindows[0].getClass().getName().contains("RemoveSmObsWindow"))
+					{
+						operationWindows[0] = new RemoveSmObsWindow(0);
+					}
+					operationWindows[0].displayWindows();
 					break;
 				}
 			}
@@ -167,7 +174,7 @@ public class SelectOpsWindow extends JFrame
 		btnParams[1] = new JButton("Params");
 		btnParams[1].setBounds(130, 83, 115, 29);
 		contentPane.add(btnParams[1]);
-		
+
 		btnParams[1].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -203,6 +210,14 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[1].displayWindows();
 
 					break;
+				case 4:
+					if (operationWindows[1] == null
+							|| !operationWindows[1].getClass().getName().contains("RemoveSmObsWindow"))
+					{
+						operationWindows[1] = new RemoveSmObsWindow(1);
+					}
+					operationWindows[1].displayWindows();
+					break;
 				}
 			}
 		});
@@ -210,7 +225,7 @@ public class SelectOpsWindow extends JFrame
 		btnParams[2] = new JButton("Params");
 		btnParams[2].setBounds(260, 83, 115, 29);
 		contentPane.add(btnParams[2]);
-		
+
 		btnParams[2].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -246,14 +261,23 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[2].displayWindows();
 
 					break;
+				case 4:
+					if (operationWindows[2] == null
+							|| !operationWindows[2].getClass().getName().contains("RemoveSmObsWindow"))
+					{
+						operationWindows[2] = new RemoveSmObsWindow(2);
+					}
+					operationWindows[2].displayWindows();
+					break;
 				}
+
 			}
 		});
 
 		btnParams[3] = new JButton("Params");
 		btnParams[3].setBounds(390, 83, 115, 29);
 		contentPane.add(btnParams[3]);
-		
+
 		btnParams[3].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -289,6 +313,14 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[3].displayWindows();
 
 					break;
+				case 4:
+					if (operationWindows[3] == null
+							|| !operationWindows[3].getClass().getName().contains("RemoveSmObsWindow"))
+					{
+						operationWindows[3] = new RemoveSmObsWindow(3);
+					}
+					operationWindows[3].displayWindows();
+					break;
 				}
 			}
 		});
@@ -296,7 +328,7 @@ public class SelectOpsWindow extends JFrame
 		btnParams[4] = new JButton("Params");
 		btnParams[4].setBounds(516, 83, 115, 29);
 		contentPane.add(btnParams[4]);
-		
+
 		btnParams[4].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -332,6 +364,14 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[4].displayWindows();
 
 					break;
+				case 4:
+					if (operationWindows[4] == null
+							|| !operationWindows[4].getClass().getName().contains("RemoveSmObsWindow"))
+					{
+						operationWindows[4] = new RemoveSmObsWindow(4);
+					}
+					operationWindows[4].displayWindows();
+					break;
 				}
 			}
 		});
@@ -339,7 +379,7 @@ public class SelectOpsWindow extends JFrame
 		btnParams[5] = new JButton("Params");
 		btnParams[5].setBounds(0, 188, 115, 29);
 		contentPane.add(btnParams[5]);
-		
+
 		btnParams[5].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -375,6 +415,14 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[5].displayWindows();
 
 					break;
+				case 4:
+					if (operationWindows[5] == null
+							|| !operationWindows[5].getClass().getName().contains("RemoveSmObsWindow"))
+					{
+						operationWindows[5] = new RemoveSmObsWindow(5);
+					}
+					operationWindows[5].displayWindows();
+					break;
 				}
 			}
 		});
@@ -382,7 +430,7 @@ public class SelectOpsWindow extends JFrame
 		btnParams[6] = new JButton("Params");
 		btnParams[6].setBounds(130, 188, 115, 29);
 		contentPane.add(btnParams[6]);
-		
+
 		btnParams[6].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -418,6 +466,14 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[6].displayWindows();
 
 					break;
+				case 4:
+					if (operationWindows[6] == null
+							|| !operationWindows[6].getClass().getName().contains("RemoveSmObsWindow"))
+					{
+						operationWindows[6] = new RemoveSmObsWindow(6);
+					}
+					operationWindows[6].displayWindows();
+					break;
 				}
 			}
 		});
@@ -425,7 +481,7 @@ public class SelectOpsWindow extends JFrame
 		btnParams[7] = new JButton("Params");
 		btnParams[7].setBounds(260, 188, 115, 29);
 		contentPane.add(btnParams[7]);
-		
+
 		btnParams[7].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -461,6 +517,14 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[7].displayWindows();
 
 					break;
+				case 4:
+					if (operationWindows[7] == null
+							|| !operationWindows[7].getClass().getName().contains("RemoveSmObsWindow"))
+					{
+						operationWindows[7] = new RemoveSmObsWindow(7);
+					}
+					operationWindows[7].displayWindows();
+					break;
 				}
 			}
 		});
@@ -468,7 +532,7 @@ public class SelectOpsWindow extends JFrame
 		btnParams[8] = new JButton("Params");
 		btnParams[8].setBounds(390, 188, 115, 29);
 		contentPane.add(btnParams[8]);
-		
+
 		btnParams[8].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -504,6 +568,14 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[8].displayWindows();
 
 					break;
+				case 4:
+					if (operationWindows[8] == null
+							|| !operationWindows[8].getClass().getName().contains("RemoveSmObsWindow"))
+					{
+						operationWindows[8] = new RemoveSmObsWindow(8);
+					}
+					operationWindows[8].displayWindows();
+					break;
 				}
 			}
 		});
@@ -511,7 +583,7 @@ public class SelectOpsWindow extends JFrame
 		btnParams[9] = new JButton("Params");
 		btnParams[9].setBounds(516, 188, 115, 29);
 		contentPane.add(btnParams[9]);
-		
+
 		btnParams[9].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -547,7 +619,16 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[9].displayWindows();
 
 					break;
+				case 4:
+					if (operationWindows[9] == null
+							|| !operationWindows[9].getClass().getName().contains("RemoveSmObsWindow"))
+					{
+						operationWindows[9] = new RemoveSmObsWindow(9);
+					}
+					operationWindows[9].displayWindows();
+					break;
 				}
+				
 			}
 		});
 
@@ -557,14 +638,8 @@ public class SelectOpsWindow extends JFrame
 			operationsComboBox[i].addItem("Dilate");
 			operationsComboBox[i].addItem("Erode");
 			operationsComboBox[i].addItem("Threshold");
+			operationsComboBox[i].addItem("Rm Sml Obs");
 
-		}
-		try
-		{
-			Thread.sleep(5000);
-		} catch (InterruptedException e1)
-		{
-			e1.printStackTrace();
 		}
 	}
 

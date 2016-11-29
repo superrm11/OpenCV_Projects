@@ -53,7 +53,7 @@ public class ThresholdUtility implements java.io.Serializable
 
 	public static ThresholdWindows thresholdWindows = null;
 
-	public static SelectOpsWindow operationsWindow = new SelectOpsWindow();
+	public static SelectOpsWindow operationsWindow;
 
 	public static Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -64,15 +64,16 @@ public class ThresholdUtility implements java.io.Serializable
 		mat = null;
 		Mat alteredMat = new Mat();
 
-		operationsWindow.setVisible(true);
-
 		imShow(ImShowVal.Start, null);
 		ArrayList<MatOfPoint> arrayOfPoints = new ArrayList<MatOfPoint>();
 		Mat hierarchy = new Mat();
 		Mat displayMat = new Mat();
-		// start the background processes with mundane tasks in a different
-		// thread
-
+		operationsWindow = new SelectOpsWindow();
+		operationsWindow.setVisible(true);
+		Thread.sleep(5000);
+		System.out.println("X: " + operationsWindow.getX() / dimension.getWidth());
+		System.out.println("Y: " + operationsWindow.getY() / dimension.getHeight());
+		
 		ArrayList<int[]> config = new ArrayList<int[]>();
 		boolean hasThreshold;
 		while (true)
@@ -101,6 +102,9 @@ public class ThresholdUtility implements java.io.Serializable
 					} else if (config.get(i)[0] == 1)
 					{
 						alteredMat = dilate(alteredMat, config.get(i)[1], config.get(i)[2]);
+					} else if(config.get(i)[0] == 4)
+					{
+						alteredMat = removeSmallObjects(alteredMat, config.get(i)[1], config.get(i)[2]);
 					}
 				}
 				if (hasThreshold == true)
