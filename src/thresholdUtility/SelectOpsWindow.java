@@ -566,7 +566,6 @@ public class SelectOpsWindow extends JFrame
 		{
 			e1.printStackTrace();
 		}
-		System.out.println(this.getX);
 	}
 
 	public void setOperations(ArrayList<int[]> al)

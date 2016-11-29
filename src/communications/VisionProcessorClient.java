@@ -1,5 +1,8 @@
 package communications;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -28,6 +31,18 @@ public class VisionProcessorClient
 	 */
 	public static void main(String[] args)
 	{
+		
+		String ip = "";
+		try
+		{
+			FileReader fr = new FileReader("/home/pi/ip.txt");
+			BufferedReader bfr = new BufferedReader(fr);
+			ip = bfr.readLine();
+			IP_ADDRESS = ip;
+		} catch (IOException e1)
+		{
+			IP_ADDRESS = "localhost";
+		}
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		image = new Mat();
 		cap = new VideoCapture();
@@ -357,6 +372,6 @@ public class VisionProcessorClient
 	/**
 	 * The location the server is being hosted on.
 	 */
-	private final static String IP_ADDRESS = "localhost";
+	private static String IP_ADDRESS;
 
 }

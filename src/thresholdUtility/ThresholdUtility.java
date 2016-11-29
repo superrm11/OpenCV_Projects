@@ -246,8 +246,8 @@ public class ThresholdUtility implements java.io.Serializable
 			frame.getContentPane().add(label);
 			frame.pack();
 			frame.setVisible(true);
-			frame.setBounds((int) Math.round(0.32421875 * dimension.getWidth()), (int) Math.round(0.146484375 * dimension.getHeight()),
-					400, 300);
+			frame.setBounds((int) Math.round(0.32421875 * dimension.getWidth()),
+					(int) Math.round(0.146484375 * dimension.getHeight()), 400, 300);
 
 			break;
 		case Refresh:
@@ -439,6 +439,29 @@ public class ThresholdUtility implements java.io.Serializable
 		alteredMat = m.clone();
 		Core.add(alteredMat, brightness, alteredMat);
 		Core.inRange(alteredMat, lowerBound, upperBound, alteredMat);
+		return alteredMat;
+	}
+
+	/** @WIP THIS MAY OR MAY NOT WORK RIGHT NOW!
+	 * This is to remove small blobs that we don't want to see, without affecting size of other blobs.
+	 * @param m input matrix (image)
+	 * @param size how large the blobs are that you want to remove
+	 * @param iterations how many times you want to run it
+	 * @return matrix (image) after removing the objects
+	 */
+	@SuppressWarnings("unused")
+	private static Mat removeSmallObjects(Mat m, int size, int iterations)
+	{
+		Mat alteredMat = new Mat();
+		alteredMat = m.clone();
+
+		ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+		Mat sElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
+		Imgproc.erode(alteredMat, alteredMat, sElement, new Point(-1, -1), iterations);
+		ArrayList<MatOfPoint> erodedContours = new ArrayList<MatOfPoint>();
+		Core.compare(m, alteredMat, alteredMat, Core.CMP_NE);
+		
+
 		return alteredMat;
 	}
 }
