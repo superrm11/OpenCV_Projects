@@ -83,7 +83,6 @@ public class ThresholdUtility implements java.io.Serializable
 			if (config != null && mat != null && !mat.empty())
 
 			{
-				Imgproc.resize(mat, mat, new Size(300, 400));
 				arrayOfPoints.clear();
 				alteredMat = mat.clone();
 				for (int i = 0; i < config.size(); i++)
@@ -102,9 +101,9 @@ public class ThresholdUtility implements java.io.Serializable
 					} else if (config.get(i)[0] == 1)
 					{
 						alteredMat = dilate(alteredMat, config.get(i)[1], config.get(i)[2]);
-					} else if(config.get(i)[0] == 4)
-					{
-						alteredMat = removeSmallObjects(alteredMat, config.get(i)[1], config.get(i)[2]);
+//					} else if(config.get(i)[0] == 4)
+//					{
+//						alteredMat = removeSmallObjects(alteredMat, config.get(i)[1], config.get(i)[2]);
 					}
 				}
 				if (hasThreshold == true)
@@ -458,14 +457,21 @@ public class ThresholdUtility implements java.io.Serializable
 	{
 		Mat alteredMat = new Mat();
 		alteredMat = m.clone();
-
+		if(size < 1)
+			return alteredMat;
 		ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Mat sElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
-		Imgproc.erode(alteredMat, alteredMat, sElement, new Point(-1, -1), iterations);
-		ArrayList<MatOfPoint> erodedContours = new ArrayList<MatOfPoint>();
-		Core.compare(m, alteredMat, alteredMat, Core.CMP_NE);
-		
-
-		return alteredMat;
+		Imgproc.findContours(alteredMat, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		ArrayList<MatOfPoint> newContours = new ArrayList<MatOfPoint>();
+		for(int i = 0; i < contours.size(); i++)
+		{
+			if(Imgproc.contourArea(contours.get(i)) > (size * 100))
+			{
+				newContours.add(contours.get(i));
+			}
+		}
+		System.out.println(alteredMat.type());
+		Mat newAlteredMat = new Mat(alteredMat.rows(), alteredMat.cols(), alteredMat.type());
+		Imgproc.drawContours(newAlteredMat, newContours, -1, new Scalar(255,255,255));
+		return newAlteredMat;
 	}
 }

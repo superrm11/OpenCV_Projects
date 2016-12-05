@@ -31,7 +31,7 @@ public class VisionProcessorClient
 	 */
 	public static void main(String[] args)
 	{
-		
+
 		String ip = "";
 		try
 		{
@@ -46,7 +46,7 @@ public class VisionProcessorClient
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		image = new Mat();
 		cap = new VideoCapture();
-		cap.open(0);
+		cap.open(0);// "http://10.3.39.11/mjpg/video.mjpg");
 		System.out.println(cap.isOpened());
 		try
 		{
@@ -89,6 +89,7 @@ public class VisionProcessorClient
 	{
 		if (cap.isOpened() == true)
 		{
+			cap.grab();
 			cap.retrieve(image);
 			return image;
 		} else
@@ -138,7 +139,7 @@ public class VisionProcessorClient
 			try
 			{
 				// Create the sockets based on the ports given
-				Socket socket = new Socket("localhost", port);
+				Socket socket = new Socket(IP_ADDRESS, port);
 				System.out.println("Sockets created");
 				ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
@@ -146,15 +147,16 @@ public class VisionProcessorClient
 				int command = 0;
 				while (true)
 				{
-					// If the input stream is available, read the command
-					if (ois.available() > 0)
+					if(ois.available() > 0)
 					{
 						command = ois.readInt();
+					}
 
-					} else if (command == -1)
+					if (command == -1)
 					{
 						System.out.println("Received process image command");
-						blobs = processImage();
+						if (!isProcessingImage)
+							blobs = processImage();
 						if (blobs != null)
 						{
 							oos.writeObject(blobs);
@@ -197,7 +199,8 @@ public class VisionProcessorClient
 					{
 						blobs = processImage();
 					}
-
+					Thread.sleep(1);
+					
 				}
 
 			} catch (IOException |
@@ -206,6 +209,10 @@ public class VisionProcessorClient
 			{
 				e.printStackTrace();
 				System.exit(1);
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
@@ -219,6 +226,7 @@ public class VisionProcessorClient
 		boolean saveProcessedImage = false;
 		int fileNumber = 0;
 		String destination;
+		boolean isProcessingImage = false;
 
 		/**
 		 * Will process a mat based on the order set by the RoboRIO COMMANDS:
@@ -233,6 +241,7 @@ public class VisionProcessorClient
 		 */
 		private ArrayList<int[]> processImage()
 		{
+			isProcessingImage = true;
 			ArrayList<int[]> blobs = new ArrayList<int[]>();
 			Mat m;
 
@@ -302,7 +311,7 @@ public class VisionProcessorClient
 				}
 				saveProcessedImage = false;
 			}
-
+			isProcessingImage = false;
 			return blobs;
 		}
 
@@ -319,7 +328,7 @@ public class VisionProcessorClient
 		{
 			Mat alteredMat = new Mat();
 			alteredMat = m.clone();
-			if(size < 1)
+			if (size < 1)
 				return alteredMat;
 			System.out.println("Dilating with " + size + " size and " + iterations + " iterations");
 
@@ -339,7 +348,7 @@ public class VisionProcessorClient
 		{
 			Mat alteredMat = new Mat();
 			alteredMat = m.clone();
-			if(size < 1)
+			if (size < 1)
 				return alteredMat;
 			System.out.println("Eroding with " + size + " size and " + iterations + " iterations");
 			Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));

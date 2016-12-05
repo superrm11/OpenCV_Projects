@@ -25,10 +25,12 @@ import java.util.ArrayList;
  * @author Ryan McGee
  *
  */
-public class VisionProcessor extends Thread {
+public class VisionProcessor extends Thread
+{
 	int port;
 
-	public VisionProcessor(int port) {
+	public VisionProcessor(int port)
+	{
 		this.port = port;
 		this.start();
 	}
@@ -48,7 +50,6 @@ public class VisionProcessor extends Thread {
 	 */
 	static int[] thresholdValues = new int[8];
 
-
 	/**
 	 * ArrayList of integer arrays, containing blob information.
 	 * 			blobs[0] = x coordinate
@@ -58,11 +59,16 @@ public class VisionProcessor extends Thread {
 	 **/
 	public ArrayList<int[]> blobs = null;
 
+	public boolean blobsAreNew = false;
+
 	public boolean isRunningContinuously = false;
 
-	@SuppressWarnings({ "resource", "unchecked" })
-	public void run() {
-		try {
+	@SuppressWarnings(
+	{ "resource", "unchecked" })
+	public void run()
+	{
+		try
+		{
 			System.out.println("VisionProcessor output port: " + port);
 			ServerSocket listener = new ServerSocket(port);
 			System.out.println("Vision Processor Listeners Created");
@@ -71,25 +77,39 @@ public class VisionProcessor extends Thread {
 			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 
+			InputStreamReader iis = new InputStreamReader(ois);
+
 			System.out.println("Vision Processor I/O streams created");
 			Thread.sleep(1000);
 			boolean alreadyRequested = false;
 			int command = 0;
-			while (true) {
-				if (sendOperations) {
+			Object o = null;
+
+			while (true)
+			{
+				o = iis.getObject();
+				if (o != null && o instanceof ArrayList)
+				{
+					blobs = (ArrayList<int[]>) o;
+					blobsAreNew = true;
+				}
+				if (sendOperations)
+				{
 					oos.writeInt(-4);
 					oos.writeObject(operations);
 					oos.flush();
 					sendOperations = false;
 				}
 
-				if (runContinuously) {
+				if (runContinuously)
+				{
 					oos.writeInt(-5);
 					oos.flush();
 					isRunningContinuously = true;
 					runContinuously = false;
 				}
-				if (saveRawImage) {
+				if (saveRawImage)
+				{
 					System.out.println("Requesting to save unprocessed image");
 					oos.writeInt(-6);
 					oos.writeObject(destination);
@@ -97,7 +117,8 @@ public class VisionProcessor extends Thread {
 					saveRawImage = false;
 				}
 
-				if (saveProcessedImage) {
+				if (saveProcessedImage)
+				{
 					System.out.println("Requesting to save processed image");
 					oos.writeInt(-7);
 					oos.writeObject(destination);
@@ -105,39 +126,45 @@ public class VisionProcessor extends Thread {
 					saveProcessedImage = false;
 				}
 				// Requests an array of rectangles' x and y coordinates
-				if (requestSingleProcessedImage) {
-					if (alreadyRequested == false) {
+				if (requestSingleProcessedImage)
+				{
+					if (alreadyRequested == false)
+					{
 						oos.writeInt(-1);
 						oos.flush();
 						System.out.println("requested processed image");
 						alreadyRequested = true;
-						blobs = (ArrayList<int[]>) ois.readObject();
-						if (blobs != null && blobs.size() > 0)
-							System.out.println(blobs.get(0)[0]);
-						requestSingleProcessedImage = false;
 					}
+					requestSingleProcessedImage = false;
+					alreadyRequested = false;
+
 				}
+				Thread.sleep(1);
 
 			}
-		} catch (IOException | ClassNotFoundException | InterruptedException e) {
+		} catch (IOException | InterruptedException e)
+		{
 			e.printStackTrace();
 
 		}
 
 	}
-	
+
 	/**
 	 *  Load a configuration file saved from the Threshold Utility.
 	 * @param destination
 	 */
-	public void loadConfig(String destination) {
-		try {
+	public void loadConfig(String destination)
+	{
+		try
+		{
 			FileInputStream fis = new FileInputStream(destination);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 
 			operations = (ArrayList<int[]>) ois.readObject();
 
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException e)
+		{
 			e.printStackTrace();
 		}
 	}
@@ -146,17 +173,19 @@ public class VisionProcessor extends Thread {
 	 * Sends a request to process a SINGLE image ONLY if it is not continuously processing images
 	 * 
 	 */
-	public void requestSingleProcessedImage() {
+	public void requestSingleProcessedImage()
+	{
 		// if (!isRunningContinuously)
 		requestSingleProcessedImage = true;
 	}
 
 	private boolean requestContinuousBlobs = false;
-	
+
 	/**
 	 * Requests a blob from the Raspberry Pi only if it is running continuously.
 	 */
-	public void requestContinuousBlobs() {
+	public void requestContinuousBlobs()
+	{
 		if (isRunningContinuously)
 			requestContinuousBlobs = true;
 	}
@@ -167,7 +196,8 @@ public class VisionProcessor extends Thread {
 	 * Requests that the Raspberry Pi constantly takes and processes images, discarding
 	 * the results until an image request is sent.
 	 */
-	public void runContinuously() {
+	public void runContinuously()
+	{
 		runContinuously = true;
 	}
 
@@ -179,10 +209,14 @@ public class VisionProcessor extends Thread {
 	 * 			[1] = y, 
 	 * 			[2] = width, [3] = height
 	 */
-	public int[] getWidestBlob(ArrayList<int[]> blobs) {
-		int[] temp = { 0, 0, 0, 0 };
-		for (int i = 0; i < blobs.size(); i++) {
-			if (blobs.get(i)[2] > temp[2]) {
+	public int[] getWidestBlob(ArrayList<int[]> blobs)
+	{
+		int[] temp =
+		{ 0, 0, 0, 0 };
+		for (int i = 0; i < blobs.size(); i++)
+		{
+			if (blobs.get(i)[2] > temp[2])
+			{
 				temp = blobs.get(i);
 			}
 		}
@@ -204,7 +238,8 @@ public class VisionProcessor extends Thread {
 	 * @author Ryan McGee
 	 */
 	public void threshold(int blueLowerBound, int greenLowerBound, int redLowerBound, int blueUpperBound,
-			int greenUpperBound, int redUpperBound, int brightness) {
+			int greenUpperBound, int redUpperBound, int brightness)
+	{
 		thresholdValues[0] = 3;
 		thresholdValues[1] = blueLowerBound;
 		thresholdValues[2] = greenLowerBound;
@@ -216,6 +251,7 @@ public class VisionProcessor extends Thread {
 
 		operations.add(thresholdValues);
 	}
+
 	/**
 	 * Sets the threshold values in BGR format, ranging from 0-255 and brightness from -255 to 255.
 	 * This will automatically set the lower and upper boundaries based on the range and input values.
@@ -226,7 +262,8 @@ public class VisionProcessor extends Thread {
 	 * @param brightness brightness value, added to BGR matrix as a scalar
 	 * @param percentError percentage value expressed as a number between 0 and 1
 	 */
-	public void threshold(int blue, int green, int red, int brightness, double percentError){
+	public void threshold(int blue, int green, int red, int brightness, double percentError)
+	{
 		thresholdValues[0] = 3;
 		thresholdValues[1] = (int) testForNegative(blue - (255 * percentError));
 		thresholdValues[2] = (int) testForNegative(green - (255 * percentError));
@@ -237,11 +274,14 @@ public class VisionProcessor extends Thread {
 		thresholdValues[7] = brightness;
 		operations.add(thresholdValues);
 	}
-	
-	private double testForNegative(double i){
-		if(i < 0){
+
+	private double testForNegative(double i)
+	{
+		if (i < 0)
+		{
 			return 0.0;
-		}else{
+		} else
+		{
 			return i;
 		}
 	}
@@ -253,7 +293,8 @@ public class VisionProcessor extends Thread {
 	 * This runs after operations have been set (dilation, erosion, threshold),
 	 * and should NOT be run continuously.
 	 */
-	public void sendOperations() {
+	public void sendOperations()
+	{
 		sendOperations = true;
 	}
 
@@ -263,18 +304,23 @@ public class VisionProcessor extends Thread {
 	 * @param size How large the dilation should make the blobs
 	 * @param iterations How many times the dilation should run
 	 */
-	public void dilate(int size, int iterations) {
-		int[] dilation = { 1, size, iterations };
+	public void dilate(int size, int iterations)
+	{
+		int[] dilation =
+		{ 1, size, iterations };
 		operations.add(dilation);
 	}
+
 	/**
 	 * Erode the image (make all blobs smaller from their middle).
 	 * Useful for removing small objects.
 	 * @param size How small the erosion should make the blobs
 	 * @param iterations How many times it should be eroded
 	 */
-	public void erode(int size, int iterations) {
-		int[] erosion = { 2, size, iterations };
+	public void erode(int size, int iterations)
+	{
+		int[] erosion =
+		{ 2, size, iterations };
 		operations.add(erosion);
 	}
 
@@ -285,23 +331,65 @@ public class VisionProcessor extends Thread {
 	 * before processing it. This is useful for finding threshold values.
 	 * @param destination The path you want the file to save to. DO NOT add the file name or extension.
 	 */
-	public void saveRawImage(String destination) {
+	public void saveRawImage(String destination)
+	{
 		this.destination = destination;
 		saveRawImage = true;
 	}
-	
+
 	boolean saveProcessedImage = false;
-	
+
 	/**
 	 * Requests that the Raspberry Pi saves the camera picture after
 	 *  processing it. This is useful for finding the correct values for aiming.
 	 * @param destination The path you want the file to save to. DO NOT add the file name or extension.
 	 */
-	public void saveProcessedImage(String destination) {
+	public void saveProcessedImage(String destination)
+	{
 		this.destination = destination;
 		saveProcessedImage = true;
 	}
 
 	String destination;
+
+	private class InputStreamReader extends Thread implements Runnable
+	{
+		private ObjectInputStream ois;
+
+		public InputStreamReader(ObjectInputStream ois)
+		{
+			this.ois = ois;
+			this.start();
+		}
+
+		public void run()
+		{
+			while (true)
+			{
+				try
+				{
+					o = ois.readObject();
+				} catch (ClassNotFoundException | IOException e)
+				{
+					e.printStackTrace();
+				}
+				try
+				{
+					Thread.sleep(1);
+				} catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		Object o = null;
+
+		public Object getObject()
+		{
+			return o;
+		}
+
+	}
 
 }
