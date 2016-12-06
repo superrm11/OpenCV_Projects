@@ -14,12 +14,17 @@ import java.util.ArrayList;
  * on the Raspberry Pi end of things.
  * 		COMMANDS:
  * 			-3: reserved for creating new classes on the Raspberry Pi
+ * 			 1: reserved for stopping all threads on the Raspberry Pi
+ * 
+ * 
  * 
  * @author Ryan McGee
  *
  */
-public class RaspberryPi extends Thread {
-	public RaspberryPi() {
+public class RaspberryPi extends Thread
+{
+	public RaspberryPi()
+	{
 		this.start();
 	}
 
@@ -27,8 +32,10 @@ public class RaspberryPi extends Thread {
 
 	public ArrayList<Integer> ports = new ArrayList<Integer>();
 
-	public void run() {
-		try {
+	public void run()
+	{
+		try
+		{
 			ports.add(2001);
 			// Create the servers for the Raspberry Pi to connect
 			ServerSocket listener = new ServerSocket(2000);
@@ -47,11 +54,14 @@ public class RaspberryPi extends Thread {
 			System.out.println("Raspberry Pi Connected!");
 
 			int command;
-			while (true) {
+			while (true)
+			{
 				// If there is a queue for requesting new threads, create all of
 				// them
-				if (requestNewThread > 0) {
-					for (int i = 0; i < requestNewThread; i++) {
+				if (requestNewThread > 0)
+				{
+					for (int i = 0; i < requestNewThread; i++)
+					{
 						oos.writeInt(-3);
 						oos.writeInt(ports.get(0));
 						oos.flush();
@@ -60,11 +70,19 @@ public class RaspberryPi extends Thread {
 					}
 					requestNewThread = 0;
 				}
-				Thread.sleep(100);
+				if (stopAllThreads)
+				{
+					oos.writeInt(1);
+					oos.flush();
+					System.out.println("Stopping all vision threads...");
+					stopAllThreads = false;
+				}
+				Thread.sleep(1);
 
 			}
 
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException | InterruptedException e)
+		{
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -79,14 +97,30 @@ public class RaspberryPi extends Thread {
 	 * 
 	 * @author Ryan McGee
 	 */
-	public void requestNewThread() {
+	public void requestNewThread()
+	{
 		requestNewThread++;
 		updatePorts();
 	}
 
-	private void updatePorts() {
+	private void updatePorts()
+	{
 		port++;
 		ports.add(port);
+	}
+
+	boolean stopAllThreads = false;
+
+	/**
+	 * Sends a request to stop all of the vision processing on the pi, followed by closing the sockets and I/O streams
+	 * 
+	 * NOTE: to stop the Vision Processor threads (in the case of enabling / disabling) the RaspberryPi MUST call the stopAllThreads 
+	 * function before the VisionProcessor object does. (It is a case of timing between sockets). If you are still getting a Connection abort:
+	 * socket write error on EITHER the rio or the pi, increase the time delay in VisionProcessor.stopThread().
+	 */
+	public void stopAllThreads()
+	{
+		this.stopAllThreads = true;
 	}
 
 }

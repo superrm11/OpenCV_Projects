@@ -52,6 +52,7 @@ public class VisionProcessor extends Thread
 
 	/**
 	 * ArrayList of integer arrays, containing blob information.
+	 * (They are all rectangles)
 	 * 			blobs[0] = x coordinate
 	 * 			blobs[1] = y coordinate
 	 * 			blobs[2] = width
@@ -85,7 +86,7 @@ public class VisionProcessor extends Thread
 			int command = 0;
 			Object o = null;
 
-			while (true)
+			while (!stopThread)
 			{
 				o = iis.getObject();
 				if (o != null && o instanceof ArrayList)
@@ -132,7 +133,7 @@ public class VisionProcessor extends Thread
 					{
 						oos.writeInt(-1);
 						oos.flush();
-						System.out.println("requested processed image");
+						// System.out.println("requested processed image");
 						alreadyRequested = true;
 					}
 					requestSingleProcessedImage = false;
@@ -142,6 +143,11 @@ public class VisionProcessor extends Thread
 				Thread.sleep(1);
 
 			}
+
+			ois.close();
+			oos.close();
+			socket.close();
+			listener.close();
 		} catch (IOException | InterruptedException e)
 		{
 			e.printStackTrace();
@@ -183,6 +189,9 @@ public class VisionProcessor extends Thread
 
 	/**
 	 * Requests a blob from the Raspberry Pi only if it is running continuously.
+	 * 
+	 * EDIT: just use the requestSingleImage command. It does not take that much time.
+	 * @deprecated
 	 */
 	public void requestContinuousBlobs()
 	{
@@ -195,6 +204,10 @@ public class VisionProcessor extends Thread
 	/**
 	 * Requests that the Raspberry Pi constantly takes and processes images, discarding
 	 * the results until an image request is sent.
+	 * 
+	 * EDIT: just use the requestSingleImage command. It does not take that much time.
+	 * 
+	 * @deprecated
 	 */
 	public void runContinuously()
 	{
@@ -350,8 +363,36 @@ public class VisionProcessor extends Thread
 		saveProcessedImage = true;
 	}
 
+	private boolean stopThread = false;
+
+	/**
+	 * Halts requests for images, closes listeners, sockets and I/O streams, and ends the thread.
+	 * Any requests made for single images will be discarded unless creating a new object.
+	 * 
+	 * NOTE: to stop the Vision Processor threads (in the case of enabling / disabling) the RaspberryPi object MUST call the stopAllThreads 
+	 * function before the VisionProcessor object does. (It is a case of timing between sockets). If you are still getting a Connection abort:
+	 * socket write error on EITHER the rio or the pi, increase the time delay in VisionProcessor.stopThread().
+	 */
+	public void stopThread()
+	{
+		try
+		{ // Increase this time delay in case of connection abort error ONLY.
+			Thread.sleep(500);
+		} catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		this.stopThread = true;
+	}
+
 	String destination;
 
+	/**
+	 * A simple object that can continuously read an object from an objectInputStream
+	 * WITHOUT blocking the code.
+	 * @author Ryan McGee
+	 *
+	 */
 	private class InputStreamReader extends Thread implements Runnable
 	{
 		private ObjectInputStream ois;
@@ -371,7 +412,7 @@ public class VisionProcessor extends Thread
 					o = ois.readObject();
 				} catch (ClassNotFoundException | IOException e)
 				{
-					e.printStackTrace();
+					break;
 				}
 				try
 				{
@@ -385,6 +426,10 @@ public class VisionProcessor extends Thread
 
 		Object o = null;
 
+		/**
+		 * 
+		 * @return the last received object from the ObjectInputStream. Will return null if no object has been found yet.
+		 */
 		public Object getObject()
 		{
 			return o;

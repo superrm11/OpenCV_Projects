@@ -60,7 +60,7 @@ public class VisionProcessorClient
 			while (true)
 			{
 
-				// If there is data in the input stream, reaSd it
+				// If there is data in the input stream, read it
 				if (ois.available() > 0)
 				{
 					command = ois.readInt();
@@ -70,6 +70,11 @@ public class VisionProcessorClient
 						port = ois.readInt();
 						System.out.println(port);
 						(new Processor(port)).start();
+					}else if (command == 1)
+						//The code for stopping all threads is 1
+					{
+						stopAllThreads = true;
+						System.out.println("Stopping all threads...");
 					}
 				}
 				Thread.sleep(100);
@@ -97,6 +102,8 @@ public class VisionProcessorClient
 			return null;
 		}
 	}
+	
+	public static boolean stopAllThreads = false;
 
 	/**
 	 * This is the class that does the processing of the image, and can be called as
@@ -121,11 +128,12 @@ public class VisionProcessorClient
 		private boolean isRunningContinuously = false;
 
 		/**
-		 * @param sendPort
+		 * @param port
 		 *        The port data will be received/sent from/to
 		 */
 		public Processor(int port)
 		{
+			VisionProcessorClient.stopAllThreads = false;
 			this.port = port;
 		}
 
@@ -145,7 +153,7 @@ public class VisionProcessorClient
 				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 				System.out.println("I/O streams created");
 				int command = 0;
-				while (true)
+				while (!VisionProcessorClient.stopAllThreads)
 				{
 					if(ois.available() > 0)
 					{
@@ -202,6 +210,11 @@ public class VisionProcessorClient
 					Thread.sleep(1);
 					
 				}
+				
+				ois.close();
+				oos.close();
+				socket.close();
+				
 
 			} catch (IOException |
 
