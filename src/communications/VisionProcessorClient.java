@@ -1,11 +1,15 @@
 package communications;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -35,6 +39,10 @@ public class VisionProcessorClient
 		String ip = "";
 		try
 		{
+			PrintStream outputStream = new PrintStream(new FileOutputStream("/home/pi/log.txt"));
+						
+			System.setOut(outputStream);
+			
 			FileReader fr = new FileReader("/home/pi/ip.txt");
 			BufferedReader bfr = new BufferedReader(fr);
 			ip = bfr.readLine();
@@ -86,6 +94,11 @@ public class VisionProcessorClient
 			System.exit(1);
 		}
 	}
+	
+	
+	private static File logFile;
+	
+	public static PrintWriter log;
 
 	public static Mat image;
 	public static VideoCapture cap;

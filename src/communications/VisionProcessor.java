@@ -60,7 +60,7 @@ public class VisionProcessor extends Thread
 	 **/
 	public ArrayList<int[]> blobs = null;
 
-	public boolean blobsAreNew = false;
+	public volatile boolean blobsAreNew = false;
 
 	public boolean isRunningContinuously = false;
 
@@ -92,7 +92,6 @@ public class VisionProcessor extends Thread
 				if (o != null && o instanceof ArrayList)
 				{
 					blobs = (ArrayList<int[]>) o;
-					blobsAreNew = true;
 				}
 				if (sendOperations)
 				{
@@ -133,7 +132,7 @@ public class VisionProcessor extends Thread
 					{
 						oos.writeInt(-1);
 						oos.flush();
-						// System.out.println("requested processed image");
+//						 System.out.println("requested processed image");
 						alreadyRequested = true;
 					}
 					requestSingleProcessedImage = false;
@@ -393,14 +392,21 @@ public class VisionProcessor extends Thread
 	 * @author Ryan McGee
 	 *
 	 */
-	private class InputStreamReader extends Thread implements Runnable
+	private class InputStreamReader implements Runnable
 	{
 		private ObjectInputStream ois;
 
 		public InputStreamReader(ObjectInputStream ois)
 		{
 			this.ois = ois;
-			this.start();
+			Thread thread = new Thread(new InputStreamReader(this.ois, true));
+			thread.start();
+
+		}
+		
+		public InputStreamReader(ObjectInputStream ois, boolean isRunningInternally)
+		{
+			this.ois = ois;
 		}
 
 		public void run()
@@ -410,6 +416,7 @@ public class VisionProcessor extends Thread
 				try
 				{
 					o = ois.readObject();
+					blobsAreNew = true;
 				} catch (ClassNotFoundException | IOException e)
 				{
 					break;
