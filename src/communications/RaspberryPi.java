@@ -34,57 +34,63 @@ public class RaspberryPi extends Thread
 
 	public void run()
 	{
-		try
+		while (true)
 		{
-			ports.add(2001);
-			// Create the servers for the Raspberry Pi to connect
-			ServerSocket listener = new ServerSocket(2000);
 
-			System.out.println("Rpi Listeners created");
-
-			// Waits until the Raspberry Pi has connected
-			Socket socket = listener.accept();
-
-			System.out.println("Rpi Sockets created");
-
-			// Creates the I/O streams for the Pi and Roborio to communicate
-			// over
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-
-			System.out.println("Raspberry Pi Connected!");
-
-			int command;
-			while (true)
+			try
 			{
-				// If there is a queue for requesting new threads, create all of
-				// them
-				if (requestNewThread > 0)
+				ports.add(2001);
+				// Create the servers for the Raspberry Pi to connect
+				ServerSocket listener = new ServerSocket(2000);
+
+				System.out.println("Rpi Listeners created");
+
+				// Waits until the Raspberry Pi has connected
+				Socket socket = listener.accept();
+
+				System.out.println("Rpi Sockets created");
+
+				// Creates the I/O streams for the Pi and Roborio to communicate
+				// over
+				ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+
+				System.out.println("Raspberry Pi Connected!");
+				isConnected = true;
+
+				int command;
+				while (true)
 				{
-					for (int i = 0; i < requestNewThread; i++)
+					// If there is a queue for requesting new threads, create
+					// all of
+					// them
+					if (requestNewThread > 0)
 					{
-						oos.writeInt(-3);
-						oos.writeInt(ports.get(0));
-						oos.flush();
-						ports.remove(0);
-						System.out.println("Thread request sent!");
+						for (int i = 0; i < requestNewThread; i++)
+						{
+							oos.writeInt(-3);
+							oos.writeInt(ports.get(0));
+							oos.flush();
+							ports.remove(0);
+							System.out.println("Thread request sent!");
+						}
+						requestNewThread = 0;
 					}
-					requestNewThread = 0;
-				}
-				if (stopAllThreads)
-				{
-					oos.writeInt(1);
-					oos.flush();
-					System.out.println("Stopping all vision threads...");
-					stopAllThreads = false;
-				}
-				Thread.sleep(1);
+					if (stopAllThreads)
+					{
+						oos.writeInt(1);
+						oos.flush();
+						System.out.println("Stopping all vision threads...");
+						stopAllThreads = false;
+					}
+					Thread.sleep(1);
 
+				}
+
+			} catch (IOException | InterruptedException e)
+			{
+				e.printStackTrace();
+				System.exit(1);
 			}
-
-		} catch (IOException | InterruptedException e)
-		{
-			e.printStackTrace();
-			System.exit(1);
 		}
 	}
 
@@ -121,6 +127,20 @@ public class RaspberryPi extends Thread
 	public void stopAllThreads()
 	{
 		this.stopAllThreads = true;
+	}
+
+	private boolean isConnected = false;
+
+	public boolean isConnected()
+	{
+		return isConnected;
+	}
+	
+	boolean reconnect = false;
+	
+	public void reconnect()
+	{
+		reconnect = true;
 	}
 
 }

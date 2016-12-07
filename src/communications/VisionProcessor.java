@@ -1,5 +1,7 @@
 package communications;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -75,8 +77,9 @@ public class VisionProcessor extends Thread
 			System.out.println("Vision Processor Listeners Created");
 			Socket socket = listener.accept();
 			System.out.println("Vision Processor Sockets Created");
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+			oos.flush();
+			ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 
 			InputStreamReader iis = new InputStreamReader(ois);
 
@@ -97,14 +100,12 @@ public class VisionProcessor extends Thread
 				{
 					oos.writeInt(-4);
 					oos.writeObject(operations);
-					oos.flush();
 					sendOperations = false;
 				}
 
 				if (runContinuously)
 				{
 					oos.writeInt(-5);
-					oos.flush();
 					isRunningContinuously = true;
 					runContinuously = false;
 				}
@@ -113,7 +114,6 @@ public class VisionProcessor extends Thread
 					System.out.println("Requesting to save unprocessed image");
 					oos.writeInt(-6);
 					oos.writeObject(destination);
-					oos.flush();
 					saveRawImage = false;
 				}
 
@@ -122,7 +122,6 @@ public class VisionProcessor extends Thread
 					System.out.println("Requesting to save processed image");
 					oos.writeInt(-7);
 					oos.writeObject(destination);
-					oos.flush();
 					saveProcessedImage = false;
 				}
 				// Requests an array of rectangles' x and y coordinates
@@ -131,7 +130,6 @@ public class VisionProcessor extends Thread
 					if (alreadyRequested == false)
 					{
 						oos.writeInt(-1);
-						oos.flush();
 //						 System.out.println("requested processed image");
 						alreadyRequested = true;
 					}
@@ -139,7 +137,7 @@ public class VisionProcessor extends Thread
 					alreadyRequested = false;
 
 				}
-				Thread.sleep(1);
+				oos.flush();
 
 			}
 

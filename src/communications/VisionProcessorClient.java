@@ -1,5 +1,7 @@
 package communications;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,6 +14,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -32,23 +36,29 @@ public class VisionProcessorClient
 	 * Processor classes for each request.
 	 * 
 	 * @param args
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args)
+	public static void main(String[] args) throws InterruptedException
 	{
 
 		String ip = "";
 		try
 		{
-			PrintStream outputStream = new PrintStream(new FileOutputStream("/home/pi/log.txt"));
-						
+			Date d = Calendar.getInstance().getTime();
+			String date = d.toString().replaceAll(" ", "_").replaceAll(":", ";");
+			File logFile = new File("C:/Users/Ryan McGee/Desktop/log_" + date + ".txt");//"/home/pi/log_" + d.toString() + ".txt");
+			logFile.createNewFile();
+			PrintStream outputStream = new PrintStream(logFile);
+
 			System.setOut(outputStream);
-			
+
 			FileReader fr = new FileReader("/home/pi/ip.txt");
 			BufferedReader bfr = new BufferedReader(fr);
 			ip = bfr.readLine();
 			IP_ADDRESS = ip;
 		} catch (IOException e1)
 		{
+			e1.printStackTrace();
 			IP_ADDRESS = "localhost";
 		}
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -56,15 +66,33 @@ public class VisionProcessorClient
 		cap = new VideoCapture();
 		cap.open(0);// "http://10.3.39.11/mjpg/video.mjpg");
 		System.out.println(cap.isOpened());
-		try
-		{
+
+		int command;
+		int port = 2001;
+		
+		ObjectInputStream ois;
+		while (true)
+		{try
+			{
 			// Set up the sockets that create the main processing sockets.
 			Socket socket = new Socket(IP_ADDRESS, 2000);
 			System.out.println("Set up socket");
-			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+			
+				ois = new ObjectInputStream(socket.getInputStream());
+			
 			System.out.println("Set up I/O Streams");
-			int command;
-			int port = 2001;
+			
+			break;
+			} catch (IOException e)
+			{
+				System.out.println("Unable to connect to " + IP_ADDRESS + "... Retrying...");
+				Thread.sleep(1000);
+				continue;
+			}
+		}
+
+		try
+		{
 			while (true)
 			{
 
@@ -78,8 +106,8 @@ public class VisionProcessorClient
 						port = ois.readInt();
 						System.out.println(port);
 						(new Processor(port)).start();
-					}else if (command == 1)
-						//The code for stopping all threads is 1
+					} else if (command == 1)
+					// The code for stopping all threads is 1
 					{
 						stopAllThreads = true;
 						System.out.println("Stopping all threads...");
@@ -94,11 +122,6 @@ public class VisionProcessorClient
 			System.exit(1);
 		}
 	}
-	
-	
-	private static File logFile;
-	
-	public static PrintWriter log;
 
 	public static Mat image;
 	public static VideoCapture cap;
@@ -115,7 +138,7 @@ public class VisionProcessorClient
 			return null;
 		}
 	}
-	
+
 	public static boolean stopAllThreads = false;
 
 	/**
@@ -162,13 +185,14 @@ public class VisionProcessorClient
 				// Create the sockets based on the ports given
 				Socket socket = new Socket(IP_ADDRESS, port);
 				System.out.println("Sockets created");
-				ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+				ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+				oos.flush();
+				ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 				System.out.println("I/O streams created");
 				int command = 0;
 				while (!VisionProcessorClient.stopAllThreads)
 				{
-					if(ois.available() > 0)
+					if (ois.available() > 0)
 					{
 						command = ois.readInt();
 					}
@@ -181,8 +205,6 @@ public class VisionProcessorClient
 						if (blobs != null)
 						{
 							oos.writeObject(blobs);
-							oos.flush();
-							command = 0;
 						} else
 							System.out.println("blobs are null!");
 					} else if (command == -4)
@@ -220,14 +242,13 @@ public class VisionProcessorClient
 					{
 						blobs = processImage();
 					}
-					Thread.sleep(1);
-					
+					oos.flush();
+
 				}
-				
+
 				ois.close();
 				oos.close();
 				socket.close();
-				
 
 			} catch (IOException |
 
@@ -235,10 +256,6 @@ public class VisionProcessorClient
 			{
 				e.printStackTrace();
 				System.exit(1);
-			} catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 
@@ -267,6 +284,7 @@ public class VisionProcessorClient
 		 */
 		private ArrayList<int[]> processImage()
 		{
+			long startTime = System.currentTimeMillis();
 			isProcessingImage = true;
 			ArrayList<int[]> blobs = new ArrayList<int[]>();
 			Mat m;
@@ -338,6 +356,8 @@ public class VisionProcessorClient
 				saveProcessedImage = false;
 			}
 			isProcessingImage = false;
+			long endTime = System.currentTimeMillis();
+			System.out.println("Time it took: " + (endTime - startTime));
 			return blobs;
 		}
 
