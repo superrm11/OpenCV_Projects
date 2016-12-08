@@ -83,6 +83,8 @@ public class ThresholdUtility implements java.io.Serializable
 			if (config != null && mat != null && !mat.empty())
 
 			{
+				double ratio = mat.width() / (double) mat.height();
+				Imgproc.resize(mat, mat, new Size(320, (1 / ratio) * 320));
 				arrayOfPoints.clear();
 				alteredMat = mat.clone();
 				for (int i = 0; i < config.size(); i++)

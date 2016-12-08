@@ -50,9 +50,10 @@ public class Test_Main
 			}
 
 		}
-
 		rPi.stopAllThreads();
 		vp.stopThread();
+		
+		
 
 		// Thread.sleep(1000);
 		//

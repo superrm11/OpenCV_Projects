@@ -14,16 +14,17 @@ import java.util.ArrayList;
 /**
  * This is the class that does the processing of the image, and can be called as
  * many times as necessary.
- * 
+ * <p>
  * 		PROCESSOR COMMANDS: 
- * 			-1: process image and send it over the socket 
- * 			-2: set the threshold values from the socket 
- * 			-3: reserved just in case for the main socket for requesting new sockets 
- * 			-4: sets the operations and their parameters (such as Dilation and Erosion)
- * 			-5: requests the thread to continuously process images
- * 			-6: requests to save the raw image to the destination provided
- * 			-7: requests to save the processed image to the destination provided
- * 
+ * <br>			-1: process image and send it over the socket 
+ * <br>			-2: set the threshold values from the socket 
+ * <br>			-3: reserved just in case for the main socket for requesting new sockets 
+ * <br>			-4: sets the operations and their parameters (such as Dilation and Erosion)
+ * <br>			-5: requests the thread to continuously process images
+ * <br>			-6: requests to save the raw image to the destination provided
+ * <br>			-7: requests to save the processed image to the destination provided
+ * <br>			-8: load a configuration file saved from the thresholdutility program
+ * </p>
  * @author Ryan McGee
  *
  */
@@ -42,32 +43,42 @@ public class VisionProcessor extends Thread
 	boolean requestSingleProcessedImage = false;
 
 	/**
-	 * [0] = blueLowerBound 
-	 * [1] = greenLowerBound 
-	 * [2] = redLowerBound 
-	 * [3] = blueUpperBound 
-	 * [4] = greenUpperBound 
-	 * [5] = redUpperBound 
-	 * [6] = brightness
+	 * <br>[0] = blueLowerBound 
+	 * <br>[1] = greenLowerBound 
+	 * <br>[2] = redLowerBound 
+	 * <br>[3] = blueUpperBound 
+	 * <br>[4] = greenUpperBound 
+	 * <br>[5] = redUpperBound 
+	 * <br>[6] = brightness
 	 */
 	static int[] thresholdValues = new int[8];
 
 	/**
 	 * ArrayList of integer arrays, containing blob information.
-	 * (They are all rectangles)
-	 * 			blobs[0] = x coordinate
-	 * 			blobs[1] = y coordinate
-	 * 			blobs[2] = width
-	 * 			blobs[3] = height
+	 *<br> (They are all rectangles)
+	 * <p>
+	 *<br> 			blobs[0] = x coordinate
+	 *<br> 			blobs[1] = y coordinate
+	 *<br> 			blobs[2] = width
+	 *<br> 			blobs[3] = height
+	 *</p>
 	 **/
 	public ArrayList<int[]> blobs = null;
 
+	/**
+	 * Will display true only if the program just received new blobs.
+	 * You can change this if you are finished using this set of blobs
+	 * and want to wait for the next to send.
+	 */
 	public volatile boolean blobsAreNew = false;
 
+	/**
+	 * @deprecated
+	 */
 	public boolean isRunningContinuously = false;
 
 	@SuppressWarnings(
-	{ "resource", "unchecked" })
+	{ "unchecked" })
 	public void run()
 	{
 		try
@@ -86,10 +97,9 @@ public class VisionProcessor extends Thread
 			System.out.println("Vision Processor I/O streams created");
 			Thread.sleep(1000);
 			boolean alreadyRequested = false;
-			int command = 0;
 			Object o = null;
 
-			while (!stopThread)
+			while (true)
 			{
 				o = iis.getObject();
 				if (o != null && o instanceof ArrayList)
@@ -137,6 +147,26 @@ public class VisionProcessor extends Thread
 					alreadyRequested = false;
 
 				}
+				
+				if(stopThread)
+				{
+					try
+					{ // Increase this time delay in case of connection abort error ONLY.
+						Thread.sleep(500);
+					} catch (InterruptedException e)
+					{
+						e.printStackTrace();
+					}
+					break;
+				}
+				
+				if(loadConfig)
+				{
+					oos.writeInt(-8);
+					oos.writeObject(configDestination);
+					System.out.println("Loading configuration from file");
+					loadConfig = false;
+				}
 				oos.flush();
 
 			}
@@ -155,22 +185,17 @@ public class VisionProcessor extends Thread
 
 	/**
 	 *  Load a configuration file saved from the Threshold Utility.
-	 * @param destination
+	 * @param destination @param destination the path to the file; 
+	 * 			it MUST contain the FULL path, right down to the .cfg at the end.
 	 */
 	public void loadConfig(String destination)
 	{
-		try
-		{
-			FileInputStream fis = new FileInputStream(destination);
-			ObjectInputStream ois = new ObjectInputStream(fis);
-
-			operations = (ArrayList<int[]>) ois.readObject();
-
-		} catch (IOException | ClassNotFoundException e)
-		{
-			e.printStackTrace();
-		}
+		this.configDestination = destination;
+		loadConfig = true;
 	}
+	
+	private String configDestination = "";
+	private boolean loadConfig = false;
 
 	/**
 	 * Sends a request to process a SINGLE image ONLY if it is not continuously processing images
@@ -365,20 +390,13 @@ public class VisionProcessor extends Thread
 	/**
 	 * Halts requests for images, closes listeners, sockets and I/O streams, and ends the thread.
 	 * Any requests made for single images will be discarded unless creating a new object.
-	 * 
+	 * <p>
 	 * NOTE: to stop the Vision Processor threads (in the case of enabling / disabling) the RaspberryPi object MUST call the stopAllThreads 
 	 * function before the VisionProcessor object does. (It is a case of timing between sockets). If you are still getting a Connection abort:
-	 * socket write error on EITHER the rio or the pi, increase the time delay in VisionProcessor.stopThread().
+	 * socket write error on EITHER the rio or the pi, increase the time delay in VisionProcessor.run().
 	 */
 	public void stopThread()
 	{
-		try
-		{ // Increase this time delay in case of connection abort error ONLY.
-			Thread.sleep(500);
-		} catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
 		this.stopThread = true;
 	}
 
@@ -387,6 +405,7 @@ public class VisionProcessor extends Thread
 	/**
 	 * A simple object that can continuously read an object from an objectInputStream
 	 * WITHOUT blocking the code.
+	 * 
 	 * @author Ryan McGee
 	 *
 	 */

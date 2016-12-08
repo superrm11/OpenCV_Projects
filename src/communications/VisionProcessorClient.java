@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -46,7 +47,7 @@ public class VisionProcessorClient
 		{
 			Date d = Calendar.getInstance().getTime();
 			String date = d.toString().replaceAll(" ", "_").replaceAll(":", ";");
-			File logFile = new File("C:/Users/Ryan McGee/Desktop/log_" + date + ".txt");//"/home/pi/log_" + d.toString() + ".txt");
+			File logFile = new File("/home/pi/logs/log_" + date + ".txt");
 			logFile.createNewFile();
 			PrintStream outputStream = new PrintStream(logFile);
 
@@ -69,20 +70,21 @@ public class VisionProcessorClient
 
 		int command;
 		int port = 2001;
-		
+
 		ObjectInputStream ois;
 		while (true)
-		{try
+		{
+			try
 			{
-			// Set up the sockets that create the main processing sockets.
-			Socket socket = new Socket(IP_ADDRESS, 2000);
-			System.out.println("Set up socket");
-			
+				// Set up the sockets that create the main processing sockets.
+				Socket socket = new Socket(IP_ADDRESS, 2000);
+				System.out.println("Set up socket");
+
 				ois = new ObjectInputStream(socket.getInputStream());
-			
-			System.out.println("Set up I/O Streams");
-			
-			break;
+
+				System.out.println("Set up I/O Streams");
+
+				break;
 			} catch (IOException e)
 			{
 				System.out.println("Unable to connect to " + IP_ADDRESS + "... Retrying...");
@@ -111,6 +113,15 @@ public class VisionProcessorClient
 					{
 						stopAllThreads = true;
 						System.out.println("Stopping all threads...");
+					}else if(command == 2)
+					{
+						System.out.println("Triggering reboot...");
+						Runtime.getRuntime().exec("sudo reboot");
+					}else if(command == 3)
+					{
+						System.out.println("Restarting program...");
+						Runtime.getRuntime().exec("java -jar -Xmx400M -Xms400M /home/pi/RpiTest.jar");
+						System.exit(0);
 					}
 				}
 				Thread.sleep(100);
@@ -144,16 +155,17 @@ public class VisionProcessorClient
 	/**
 	 * This is the class that does the processing of the image, and can be called as
 	 * many times as necessary.
-	 * 
+	 * <p>
 	 * 		PROCESSOR COMMANDS: 
-	 * 			-1: process image and send it over the socket 
-	 * 			-2: set the threshold values from the socket 
-	 * 			-3: reserved just in case for the main socket for requesting new sockets 
-	 * 			-4: sets the operations and their parameters (such as Dilation and Erosion)
-	 * 			-5: requests the thread to continuously process images
-	 * 			-6: requests to save the raw image to the destination provided
-	 * 			-7: requests to save the processed image to the destination provided
-	 * 
+	 * <br>			-1: process image and send it over the socket 
+	 * <br>			-2: set the threshold values from the socket 
+	 * <br>			-3: reserved just in case for the main socket for requesting new sockets 
+	 * <br>			-4: sets the operations and their parameters (such as Dilation and Erosion)
+	 * <br>			-5: requests the thread to continuously process images
+	 * <br>			-6: requests to save the raw image to the destination provided
+	 * <br>			-7: requests to save the processed image to the destination provided
+	 * <br>			-8: load a configuration file saved from the thresholdutility program
+	 * </p>
 	 * @author Ryan McGee
 	 *
 	 */
@@ -236,6 +248,9 @@ public class VisionProcessorClient
 						System.out.println(destination);
 						saveProcessedImage = true;
 						command = 0;
+					}else if(command == -8)
+					{
+						loadConfig((String)ois.readObject());
 					}
 
 					if (isRunningContinuously)
@@ -300,6 +315,8 @@ public class VisionProcessorClient
 			{
 				return null;
 			}
+
+			Imgproc.resize(m, m, new Size(320, 240));
 
 			if (saveRawImage)
 			{
@@ -422,7 +439,28 @@ public class VisionProcessorClient
 			return alteredMat;
 		}
 
+		/**
+		 * Opens the .cfg file saved by the thresholdutility program
+		 * @param destination the path to the file; it MUST contain the FULL path, right down to the .cfg at the end.
+		 */
+		private void loadConfig(String destination)
+		{
+			try
+			{
+				FileInputStream fis = new FileInputStream(destination);
+				ObjectInputStream ois = new ObjectInputStream(fis);
+
+				operations = (ArrayList<int[]>) ois.readObject();
+			} catch (IOException | ClassNotFoundException e)
+			{
+				System.out.println("Unable to open the config file!");
+				return;
+			}
+			System.out.println("Successfully read config file!");
+		}
 	}
+	
+
 
 	/**
 	 * The location the server is being hosted on.

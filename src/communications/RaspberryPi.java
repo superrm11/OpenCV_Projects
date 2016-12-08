@@ -12,9 +12,10 @@ import java.util.ArrayList;
 /**
  * This class controls the creation of new VisionProcessor classes
  * on the Raspberry Pi end of things.
- * 		COMMANDS:
- * 			-3: reserved for creating new classes on the Raspberry Pi
- * 			 1: reserved for stopping all threads on the Raspberry Pi
+ * <p>	COMMANDS:
+ * <br>			-3: reserved for creating new classes on the Raspberry Pi
+ * <br>			 1: reserved for stopping all threads on the Raspberry Pi
+ * <br>			 2: reserved for triggering a reboot of the Raspberry Pi
  * 
  * 
  * 
@@ -60,9 +61,8 @@ public class RaspberryPi extends Thread
 				int command;
 				while (true)
 				{
-					// If there is a queue for requesting new threads, create
-					// all of
-					// them
+					// If there is a queue for requesting new threads,
+					// create all of them
 					if (requestNewThread > 0)
 					{
 						for (int i = 0; i < requestNewThread; i++)
@@ -81,6 +81,22 @@ public class RaspberryPi extends Thread
 						oos.flush();
 						System.out.println("Stopping all vision threads...");
 						stopAllThreads = false;
+					}
+
+					if (reboot)
+					{
+						oos.writeInt(2);
+						oos.flush();
+						System.out.println("Triggering Raspberry pi reboot...");
+						reboot = false;
+					}
+					
+					if(restartCode)
+					{
+						oos.writeInt(3);
+						oos.flush();
+						System.out.println("Restarting Raspberry Pi vision code...");
+						restartCode = false;
 					}
 					Thread.sleep(1);
 
@@ -119,10 +135,11 @@ public class RaspberryPi extends Thread
 
 	/**
 	 * Sends a request to stop all of the vision processing on the pi, followed by closing the sockets and I/O streams
-	 * 
+	 *<p>
 	 * NOTE: to stop the Vision Processor threads (in the case of enabling / disabling) the RaspberryPi MUST call the stopAllThreads 
 	 * function before the VisionProcessor object does. (It is a case of timing between sockets). If you are still getting a Connection abort:
-	 * socket write error on EITHER the rio or the pi, increase the time delay in VisionProcessor.stopThread().
+	 * socket write error on EITHER the rio or the pi, increase the time delay in VisionProcessor.run().
+	 * 
 	 */
 	public void stopAllThreads()
 	{
@@ -131,16 +148,33 @@ public class RaspberryPi extends Thread
 
 	private boolean isConnected = false;
 
+	/**
+	 * 
+	 * @return whether or not the RoboRio is connected to the Rasberry Pi
+	 */
 	public boolean isConnected()
 	{
 		return isConnected;
 	}
+
+	boolean reboot = false;
 	
-	boolean reconnect = false;
-	
-	public void reconnect()
+	/**
+	 * Sends a request for the Raspberry Pi to completely reboot, restarting all the code.
+	 */
+	public void triggerReboot()
 	{
-		reconnect = true;
+		reboot = true;
+	}
+	
+	boolean restartCode = false;
+	
+	/**
+	 * Sends a request for the Raspberry Pi to restart it's code only, without the need to reboot.
+	 */
+	public void restartCode()
+	{
+		restartCode = true;
 	}
 
 }
