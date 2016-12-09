@@ -287,15 +287,19 @@ public class VisionProcessorClient
 		boolean isProcessingImage = false;
 
 		/**
-		 * Will process a mat based on the order set by the RoboRIO COMMANDS:
-		 * the first integer of every int array in the ArrayList 1: dilate 2:
-		 * erode 3: threshold
+		 * Will process a mat based on the order set by the RoboRIO
+		 * <p> COMMANDS:
+		 * <br>the first integer of every int array in the ArrayList
+		 * <br> 1: dilate
+		 * <br> 2: erode 
+		 * <br> 3: threshold
+		 * </p>
 		 * 
 		 * @return ArrayList of integer arrays, containing blob information.
-		 * 			blobs[0] = x coordinate
-		 * 			blobs[1] = y coordinate
-		 * 			blobs[2] = width
-		 * 			blobs[3] = height
+		 *<br> 			blobs[0] = x coordinate
+		 *<br> 			blobs[1] = y coordinate
+		 *<br> 			blobs[2] = width
+		 *<br> 			blobs[3] = height
 		 */
 		private ArrayList<int[]> processImage()
 		{

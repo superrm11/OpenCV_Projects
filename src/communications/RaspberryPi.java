@@ -16,6 +16,7 @@ import java.util.ArrayList;
  * <br>			-3: reserved for creating new classes on the Raspberry Pi
  * <br>			 1: reserved for stopping all threads on the Raspberry Pi
  * <br>			 2: reserved for triggering a reboot of the Raspberry Pi
+ * <br>			 3: reserved for restarting the code on the Raspberry Pi.
  * 
  * 
  * 
@@ -90,8 +91,8 @@ public class RaspberryPi extends Thread
 						System.out.println("Triggering Raspberry pi reboot...");
 						reboot = false;
 					}
-					
-					if(restartCode)
+
+					if (restartCode)
 					{
 						oos.writeInt(3);
 						oos.flush();
@@ -158,19 +159,26 @@ public class RaspberryPi extends Thread
 	}
 
 	boolean reboot = false;
-	
+
 	/**
 	 * Sends a request for the Raspberry Pi to completely reboot, restarting all the code.
+	 * <p>
+	 * <b>NOTE:</b> this will take <i>at least 30 seconds</i> to completely shut down and come
+	 * back up. Only use in desperate situations.
 	 */
 	public void triggerReboot()
 	{
 		reboot = true;
 	}
-	
+
 	boolean restartCode = false;
-	
+
 	/**
 	 * Sends a request for the Raspberry Pi to restart it's code only, without the need to reboot.
+	 * <p>
+	 * DO NOT USE if you want to just start / stop the vision; only use if there is a connection 
+	 * problem. If you want to start / stop the code, use stopAllThreads.
+	 *</p>
 	 */
 	public void restartCode()
 	{
