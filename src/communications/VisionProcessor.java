@@ -1,5 +1,6 @@
 package communications;
 
+import java.awt.Point;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
@@ -10,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * This is the class that does the processing of the image, and can be called as
@@ -51,7 +53,7 @@ public class VisionProcessor extends Thread
 	 * <br>[5] = redUpperBound 
 	 * <br>[6] = brightness
 	 */
-	static int[] thresholdValues = new int[8];
+	static int[] thresholdValues = new int[9];
 
 	/**
 	 * ArrayList of integer arrays, containing blob information.
@@ -102,7 +104,7 @@ public class VisionProcessor extends Thread
 			while (true)
 			{
 				o = iis.getObject();
-				if (o != null && o instanceof ArrayList)
+				if (blobsAreNew && o != null)
 				{
 					blobs = (ArrayList<int[]>) o;
 				}
@@ -140,18 +142,19 @@ public class VisionProcessor extends Thread
 					if (alreadyRequested == false)
 					{
 						oos.writeInt(-1);
-//						 System.out.println("requested processed image");
+						// System.out.println("requested processed image");
 						alreadyRequested = true;
 					}
 					requestSingleProcessedImage = false;
 					alreadyRequested = false;
 
 				}
-				
-				if(stopThread)
+
+				if (stopThread)
 				{
 					try
-					{ // Increase this time delay in case of connection abort error ONLY.
+					{ // Increase this time delay in case of connection abort
+						// error ONLY.
 						Thread.sleep(500);
 					} catch (InterruptedException e)
 					{
@@ -159,8 +162,8 @@ public class VisionProcessor extends Thread
 					}
 					break;
 				}
-				
-				if(loadConfig)
+
+				if (loadConfig)
 				{
 					oos.writeInt(-8);
 					oos.writeObject(configDestination);
@@ -193,7 +196,7 @@ public class VisionProcessor extends Thread
 		this.configDestination = destination;
 		loadConfig = true;
 	}
-	
+
 	private String configDestination = "";
 	private boolean loadConfig = false;
 
@@ -242,19 +245,21 @@ public class VisionProcessor extends Thread
 	 * @return int array: The widest blob with 
 	 * 			[0] = top left x coordinate, 
 	 * 			[1] = y, 
-	 * 			[2] = width, [3] = height
+	 * 			[2] = width, 
+	 * 			[3] = height
 	 */
 	public int[] getWidestBlob(ArrayList<int[]> blobs)
 	{
 		int[] temp =
 		{ 0, 0, 0, 0 };
-		for (int i = 0; i < blobs.size(); i++)
-		{
-			if (blobs.get(i)[2] > temp[2])
+		if (blobs != null)
+			for (int i = 0; i < blobs.size(); i++)
 			{
-				temp = blobs.get(i);
+				if (blobs.get(i)[2] > temp[2])
+				{
+					temp = blobs.get(i);
+				}
 			}
-		}
 		return temp;
 	}
 
@@ -273,7 +278,7 @@ public class VisionProcessor extends Thread
 	 * @author Ryan McGee
 	 */
 	public void threshold(int blueLowerBound, int greenLowerBound, int redLowerBound, int blueUpperBound,
-			int greenUpperBound, int redUpperBound, int brightness)
+			int greenUpperBound, int redUpperBound, int brightness, int colorCode)
 	{
 		thresholdValues[0] = 3;
 		thresholdValues[1] = blueLowerBound;
@@ -283,9 +288,12 @@ public class VisionProcessor extends Thread
 		thresholdValues[5] = greenUpperBound;
 		thresholdValues[6] = redUpperBound;
 		thresholdValues[7] = brightness;
+		thresholdValues[8] = colorCode;
 
 		operations.add(thresholdValues);
 	}
+	public static final int BGR = 0;
+	public static final int HSV = 1;
 
 	/**
 	 * Sets the threshold values in BGR format, ranging from 0-255 and brightness from -255 to 255.
@@ -295,17 +303,17 @@ public class VisionProcessor extends Thread
 	 * @param green Average green value
 	 * @param red Average red value
 	 * @param brightness brightness value, added to BGR matrix as a scalar
-	 * @param percentError percentage value expressed as a number between 0 and 1
+	 * @param percent percentage value expressed as a number between 0 and 1
 	 */
-	public void threshold(int blue, int green, int red, int brightness, double percentError)
+	public void threshold(int blue, int green, int red, int brightness, double percent)
 	{
 		thresholdValues[0] = 3;
-		thresholdValues[1] = (int) testForNegative(blue - (255 * percentError));
-		thresholdValues[2] = (int) testForNegative(green - (255 * percentError));
-		thresholdValues[3] = (int) testForNegative(red - (255 * percentError));
-		thresholdValues[4] = (int) (blue + (255 * percentError));
-		thresholdValues[5] = (int) (green + (255 * percentError));
-		thresholdValues[6] = (int) (red + (255 * percentError));
+		thresholdValues[1] = (int) testForNegative(blue - (255 * percent));
+		thresholdValues[2] = (int) testForNegative(green - (255 * percent));
+		thresholdValues[3] = (int) testForNegative(red - (255 * percent));
+		thresholdValues[4] = (int) (blue + (255 * percent));
+		thresholdValues[5] = (int) (green + (255 * percent));
+		thresholdValues[6] = (int) (red + (255 * percent));
 		thresholdValues[7] = brightness;
 		operations.add(thresholdValues);
 	}
@@ -399,6 +407,21 @@ public class VisionProcessor extends Thread
 	{
 		this.stopThread = true;
 	}
+	
+	/**
+	 * Gets an array of the information of all the blobs
+	 */
+	public void getParticleReport()
+	{
+		ParticleReport[] particles = new ParticleReport[blobs.size()];
+		for(int i = 0; i < this.blobs.size(); i++)
+		{
+			particles[i] = new ParticleReport(blobs.get(i));
+		}
+		this.particleReports = particles;
+	}
+	
+	public ParticleReport[] particleReports;
 
 	String destination;
 
@@ -409,21 +432,15 @@ public class VisionProcessor extends Thread
 	 * @author Ryan McGee
 	 *
 	 */
-	private class InputStreamReader implements Runnable
+	private class InputStreamReader extends Thread
 	{
 		private ObjectInputStream ois;
 
 		public InputStreamReader(ObjectInputStream ois)
 		{
 			this.ois = ois;
-			Thread thread = new Thread(new InputStreamReader(this.ois, true));
-			thread.start();
+			this.start();
 
-		}
-		
-		public InputStreamReader(ObjectInputStream ois, boolean isRunningInternally)
-		{
-			this.ois = ois;
 		}
 
 		public void run()
@@ -448,7 +465,7 @@ public class VisionProcessor extends Thread
 			}
 		}
 
-		Object o = null;
+		private volatile Object o = null;
 
 		/**
 		 * 
@@ -457,6 +474,60 @@ public class VisionProcessor extends Thread
 		public Object getObject()
 		{
 			return o;
+		}
+
+	}
+
+	public class ParticleReport implements Comparator<ParticleReport>, Comparable<ParticleReport>
+	{
+
+		// TODO add missing camera code and Particle Report
+
+		public Point topLeft;
+
+		public Point bottemRight;
+
+		public Point centerOfRect;
+		
+		public int rectWidth;
+		public int rectHeight;
+		
+		public int rectArea;
+		public int actualArea;
+
+		public int imageHeight;
+		public int imageWidth;
+
+		public double blobAspectRatio;
+
+		public ParticleReport(int[] info)
+		{
+			this.topLeft = new Point(info[0], info[1]);
+
+			this.rectWidth = info[2];
+			this.rectHeight = info[3];
+
+			this.rectArea = this.rectWidth * this.rectHeight;
+
+			this.bottemRight = new Point(this.topLeft.x + this.rectWidth, this.topLeft.y + this.rectHeight);
+
+			this.centerOfRect = new Point(this.topLeft.x + (int) Math.round(this.rectWidth / 2.0),
+					this.topLeft.y + (int) Math.round(this.rectHeight / 2.0));
+
+			this.blobAspectRatio = this.rectWidth / (double) this.rectHeight;
+
+		}
+
+		@Override
+		public int compareTo(ParticleReport arg0)
+		{
+			return 0;
+		}
+
+		@Override
+		public int compare(ParticleReport arg0, ParticleReport arg1)
+		{
+			return 0;
 		}
 
 	}

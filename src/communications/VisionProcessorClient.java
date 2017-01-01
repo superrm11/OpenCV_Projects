@@ -59,13 +59,12 @@ public class VisionProcessorClient
 			IP_ADDRESS = ip;
 		} catch (IOException e1)
 		{
-			e1.printStackTrace();
 			IP_ADDRESS = "localhost";
 		}
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		image = new Mat();
 		cap = new VideoCapture();
-		cap.open(0);// "http://10.3.39.11/mjpg/video.mjpg");
+		cap.open("http://Ryan-Laptop.mshome.net:8000/video.mjpg");//0);//"http://10.3.39.11/mjpg/video.mjpg");
 		System.out.println(cap.isOpened());
 
 		int command;
@@ -113,14 +112,14 @@ public class VisionProcessorClient
 					{
 						stopAllThreads = true;
 						System.out.println("Stopping all threads...");
-					}else if(command == 2)
+					} else if (command == 2)
 					{
 						System.out.println("Triggering reboot...");
 						Runtime.getRuntime().exec("sudo reboot");
-					}else if(command == 3)
+					} else if (command == 3)
 					{
 						System.out.println("Restarting program...");
-						Runtime.getRuntime().exec("java -jar -Xmx400M -Xms400M /home/pi/RpiTest.jar");
+						Runtime.getRuntime().exec("java -jar -Xmx900M -Xms900M /home/pi/RpiTest.jar");
 						System.exit(0);
 					}
 				}
@@ -248,9 +247,9 @@ public class VisionProcessorClient
 						System.out.println(destination);
 						saveProcessedImage = true;
 						command = 0;
-					}else if(command == -8)
+					} else if (command == -8)
 					{
-						loadConfig((String)ois.readObject());
+						loadConfig((String) ois.readObject());
 					}
 
 					if (isRunningContinuously)
@@ -316,8 +315,6 @@ public class VisionProcessorClient
 				return null;
 			}
 
-			Imgproc.resize(m, m, new Size(320, 240));
-
 			if (saveRawImage)
 			{
 				Mat m1 = m.clone();
@@ -340,7 +337,7 @@ public class VisionProcessorClient
 				{
 					m = threshold(m, new Scalar(operations.get(i)[1], operations.get(i)[2], operations.get(i)[3]),
 							new Scalar(operations.get(i)[4], operations.get(i)[5], operations.get(i)[6]),
-							new Scalar(operations.get(i)[7], operations.get(i)[7], operations.get(i)[7]));
+							new Scalar(operations.get(i)[7], operations.get(i)[7], operations.get(i)[7]), operations.get(i)[8]);
 				}
 			}
 			ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
@@ -429,12 +426,14 @@ public class VisionProcessorClient
 		 * 			lowering the brightness.
 		 * @return the matrix after thresholding the blobs
 		 */
-		private Mat threshold(Mat m, Scalar lowerBound, Scalar upperBound, Scalar brightness)
+		private Mat threshold(Mat m, Scalar lowerBound, Scalar upperBound, Scalar brightness, int colorCode)
 		{
 			Mat alteredMat = new Mat();
 			alteredMat = m.clone();
 			System.out.println("Thresholding image");
 			Core.add(alteredMat, brightness, alteredMat);
+			if(colorCode == 1)
+				Imgproc.cvtColor(alteredMat, alteredMat, Imgproc.COLOR_BGR2HSV);
 			Core.inRange(alteredMat, lowerBound, upperBound, alteredMat);
 			return alteredMat;
 		}
@@ -459,8 +458,6 @@ public class VisionProcessorClient
 			System.out.println("Successfully read config file!");
 		}
 	}
-	
-
 
 	/**
 	 * The location the server is being hosted on.

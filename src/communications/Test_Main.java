@@ -16,7 +16,7 @@ public class Test_Main
 		VisionProcessor vp = new VisionProcessor(rPi.port);
 		rPi.requestNewThread();
 
-		vp.threshold(0, 77, 0, 87, 255, 94, 0);
+		vp.threshold(0, 77, 0, 87, 255, 94, 0, VisionProcessor.BGR);
 		vp.erode(3, 1);
 		vp.dilate(3, 2);
 		vp.sendOperations();
@@ -42,6 +42,8 @@ public class Test_Main
 				endTime = System.currentTimeMillis();
 				 System.out.println("Time it took: " + (endTime - startTime) +
 				 " millis");
+				 int[] blob = vp.getWidestBlob(vp.blobs);
+//				 System.out.println("X: " + (blob[0] + (blob[2] / 2)) + "\nY: " + (blob[1] + (blob[3] / 2)));
 				count++;
 				startTime = System.currentTimeMillis();
 				vp.requestSingleProcessedImage();

@@ -1,5 +1,7 @@
 package thresholdUtility;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -12,6 +14,11 @@ import javax.swing.JSpinner;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
+import javax.swing.JButton;
 
 public class ThresholdWindows implements OperationWindows
 {
@@ -27,6 +34,14 @@ public class ThresholdWindows implements OperationWindows
 	public JSpinner brightnessSpinner;
 
 	private final int operationIndex;
+	private int thresholdType = 0;
+
+	public static enum ColorType
+	{
+		HSV, BGR
+	}
+
+	public ColorType thisColorType = ColorType.BGR;
 
 	public ThresholdWindows(int operationIndex)
 	{
@@ -43,7 +58,7 @@ public class ThresholdWindows implements OperationWindows
 	}
 
 	public int[] lastSetParams =
-	{ 3, 0, 0, 0, 0, 0, 0, 0 };
+	{ 3, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	public void setParams(int[] params)
 	{
@@ -60,11 +75,23 @@ public class ThresholdWindows implements OperationWindows
 
 	public int[] getParams()
 	{
+		int color;
+		switch (this.thisColorType)
+		{
+		case HSV:
+			color = 1;
+			break;
+		case BGR:
+			color = 0;
+			break;
+		default:
+			color = 0;
+		}
 		int[] params =
 		{ 3, (int) blueSpinnerLowerBound.getValue(), (int) greenSpinnerLowerBound.getValue(),
 				(int) redSpinnerLowerBound.getValue(), (int) blueSpinnerUpperBound.getValue(),
 				(int) greenSpinnerUpperBound.getValue(), (int) redSpinnerUpperBound.getValue(),
-				(int) brightnessSpinner.getValue() };
+				(int) brightnessSpinner.getValue(), color };
 		return params;
 	}
 
@@ -84,6 +111,16 @@ public class ThresholdWindows implements OperationWindows
 	public JRadioButton recButtonErosion;
 	public JSpinner dilationSpinner;
 	public JSpinner erosionSpinner;
+
+	private JLabel lblBlueLower;
+	private JLabel lblGreenLower;
+	private JLabel lblRedLower;
+
+	private JButton btnToHsv;
+	private JLabel lblBlue;
+	private JLabel lblGreen;
+	private JLabel lblRed;
+	private JLabel lblBrightness;
 
 	/**
 	 * Creates the frame with the Lower Bound sliders for Thresholding
@@ -142,17 +179,17 @@ public class ThresholdWindows implements OperationWindows
 
 		});
 
-		JLabel lblBlue = new JLabel("Blue");
-		lblBlue.setBounds(39, 16, 69, 20);
-		contentPane.add(lblBlue);
+		lblBlueLower = new JLabel("Blue");
+		lblBlueLower.setBounds(39, 16, 69, 20);
+		contentPane.add(lblBlueLower);
 
-		JLabel lblGreen = new JLabel("Green");
-		lblGreen.setBounds(39, 77, 69, 20);
-		contentPane.add(lblGreen);
+		lblGreenLower = new JLabel("Green");
+		lblGreenLower.setBounds(39, 77, 69, 20);
+		contentPane.add(lblGreenLower);
 
-		JLabel lblRed = new JLabel("Red");
-		lblRed.setBounds(39, 124, 69, 20);
-		contentPane.add(lblRed);
+		lblRedLower = new JLabel("Red");
+		lblRedLower.setBounds(39, 124, 69, 20);
+		contentPane.add(lblRedLower);
 
 		redSpinnerLowerBound = new JSpinner();
 		redSpinnerLowerBound.setBounds(338, 124, 55, 26);
@@ -201,21 +238,22 @@ public class ThresholdWindows implements OperationWindows
 			}
 
 		});
-		
-		frameLowerBound.addWindowListener(new WindowListener(){
+
+		frameLowerBound.addWindowListener(new WindowListener()
+		{
 
 			@Override
 			public void windowActivated(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowClosed(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
@@ -228,30 +266,30 @@ public class ThresholdWindows implements OperationWindows
 			public void windowDeactivated(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowDeiconified(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowIconified(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowOpened(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 		});
 
 	}
@@ -311,15 +349,15 @@ public class ThresholdWindows implements OperationWindows
 			}
 		});
 
-		JLabel lblBlue = new JLabel("Blue");
+		lblBlue = new JLabel("Blue");
 		lblBlue.setBounds(39, 16, 69, 20);
 		contentPane.add(lblBlue);
 
-		JLabel lblGreen = new JLabel("Green");
+		lblGreen = new JLabel("Green");
 		lblGreen.setBounds(39, 77, 69, 20);
 		contentPane.add(lblGreen);
 
-		JLabel lblRed = new JLabel("Red");
+		lblRed = new JLabel("Red");
 		lblRed.setBounds(39, 124, 69, 20);
 		contentPane.add(lblRed);
 
@@ -371,7 +409,7 @@ public class ThresholdWindows implements OperationWindows
 		brightnessSlider = new JSlider();
 		brightnessSlider.setBounds(123, 166, 200, 26);
 		contentPane.add(brightnessSlider);
-		
+
 		brightnessSlider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
@@ -382,13 +420,40 @@ public class ThresholdWindows implements OperationWindows
 			}
 		});
 
-		JLabel lblBrightness = new JLabel("Brightness");
+		lblBrightness = new JLabel("Brightness");
 		lblBrightness.setBounds(39, 172, 82, 20);
 		contentPane.add(lblBrightness);
 
 		brightnessSpinner = new JSpinner();
 		brightnessSpinner.setBounds(338, 166, 55, 26);
 		contentPane.add(brightnessSpinner);
+
+		btnToHsv = new JButton("To HSV");
+		btnToHsv.setBounds(39, 215, 97, 25);
+		contentPane.add(btnToHsv);
+		btnToHsv.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				if (thresholdType >= 1)
+					thresholdType = 0;
+				else
+					thresholdType++;
+
+				switch (thresholdType)
+				{
+				case 1:
+					setTo(ColorType.HSV);
+					break;
+				case 0:
+					setTo(ColorType.BGR);
+					break;
+				}
+			}
+
+		});
 
 		brightnessSpinner.addChangeListener(new ChangeListener()
 		{
@@ -401,21 +466,22 @@ public class ThresholdWindows implements OperationWindows
 			}
 
 		});
-		
-		frameUpperBound.addWindowListener(new WindowListener(){
+
+		frameUpperBound.addWindowListener(new WindowListener()
+		{
 
 			@Override
 			public void windowActivated(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowClosed(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
@@ -428,30 +494,30 @@ public class ThresholdWindows implements OperationWindows
 			public void windowDeactivated(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowDeiconified(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowIconified(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowOpened(WindowEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 		});
 	}
 
@@ -473,4 +539,41 @@ public class ThresholdWindows implements OperationWindows
 		setParams(lastSetParams);
 	}
 
+	public void setTo(ColorType type)
+	{
+		this.thisColorType = type;
+
+		switch (type)
+		{
+		case BGR:
+			btnToHsv.setText("To HSV");
+			lblBlue.setText("Blue");
+			lblGreen.setText("Green");
+			lblRed.setText("Red");
+
+			lblBlueLower.setText("Blue");
+			lblGreenLower.setText("Green");
+			lblRedLower.setText("Red");
+
+			lblBrightness.setVisible(true);
+			brightnessSlider.setVisible(true);
+			brightnessSpinner.setVisible(true);
+			break;
+		case HSV:
+			btnToHsv.setText("To BGR");
+			lblBlue.setText("Hue");
+			lblGreen.setText("Saturation");
+			lblRed.setText("Value");
+
+			lblBlueLower.setText("Hue");
+			lblGreenLower.setText("Saturation");
+			lblRedLower.setText("Value");
+
+			brightnessSpinner.setValue(0);
+			lblBrightness.setVisible(false);
+			brightnessSlider.setVisible(false);
+			brightnessSpinner.setVisible(false);
+			break;
+		}
+	}
 }

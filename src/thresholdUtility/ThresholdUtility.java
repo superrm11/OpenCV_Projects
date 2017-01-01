@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -63,18 +64,22 @@ public class ThresholdUtility implements java.io.Serializable
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		mat = null;
 		Mat alteredMat = new Mat();
+		Mat displayMat = new Mat();
 
 		imShow(ImShowVal.Start, null);
 		ArrayList<MatOfPoint> arrayOfPoints = new ArrayList<MatOfPoint>();
 		Mat hierarchy = new Mat();
-		Mat displayMat = new Mat();
 		operationsWindow = new SelectOpsWindow();
 		operationsWindow.setVisible(true);
 		Thread.sleep(5000);
 		System.out.println("X: " + operationsWindow.getX() / dimension.getWidth());
 		System.out.println("Y: " + operationsWindow.getY() / dimension.getHeight());
-		
+
+		ArrayList<MatOfPoint> hullPoints = new ArrayList<MatOfPoint>();
+		ArrayList<MatOfInt> hull = new ArrayList<MatOfInt>();
+
 		ArrayList<int[]> config = new ArrayList<int[]>();
+
 		boolean hasThreshold;
 		while (true)
 		{
@@ -87,6 +92,7 @@ public class ThresholdUtility implements java.io.Serializable
 				Imgproc.resize(mat, mat, new Size(320, (1 / ratio) * 320));
 				arrayOfPoints.clear();
 				alteredMat = mat.clone();
+				displayMat = mat.clone();
 				for (int i = 0; i < config.size(); i++)
 				{
 					if (config.get(i)[0] == 3)
@@ -95,7 +101,7 @@ public class ThresholdUtility implements java.io.Serializable
 						alteredMat = threshold(alteredMat,
 								new Scalar(config.get(i)[1], config.get(i)[2], config.get(i)[3]),
 								new Scalar(config.get(i)[4], config.get(i)[5], config.get(i)[6]),
-								new Scalar(config.get(i)[7], config.get(i)[7], config.get(i)[7]));
+								new Scalar(config.get(i)[7], config.get(i)[7], config.get(i)[7]), config.get(i)[8]);
 
 					} else if (config.get(i)[0] == 2)
 					{
@@ -103,18 +109,21 @@ public class ThresholdUtility implements java.io.Serializable
 					} else if (config.get(i)[0] == 1)
 					{
 						alteredMat = dilate(alteredMat, config.get(i)[1], config.get(i)[2]);
-//					} else if(config.get(i)[0] == 4)
-//					{
-//						alteredMat = removeSmallObjects(alteredMat, config.get(i)[1], config.get(i)[2]);
+						// } else if(config.get(i)[0] == 4)
+						// {
+						// alteredMat = removeSmallObjects(alteredMat,
+						// config.get(i)[1], config.get(i)[2]);
 					}
 				}
 				if (hasThreshold == true)
 				{
 					Imgproc.findContours(alteredMat, arrayOfPoints, new Mat(), Imgproc.RETR_LIST,
 							Imgproc.CHAIN_APPROX_SIMPLE);
-					Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 0, 0), -1);
+					Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(0, 0, 255), -1);
 				}
-				imShow(ImShowVal.Refresh, convertToImage(alteredMat));
+				hasThreshold = false;
+
+				imShow(ImShowVal.Refresh, convertToImage(displayMat));
 			}
 			// Determines the FPS value
 			Thread.sleep(33);
@@ -438,11 +447,13 @@ public class ThresholdUtility implements java.io.Serializable
 	 * 			lowering the brightness.
 	 * @return the matrix after thresholding the blobs
 	 */
-	private static Mat threshold(Mat m, Scalar lowerBound, Scalar upperBound, Scalar brightness)
+	private static Mat threshold(Mat m, Scalar lowerBound, Scalar upperBound, Scalar brightness, int colorCode)
 	{
 		Mat alteredMat = new Mat();
 		alteredMat = m.clone();
 		Core.add(alteredMat, brightness, alteredMat);
+		if(colorCode == 1)
+			Imgproc.cvtColor(alteredMat, alteredMat, Imgproc.COLOR_BGR2HSV);
 		Core.inRange(alteredMat, lowerBound, upperBound, alteredMat);
 		return alteredMat;
 	}
@@ -459,21 +470,21 @@ public class ThresholdUtility implements java.io.Serializable
 	{
 		Mat alteredMat = new Mat();
 		alteredMat = m.clone();
-		if(size < 1)
+		if (size < 1)
 			return alteredMat;
 		ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(alteredMat, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 		ArrayList<MatOfPoint> newContours = new ArrayList<MatOfPoint>();
-		for(int i = 0; i < contours.size(); i++)
+		for (int i = 0; i < contours.size(); i++)
 		{
-			if(Imgproc.contourArea(contours.get(i)) > (size * 100))
+			if (Imgproc.contourArea(contours.get(i)) > (size * 100))
 			{
 				newContours.add(contours.get(i));
 			}
 		}
 		System.out.println(alteredMat.type());
 		Mat newAlteredMat = new Mat(alteredMat.rows(), alteredMat.cols(), alteredMat.type());
-		Imgproc.drawContours(newAlteredMat, newContours, -1, new Scalar(255,255,255));
+		Imgproc.drawContours(newAlteredMat, newContours, -1, new Scalar(255, 255, 255));
 		return newAlteredMat;
 	}
 }
