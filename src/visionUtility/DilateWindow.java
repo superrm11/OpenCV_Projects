@@ -1,4 +1,4 @@
-package thresholdUtility;
+package visionUtility;
 
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -10,18 +10,18 @@ import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class ErodeWindow implements OperationWindows
+public class DilateWindow implements OperationWindows
 {
 	private int operationIndex;
 
-	public ErodeWindow(int operationIndex)
+	public DilateWindow(int operationIndex)
 	{
 		this.operationIndex = operationIndex;
 		createDilationWindow();
 	}
 
 	private int[] lastSetParams =
-	{ 2, 0, 0 };
+	{ 1, 0, 0 };
 
 	public JFrame frmDilation;
 
@@ -33,7 +33,7 @@ public class ErodeWindow implements OperationWindows
 	public void createDilationWindow()
 	{
 		frmDilation = new JFrame();
-		frmDilation.setTitle("Erosion");
+		frmDilation.setTitle("Dilation");
 		frmDilation.getContentPane().setLayout(null);
 		frmDilation.setSize(400, 300);
 		frmDilation.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -49,28 +49,34 @@ public class ErodeWindow implements OperationWindows
 		iterationsSlider = new JSlider();
 		iterationsSlider.setBounds(15, 52, 200, 26);
 		frmDilation.getContentPane().add(iterationsSlider);
+		
 		iterationsSlider.setValue(0);
+
 		iterationsSlider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				lastSetParams = getParams();
-				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
 				iterationsSpinner.setValue(iterationsSlider.getValue() / 10);
+
+				lastSetParams = getParams();
+				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 		});
 
 		sizeSlider = new JSlider();
 		sizeSlider.setBounds(15, 138, 200, 26);
 		frmDilation.getContentPane().add(sizeSlider);
+		
 		sizeSlider.setValue(0);
+
 		sizeSlider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				lastSetParams = getParams();
-				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
 				sizeSpinner.setValue(sizeSlider.getValue() / 10);
+
+				lastSetParams = getParams();
+				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 
 		});
@@ -83,9 +89,10 @@ public class ErodeWindow implements OperationWindows
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				lastSetParams = getParams();
-				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
 				iterationsSlider.setValue((int) iterationsSpinner.getValue() * 10);
+
+				lastSetParams = getParams();
+				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 		});
 
@@ -97,9 +104,10 @@ public class ErodeWindow implements OperationWindows
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				lastSetParams = getParams();
-				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
 				sizeSlider.setValue((int) sizeSpinner.getValue() * 10);
+
+				lastSetParams = getParams();
+				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 		});
 
@@ -109,7 +117,7 @@ public class ErodeWindow implements OperationWindows
 	public int[] getParams()
 	{
 		return new int[]
-		{ 2, (int) sizeSpinner.getValue(), (int) iterationsSpinner.getValue() };
+		{ 1, (int) sizeSpinner.getValue(), (int) iterationsSpinner.getValue() };
 	}
 
 	@Override
@@ -129,9 +137,11 @@ public class ErodeWindow implements OperationWindows
 	public void displayWindows()
 	{
 		frmDilation.setVisible(true);
-		if (ThresholdUtility.operationsWindow.operations.get(operationIndex) != null
-				&& ThresholdUtility.operationsWindow.operations.get(operationIndex)[0] == 2)
-			lastSetParams = ThresholdUtility.operationsWindow.operations.get(operationIndex);
+		
+		if (VisionUtility.operationsWindow.operations.get(operationIndex) != null
+				&& VisionUtility.operationsWindow.operations.get(operationIndex)[0] == 1)
+			lastSetParams = VisionUtility.operationsWindow.operations.get(operationIndex);
 		setParams(lastSetParams);
+
 	}
 }

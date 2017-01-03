@@ -1,4 +1,4 @@
-package thresholdUtility;
+package visionUtility;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -44,7 +44,7 @@ import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
-public class ThresholdUtility implements java.io.Serializable
+public class VisionUtility implements java.io.Serializable
 {
 
 	private static final long serialVersionUID = 1L;
@@ -58,6 +58,8 @@ public class ThresholdUtility implements java.io.Serializable
 
 	public static Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 
+	public static ArrayList<MatOfPoint> arrayOfPoints;
+
 	public static void main(String[] args) throws InterruptedException, IOException
 	{
 		// Load the main OpenCV libraries
@@ -67,16 +69,10 @@ public class ThresholdUtility implements java.io.Serializable
 		Mat displayMat = new Mat();
 
 		imShow(ImShowVal.Start, null);
-		ArrayList<MatOfPoint> arrayOfPoints = new ArrayList<MatOfPoint>();
-		Mat hierarchy = new Mat();
+		arrayOfPoints = new ArrayList<MatOfPoint>();
 		operationsWindow = new SelectOpsWindow();
 		operationsWindow.setVisible(true);
 		Thread.sleep(5000);
-		System.out.println("X: " + operationsWindow.getX() / dimension.getWidth());
-		System.out.println("Y: " + operationsWindow.getY() / dimension.getHeight());
-
-		ArrayList<MatOfPoint> hullPoints = new ArrayList<MatOfPoint>();
-		ArrayList<MatOfInt> hull = new ArrayList<MatOfInt>();
 
 		ArrayList<int[]> config = new ArrayList<int[]>();
 
@@ -109,27 +105,64 @@ public class ThresholdUtility implements java.io.Serializable
 					} else if (config.get(i)[0] == 1)
 					{
 						alteredMat = dilate(alteredMat, config.get(i)[1], config.get(i)[2]);
-						// } else if(config.get(i)[0] == 4)
-						// {
-						// alteredMat = removeSmallObjects(alteredMat,
-						// config.get(i)[1], config.get(i)[2]);
+//					} else if (config.get(i)[0] == 4)
+//					{
+//						alteredMat = removeSmallObjects(alteredMat, config.get(i)[1], config.get(i)[2]);
 					}
 				}
 				if (hasThreshold == true)
 				{
 					Imgproc.findContours(alteredMat, arrayOfPoints, new Mat(), Imgproc.RETR_LIST,
 							Imgproc.CHAIN_APPROX_SIMPLE);
-					Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(0, 0, 255), -1);
+					if (operationsWindow.chckbxOverlayImage.isSelected())
+						Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(0, 0, 255), -1);
+					else
+						Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255,255,255,255), -1);
+
 				}
 				hasThreshold = false;
 
-				imShow(ImShowVal.Refresh, convertToImage(displayMat));
+				if (operationsWindow.chckbxOverlayImage.isSelected())
+					imShow(ImShowVal.Refresh, convertToImage(displayMat));
+				else
+					imShow(ImShowVal.Refresh, convertToImage(alteredMat));
 			}
 			// Determines the FPS value
 			Thread.sleep(33);
 		}
 
 		//
+	}
+
+	public static ArrayList<int[]> toRects(ArrayList<MatOfPoint> contours)
+	{
+		ArrayList<int[]> output = new ArrayList<int[]>();
+
+		for (int i = 0; i < contours.size(); i++)
+		{
+			Rect rect = Imgproc.boundingRect(contours.get(i));
+			output.add(new int[]
+			{ rect.x, rect.y, rect.width, rect.height });
+		}
+
+		ArrayList<int[]> sortedOutput = new ArrayList<int[]>();
+
+		while (true)
+		{
+			if (output.isEmpty())
+				break;
+			int tempIndex = 0;
+			for (int i = 0; i < output.size(); i++)
+			{
+				if (output.get(i)[2] * output.get(i)[3] < output.get(tempIndex)[2] * output.get(tempIndex)[3])
+				{
+					tempIndex = i;
+				}
+			}
+			sortedOutput.add(output.get(tempIndex));
+			output.remove(tempIndex);
+		}
+		return sortedOutput;
 	}
 
 	private static MatOfByte matOfByte;
@@ -452,7 +485,7 @@ public class ThresholdUtility implements java.io.Serializable
 		Mat alteredMat = new Mat();
 		alteredMat = m.clone();
 		Core.add(alteredMat, brightness, alteredMat);
-		if(colorCode == 1)
+		if (colorCode == 1)
 			Imgproc.cvtColor(alteredMat, alteredMat, Imgproc.COLOR_BGR2HSV);
 		Core.inRange(alteredMat, lowerBound, upperBound, alteredMat);
 		return alteredMat;
@@ -474,17 +507,14 @@ public class ThresholdUtility implements java.io.Serializable
 			return alteredMat;
 		ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(alteredMat, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-		ArrayList<MatOfPoint> newContours = new ArrayList<MatOfPoint>();
+		Mat newAlteredMat = new Mat(alteredMat.rows(), alteredMat.cols(), alteredMat.type());
 		for (int i = 0; i < contours.size(); i++)
 		{
 			if (Imgproc.contourArea(contours.get(i)) > (size * 100))
 			{
-				newContours.add(contours.get(i));
+				Imgproc.drawContours(newAlteredMat, contours, i, new Scalar(255,255,255,255));
 			}
 		}
-		System.out.println(alteredMat.type());
-		Mat newAlteredMat = new Mat(alteredMat.rows(), alteredMat.cols(), alteredMat.type());
-		Imgproc.drawContours(newAlteredMat, newContours, -1, new Scalar(255, 255, 255));
 		return newAlteredMat;
 	}
 }

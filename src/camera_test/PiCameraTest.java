@@ -28,7 +28,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.highgui.Highgui;
 
-import thresholdUtility.ThresholdUtility.ImShowVal;
+import visionUtility.VisionUtility.ImShowVal;
 
 public class PiCameraTest
 {

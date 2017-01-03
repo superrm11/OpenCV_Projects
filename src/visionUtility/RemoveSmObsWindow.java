@@ -1,4 +1,4 @@
-package thresholdUtility;
+package visionUtility;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -77,7 +77,7 @@ public class RemoveSmObsWindow implements OperationWindows
 			public void stateChanged(ChangeEvent e)
 			{
 				iterationsSpinner.setValue(iterationsSlider.getValue() / 10);
-				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
+				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 		});
 
@@ -92,7 +92,7 @@ public class RemoveSmObsWindow implements OperationWindows
 			public void stateChanged(ChangeEvent e)
 			{
 				sizeSpinner.setValue(sizeSlider.getValue() / 10);
-				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
+				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 
 		});
@@ -106,7 +106,7 @@ public class RemoveSmObsWindow implements OperationWindows
 			public void stateChanged(ChangeEvent e)
 			{
 				iterationsSlider.setValue((int) iterationsSpinner.getValue() * 10);
-				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
+				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 		});
 
@@ -119,7 +119,7 @@ public class RemoveSmObsWindow implements OperationWindows
 			public void stateChanged(ChangeEvent e)
 			{
 				sizeSlider.setValue((int) sizeSpinner.getValue() * 10);
-				ThresholdUtility.operationsWindow.operations.set(operationIndex, getParams());
+				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 		});
 

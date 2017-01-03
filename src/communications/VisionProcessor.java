@@ -292,6 +292,7 @@ public class VisionProcessor extends Thread
 
 		operations.add(thresholdValues);
 	}
+
 	public static final int BGR = 0;
 	public static final int HSV = 1;
 
@@ -407,20 +408,39 @@ public class VisionProcessor extends Thread
 	{
 		this.stopThread = true;
 	}
-	
+
 	/**
 	 * Gets an array of the information of all the blobs
 	 */
 	public void getParticleReport()
 	{
 		ParticleReport[] particles = new ParticleReport[blobs.size()];
-		for(int i = 0; i < this.blobs.size(); i++)
+		for (int i = 0; i < this.blobs.size(); i++)
 		{
 			particles[i] = new ParticleReport(blobs.get(i));
 		}
 		this.particleReports = particles;
 	}
 	
+	/**
+	 * Filters out all blobs that do not have the aspect ratio falling in the range of the lowerBound and upperBound specified.
+	 * <br> NOTE: the aspect ratio is (width / height), so a value above one is wider than tall, etc.
+	 * @param lowerBound
+	 * @param upperBound
+	 */
+	public void filterAspectRatio(double lowerBound, double upperBound)
+	{
+		ArrayList<ParticleReport> filteredReports = new ArrayList<ParticleReport>();
+		for(int i = 0; i < this.particleReports.length; i++)
+		{
+			if(this.particleReports[i].blobAspectRatio > lowerBound && this.particleReports[i].blobAspectRatio < upperBound)
+			{
+				filteredReports.add(this.particleReports[i]);
+			}
+		}
+		this.particleReports = (ParticleReport[]) filteredReports.toArray();
+	}
+
 	public ParticleReport[] particleReports;
 
 	String destination;
@@ -488,12 +508,11 @@ public class VisionProcessor extends Thread
 		public Point bottemRight;
 
 		public Point centerOfRect;
-		
+
 		public int rectWidth;
 		public int rectHeight;
-		
+
 		public int rectArea;
-		public int actualArea;
 
 		public int imageHeight;
 		public int imageWidth;
@@ -521,13 +540,23 @@ public class VisionProcessor extends Thread
 		@Override
 		public int compareTo(ParticleReport arg0)
 		{
-			return 0;
+			if (this.rectArea > arg0.rectArea)
+				return 1;
+			else if (this.rectArea < arg0.rectArea)
+				return -1;
+			else
+				return 0;
 		}
 
 		@Override
 		public int compare(ParticleReport arg0, ParticleReport arg1)
 		{
-			return 0;
+			if (arg0.rectArea > arg1.rectArea)
+				return 1;
+			else if (arg0.rectArea < arg1.rectArea)
+				return -1;
+			else
+				return 0;
 		}
 
 	}

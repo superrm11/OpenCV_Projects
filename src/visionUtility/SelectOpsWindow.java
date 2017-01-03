@@ -1,4 +1,4 @@
-package thresholdUtility;
+package visionUtility;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,6 +10,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 
 public class SelectOpsWindow extends JFrame
 {
@@ -21,6 +22,10 @@ public class SelectOpsWindow extends JFrame
 	public static OperationWindows[] operationWindows = new OperationWindows[10];
 
 	private JButton[] btnParams = new JButton[10];
+	
+	public JCheckBox chckbxOverlayImage;
+
+	public DisplayWindow displayOutput = new DisplayWindow();
 
 	/**
 	 * Create the frame.
@@ -34,8 +39,8 @@ public class SelectOpsWindow extends JFrame
 
 		setTitle("Operations");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds((int) Math.round(0.2296875 * ThresholdUtility.dimension.getWidth()),
-				(int) Math.round(0.5107421875 * ThresholdUtility.dimension.getHeight()), 653, 289);
+		setBounds((int) Math.round(0.2296875 * VisionUtility.dimension.getWidth()),
+				(int) Math.round(0.5107421875 * VisionUtility.dimension.getHeight()), 653, 310);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -133,7 +138,7 @@ public class SelectOpsWindow extends JFrame
 				{
 				case 0:
 					operationWindows[0] = null;
-					ThresholdUtility.operationsWindow.operations.set(0, new int[1]);
+					VisionUtility.operationsWindow.operations.set(0, new int[1]);
 					break;
 				case 1:
 					if (operationWindows[0] == null
@@ -183,7 +188,7 @@ public class SelectOpsWindow extends JFrame
 				{
 				case 0:
 					operationWindows[1] = null;
-					ThresholdUtility.operationsWindow.operations.set(1, new int[1]);
+					VisionUtility.operationsWindow.operations.set(1, new int[1]);
 					break;
 				case 1:
 					if (operationWindows[1] == null
@@ -234,7 +239,7 @@ public class SelectOpsWindow extends JFrame
 				{
 				case 0:
 					operationWindows[2] = null;
-					ThresholdUtility.operationsWindow.operations.set(2, new int[1]);
+					VisionUtility.operationsWindow.operations.set(2, new int[1]);
 					break;
 				case 1:
 					if (operationWindows[2] == null
@@ -286,7 +291,7 @@ public class SelectOpsWindow extends JFrame
 				{
 				case 0:
 					operationWindows[3] = null;
-					ThresholdUtility.operationsWindow.operations.set(3, new int[1]);
+					VisionUtility.operationsWindow.operations.set(3, new int[1]);
 					break;
 				case 1:
 					if (operationWindows[3] == null
@@ -337,7 +342,7 @@ public class SelectOpsWindow extends JFrame
 				{
 				case 0:
 					operationWindows[4] = null;
-					ThresholdUtility.operationsWindow.operations.set(4, new int[1]);
+					VisionUtility.operationsWindow.operations.set(4, new int[1]);
 					break;
 				case 1:
 					if (operationWindows[4] == null
@@ -388,7 +393,7 @@ public class SelectOpsWindow extends JFrame
 				{
 				case 0:
 					operationWindows[5] = null;
-					ThresholdUtility.operationsWindow.operations.set(5, new int[1]);
+					VisionUtility.operationsWindow.operations.set(5, new int[1]);
 					break;
 				case 1:
 					if (operationWindows[5] == null
@@ -439,7 +444,7 @@ public class SelectOpsWindow extends JFrame
 				{
 				case 0:
 					operationWindows[6] = null;
-					ThresholdUtility.operationsWindow.operations.set(6, new int[1]);
+					VisionUtility.operationsWindow.operations.set(6, new int[1]);
 					break;
 				case 1:
 					if (operationWindows[6] == null
@@ -490,7 +495,7 @@ public class SelectOpsWindow extends JFrame
 				{
 				case 0:
 					operationWindows[7] = null;
-					ThresholdUtility.operationsWindow.operations.set(7, new int[1]);
+					VisionUtility.operationsWindow.operations.set(7, new int[1]);
 					break;
 				case 1:
 					if (operationWindows[7] == null
@@ -541,7 +546,7 @@ public class SelectOpsWindow extends JFrame
 				{
 				case 0:
 					operationWindows[8] = null;
-					ThresholdUtility.operationsWindow.operations.set(8, new int[1]);
+					VisionUtility.operationsWindow.operations.set(8, new int[1]);
 					break;
 				case 1:
 					if (operationWindows[8] == null
@@ -584,6 +589,24 @@ public class SelectOpsWindow extends JFrame
 		btnParams[9].setBounds(516, 188, 115, 29);
 		contentPane.add(btnParams[9]);
 
+		JButton btnDisplayOutput = new JButton("Display Output");
+		btnDisplayOutput.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				if (!displayOutput.isVisible())
+				{
+					displayOutput.displayWindow();
+				}
+			}
+		});
+		btnDisplayOutput.setBounds(478, 225, 145, 25);
+		contentPane.add(btnDisplayOutput);
+		
+		chckbxOverlayImage = new JCheckBox("Overlay Image");
+		chckbxOverlayImage.setBounds(336, 225, 113, 25);
+		contentPane.add(chckbxOverlayImage);
+
 		btnParams[9].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -592,7 +615,7 @@ public class SelectOpsWindow extends JFrame
 				{
 				case 0:
 					operationWindows[9] = null;
-					ThresholdUtility.operationsWindow.operations.set(9, new int[1]);
+					VisionUtility.operationsWindow.operations.set(9, new int[1]);
 					break;
 				case 1:
 					if (operationWindows[9] == null
@@ -628,7 +651,7 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[9].displayWindows();
 					break;
 				}
-				
+
 			}
 		});
 
@@ -638,7 +661,7 @@ public class SelectOpsWindow extends JFrame
 			operationsComboBox[i].addItem("Dilate");
 			operationsComboBox[i].addItem("Erode");
 			operationsComboBox[i].addItem("Threshold");
-			operationsComboBox[i].addItem("Rm Sml Obs");
+//			operationsComboBox[i].addItem("Rm Sml Obs");
 
 		}
 	}
