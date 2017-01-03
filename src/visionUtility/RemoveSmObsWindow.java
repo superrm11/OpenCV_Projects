@@ -21,14 +21,13 @@ public class RemoveSmObsWindow implements OperationWindows
 	public int[] getParams()
 	{
 		return new int[]
-		{ 4, (int) sizeSpinner.getValue(), (int) iterationsSpinner.getValue() };
+		{ 4, (int) sizeSpinner.getValue()};
 	}
 
 	@Override
 	public void setParams(int[] params)
 	{
 		sizeSpinner.setValue(params[1]);
-		iterationsSpinner.setValue(params[2]);
 	}
 
 	@Override
@@ -47,7 +46,6 @@ public class RemoveSmObsWindow implements OperationWindows
 
 	private JSlider iterationsSlider;
 	private JSlider sizeSlider;
-	private JSpinner iterationsSpinner;
 	private JSpinner sizeSpinner;
 
 	public void createSmObsWindow()
@@ -58,28 +56,9 @@ public class RemoveSmObsWindow implements OperationWindows
 		frame.setSize(400, 300);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		JLabel lblIterations = new JLabel("Iterations");
-		lblIterations.setBounds(15, 16, 69, 20);
-		frame.getContentPane().add(lblIterations);
-
 		JLabel lblSize = new JLabel("Size");
 		lblSize.setBounds(15, 102, 69, 20);
 		frame.getContentPane().add(lblSize);
-
-		iterationsSlider = new JSlider();
-		iterationsSlider.setBounds(15, 52, 200, 26);
-		frame.getContentPane().add(iterationsSlider);
-
-		iterationsSlider.setValue(0);
-
-		iterationsSlider.addChangeListener(new ChangeListener()
-		{
-			public void stateChanged(ChangeEvent e)
-			{
-				iterationsSpinner.setValue(iterationsSlider.getValue() / 10);
-				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
-			}
-		});
 
 		sizeSlider = new JSlider();
 		sizeSlider.setBounds(15, 138, 200, 26);
@@ -91,23 +70,10 @@ public class RemoveSmObsWindow implements OperationWindows
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				sizeSpinner.setValue(sizeSlider.getValue() / 10);
+				sizeSpinner.setValue(sizeSlider.getValue());
 				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 
-		});
-
-		iterationsSpinner = new JSpinner();
-		iterationsSpinner.setBounds(241, 52, 56, 26);
-		frame.getContentPane().add(iterationsSpinner);
-
-		iterationsSpinner.addChangeListener(new ChangeListener()
-		{
-			public void stateChanged(ChangeEvent e)
-			{
-				iterationsSlider.setValue((int) iterationsSpinner.getValue() * 10);
-				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
-			}
 		});
 
 		sizeSpinner = new JSpinner();
@@ -118,7 +84,7 @@ public class RemoveSmObsWindow implements OperationWindows
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				sizeSlider.setValue((int) sizeSpinner.getValue() * 10);
+				sizeSlider.setValue((int) sizeSpinner.getValue());
 				VisionUtility.operationsWindow.operations.set(operationIndex, getParams());
 			}
 		});

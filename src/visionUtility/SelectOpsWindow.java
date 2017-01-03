@@ -661,7 +661,7 @@ public class SelectOpsWindow extends JFrame
 			operationsComboBox[i].addItem("Dilate");
 			operationsComboBox[i].addItem("Erode");
 			operationsComboBox[i].addItem("Threshold");
-//			operationsComboBox[i].addItem("Rm Sml Obs");
+			operationsComboBox[i].addItem("Rm Sml Obs");
 
 		}
 	}

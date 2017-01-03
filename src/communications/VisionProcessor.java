@@ -115,12 +115,6 @@ public class VisionProcessor extends Thread
 					sendOperations = false;
 				}
 
-				if (runContinuously)
-				{
-					oos.writeInt(-5);
-					isRunningContinuously = true;
-					runContinuously = false;
-				}
 				if (saveRawImage)
 				{
 					System.out.println("Requesting to save unprocessed image");
@@ -208,35 +202,6 @@ public class VisionProcessor extends Thread
 	{
 		// if (!isRunningContinuously)
 		requestSingleProcessedImage = true;
-	}
-
-	private boolean requestContinuousBlobs = false;
-
-	/**
-	 * Requests a blob from the Raspberry Pi only if it is running continuously.
-	 * 
-	 * EDIT: just use the requestSingleImage command. It does not take that much time.
-	 * @deprecated
-	 */
-	public void requestContinuousBlobs()
-	{
-		if (isRunningContinuously)
-			requestContinuousBlobs = true;
-	}
-
-	private boolean runContinuously = false;
-
-	/**
-	 * Requests that the Raspberry Pi constantly takes and processes images, discarding
-	 * the results until an image request is sent.
-	 * 
-	 * EDIT: just use the requestSingleImage command. It does not take that much time.
-	 * 
-	 * @deprecated
-	 */
-	public void runContinuously()
-	{
-		runContinuously = true;
 	}
 
 	/**
@@ -368,6 +333,18 @@ public class VisionProcessor extends Thread
 		operations.add(erosion);
 	}
 
+	/**
+	 * Removes objects with an area less than the size given, without
+	 * altering the size of other blobs (does not use erosion).
+	 * @param size size of the blobs that should be removed
+	 */
+	public void removeSmallObjects(int size)
+	{
+		int[] rmSmObs =
+		{ 4, size };
+		operations.add(rmSmObs);
+	}
+
 	boolean saveRawImage = false;
 
 	/**
@@ -421,24 +398,44 @@ public class VisionProcessor extends Thread
 		}
 		this.particleReports = particles;
 	}
-	
+
 	/**
-	 * Filters out all blobs that do not have the aspect ratio falling in the range of the lowerBound and upperBound specified.
+	 * Filters out all blobs that do not have the aspect ratio falling in the range of the lowerBound and upperBound specified, or the given
+	 * aspect ratio give or take the tolerance times that aspect ratio.
 	 * <br> NOTE: the aspect ratio is (width / height), so a value above one is wider than tall, etc.
-	 * @param lowerBound
-	 * @param upperBound
+	 * @param arg0 If AspectRatio is set to BOUNDARY, this is the lower boundary of acceptable aspect ratios.
+	 *				Else if it is set to TOLERANCE, this is the desired aspect ratio.
+	 * @param arg1 If AspectRatio is set to BOUNDARY, this is the upper boundary of acceptable aspect ratios.
+	 * 				Else if it is set to TOLERANCE, this is the tolerance.
+	 * @param useTolerance 
 	 */
-	public void filterAspectRatio(double lowerBound, double upperBound)
+	public void filterAspectRatio(double arg0, double arg1, AspectRatio a)
 	{
 		ArrayList<ParticleReport> filteredReports = new ArrayList<ParticleReport>();
-		for(int i = 0; i < this.particleReports.length; i++)
+		switch (a)
 		{
-			if(this.particleReports[i].blobAspectRatio > lowerBound && this.particleReports[i].blobAspectRatio < upperBound)
+		case BOUNDARY:
+			for (int i = 0; i < this.particleReports.length; i++)
 			{
-				filteredReports.add(this.particleReports[i]);
+				if (this.particleReports[i].blobAspectRatio > arg0 && this.particleReports[i].blobAspectRatio < arg1)
+					filteredReports.add(this.particleReports[i]);
+			}
+			break;
+		case TOLERANCE:
+			for (int i = 0; i < this.particleReports.length; i++)
+			{
+				if (this.particleReports[i].blobAspectRatio > (arg0 - (arg0 * arg1))
+						&& this.particleReports[i].blobAspectRatio < (arg0 + (arg0 * arg1)))
+					filteredReports.add(this.particleReports[i]);
 			}
 		}
+
 		this.particleReports = (ParticleReport[]) filteredReports.toArray();
+	}
+
+	public static enum AspectRatio
+	{
+		BOUNDARY, TOLERANCE
 	}
 
 	public ParticleReport[] particleReports;

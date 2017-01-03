@@ -342,6 +342,9 @@ public class VisionProcessorClient
 					m = threshold(m, new Scalar(operations.get(i)[1], operations.get(i)[2], operations.get(i)[3]),
 							new Scalar(operations.get(i)[4], operations.get(i)[5], operations.get(i)[6]),
 							new Scalar(operations.get(i)[7], operations.get(i)[7], operations.get(i)[7]), operations.get(i)[8]);
+				}else if (operations.get(i)[0] == 4)
+				{
+					m = removeSmallObjects(m, operations.get(i)[1]);
 				}
 			}
 			ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
@@ -440,6 +443,45 @@ public class VisionProcessorClient
 				Imgproc.cvtColor(alteredMat, alteredMat, Imgproc.COLOR_BGR2HSV);
 			Core.inRange(alteredMat, lowerBound, upperBound, alteredMat);
 			return alteredMat;
+		}
+		
+		/** This is to remove small blobs that we don't want to see, without affecting size of other blobs.
+		 * @param m input matrix (image)
+		 * @param size how large the blobs are that you want to remove
+		 * @return matrix (image) after removing the objects
+		 */
+		@SuppressWarnings("unused")
+		private static Mat removeSmallObjects(Mat m, int size)
+		{
+			Mat alteredMat = m.clone();
+			if (size < 1)
+				return alteredMat;
+			ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+			Imgproc.findContours(alteredMat, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+			Mat newAlteredMat = Mat.zeros(alteredMat.rows(), alteredMat.cols(), alteredMat.type());
+			ArrayList<int[]> rects = toRects(contours);
+			for (int i = 0; i < contours.size(); i++)
+			{
+				if (rects.get(i)[2] * rects.get(i)[3] > (size * 20))
+				{
+					Imgproc.drawContours(newAlteredMat, contours, i, new Scalar(255,255,255,255), Core.FILLED);
+				}
+			}
+			return newAlteredMat;
+		}
+		
+		private static ArrayList<int[]> toRects(ArrayList<MatOfPoint> contours)
+		{
+			ArrayList<int[]> output = new ArrayList<int[]>();
+
+			for (int i = 0; i < contours.size(); i++)
+			{
+				Rect rect = Imgproc.boundingRect(contours.get(i));
+				output.add(new int[]
+				{ rect.x, rect.y, rect.width, rect.height });
+			}
+
+			return output;
 		}
 
 		/**

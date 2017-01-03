@@ -33,7 +33,8 @@ public class DisplayWindow
 		if (VisionUtility.arrayOfPoints == null)
 			return;
 		frame.setVisible(true);
-		this.setBlobInfo(VisionUtility.toRects(VisionUtility.arrayOfPoints));
+		
+		this.setBlobInfo(VisionUtility.sortRects(VisionUtility.toRects(VisionUtility.arrayOfPoints)));
 	}
 
 	public boolean isVisible()

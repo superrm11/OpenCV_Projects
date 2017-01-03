@@ -105,9 +105,9 @@ public class VisionUtility implements java.io.Serializable
 					} else if (config.get(i)[0] == 1)
 					{
 						alteredMat = dilate(alteredMat, config.get(i)[1], config.get(i)[2]);
-//					} else if (config.get(i)[0] == 4)
-//					{
-//						alteredMat = removeSmallObjects(alteredMat, config.get(i)[1], config.get(i)[2]);
+					} else if (config.get(i)[0] == 4)
+					{
+						alteredMat = removeSmallObjects(alteredMat, config.get(i)[1]);
 					}
 				}
 				if (hasThreshold == true)
@@ -145,22 +145,27 @@ public class VisionUtility implements java.io.Serializable
 			{ rect.x, rect.y, rect.width, rect.height });
 		}
 
+		return output;
+	}
+	
+	public static ArrayList<int[]> sortRects(ArrayList<int[]> list)
+	{
 		ArrayList<int[]> sortedOutput = new ArrayList<int[]>();
 
 		while (true)
 		{
-			if (output.isEmpty())
+			if (list.isEmpty())
 				break;
 			int tempIndex = 0;
-			for (int i = 0; i < output.size(); i++)
+			for (int i = 0; i < list.size(); i++)
 			{
-				if (output.get(i)[2] * output.get(i)[3] < output.get(tempIndex)[2] * output.get(tempIndex)[3])
+				if (list.get(i)[2] * list.get(i)[3] < list.get(tempIndex)[2] * list.get(tempIndex)[3])
 				{
 					tempIndex = i;
 				}
 			}
-			sortedOutput.add(output.get(tempIndex));
-			output.remove(tempIndex);
+			sortedOutput.add(list.get(tempIndex));
+			list.remove(tempIndex);
 		}
 		return sortedOutput;
 	}
@@ -499,20 +504,20 @@ public class VisionUtility implements java.io.Serializable
 	 * @return matrix (image) after removing the objects
 	 */
 	@SuppressWarnings("unused")
-	private static Mat removeSmallObjects(Mat m, int size, int iterations)
+	private static Mat removeSmallObjects(Mat m, int size)
 	{
-		Mat alteredMat = new Mat();
-		alteredMat = m.clone();
+		Mat alteredMat = m.clone();
 		if (size < 1)
 			return alteredMat;
 		ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(alteredMat, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-		Mat newAlteredMat = new Mat(alteredMat.rows(), alteredMat.cols(), alteredMat.type());
+		Mat newAlteredMat = Mat.zeros(alteredMat.rows(), alteredMat.cols(), alteredMat.type());
+		ArrayList<int[]> rects = toRects(contours);
 		for (int i = 0; i < contours.size(); i++)
 		{
-			if (Imgproc.contourArea(contours.get(i)) > (size * 100))
+			if (rects.get(i)[2] * rects.get(i)[3] > (size * 20))
 			{
-				Imgproc.drawContours(newAlteredMat, contours, i, new Scalar(255,255,255,255));
+				Imgproc.drawContours(newAlteredMat, contours, i, new Scalar(255,255,255,255), Core.FILLED);
 			}
 		}
 		return newAlteredMat;
