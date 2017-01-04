@@ -10,7 +10,7 @@ public class Test_Main
 
 	public static void main(String[] args) throws InterruptedException
 	{
-		
+
 		// -------------------INIT------------------------------------
 		RaspberryPi rPi = new RaspberryPi();
 		VisionProcessor vp = new VisionProcessor(rPi.port);
@@ -40,10 +40,12 @@ public class Test_Main
 			if (vp.blobsAreNew)
 			{
 				endTime = System.currentTimeMillis();
-				 System.out.println("Time it took: " + (endTime - startTime) +
-				 " millis");
-				 int[] blob = vp.getWidestBlob(vp.blobs);
-//				 System.out.println("X: " + (blob[0] + (blob[2] / 2)) + "\nY: " + (blob[1] + (blob[3] / 2)));
+				System.out.println("Time it took: " + (endTime - startTime) + " millis");
+				vp.getParticleReport();
+				for(int i = 0; i < vp.particleReports.length; i++)
+				{
+					System.out.println(vp.particleReports[i].rectArea);
+				}
 				count++;
 				startTime = System.currentTimeMillis();
 				vp.requestSingleProcessedImage();
@@ -54,8 +56,6 @@ public class Test_Main
 		}
 		rPi.stopAllThreads();
 		vp.stopThread();
-		
-		
 
 		// Thread.sleep(1000);
 		//

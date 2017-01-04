@@ -44,7 +44,6 @@ public class RemoveSmObsWindow implements OperationWindows
 
 	public JFrame frame;
 
-	private JSlider iterationsSlider;
 	private JSlider sizeSlider;
 	private JSpinner sizeSpinner;
 

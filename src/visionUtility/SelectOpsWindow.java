@@ -14,10 +14,11 @@ import javax.swing.JCheckBox;
 
 public class SelectOpsWindow extends JFrame
 {
+	private static final long serialVersionUID = 1L;
 
 	private JPanel contentPane;
 
-	public static JComboBox[] operationsComboBox = new JComboBox[10];
+	public static JComboBox<String>[] operationsComboBox = new JComboBox[10];
 
 	public static OperationWindows[] operationWindows = new OperationWindows[10];
 
@@ -46,7 +47,7 @@ public class SelectOpsWindow extends JFrame
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		operationsComboBox[0] = new JComboBox<Object>();
+		operationsComboBox[0] = new JComboBox<String>();
 		operationsComboBox[0].setBounds(22, 41, 93, 20);
 		contentPane.add(operationsComboBox[0]);
 
@@ -54,7 +55,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation.setBounds(22, 11, 67, 14);
 		contentPane.add(lblOperation);
 
-		operationsComboBox[1] = new JComboBox<Object>();
+		operationsComboBox[1] = new JComboBox<String>();
 		operationsComboBox[1].setBounds(151, 41, 93, 20);
 		contentPane.add(operationsComboBox[1]);
 
@@ -62,7 +63,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_1.setBounds(151, 11, 67, 14);
 		contentPane.add(lblOperation_1);
 
-		operationsComboBox[2] = new JComboBox<Object>();
+		operationsComboBox[2] = new JComboBox<String>();
 		operationsComboBox[2].setBounds(277, 41, 93, 20);
 		contentPane.add(operationsComboBox[2]);
 
@@ -70,7 +71,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_2.setBounds(277, 11, 67, 14);
 		contentPane.add(lblOperation_2);
 
-		operationsComboBox[3] = new JComboBox<Object>();
+		operationsComboBox[3] = new JComboBox<String>();
 		operationsComboBox[3].setBounds(407, 41, 93, 20);
 		contentPane.add(operationsComboBox[3]);
 
@@ -78,7 +79,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_3.setBounds(407, 11, 67, 14);
 		contentPane.add(lblOperation_3);
 
-		operationsComboBox[4] = new JComboBox<Object>();
+		operationsComboBox[4] = new JComboBox<String>();
 		operationsComboBox[4].setBounds(528, 41, 93, 20);
 		contentPane.add(operationsComboBox[4]);
 
@@ -86,7 +87,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_4.setBounds(528, 11, 67, 14);
 		contentPane.add(lblOperation_4);
 
-		operationsComboBox[5] = new JComboBox<Object>();
+		operationsComboBox[5] = new JComboBox<String>();
 		operationsComboBox[5].setBounds(22, 148, 93, 20);
 		contentPane.add(operationsComboBox[5]);
 
@@ -94,7 +95,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_5.setBounds(22, 118, 67, 14);
 		contentPane.add(lblOperation_5);
 
-		operationsComboBox[6] = new JComboBox<Object>();
+		operationsComboBox[6] = new JComboBox<String>();
 		operationsComboBox[6].setBounds(151, 148, 93, 20);
 		contentPane.add(operationsComboBox[6]);
 
@@ -102,7 +103,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_6.setBounds(151, 118, 67, 14);
 		contentPane.add(lblOperation_6);
 
-		operationsComboBox[7] = new JComboBox<Object>();
+		operationsComboBox[7] = new JComboBox<String>();
 		operationsComboBox[7].setBounds(277, 148, 93, 20);
 		contentPane.add(operationsComboBox[7]);
 
@@ -110,7 +111,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_7.setBounds(277, 118, 67, 14);
 		contentPane.add(lblOperation_7);
 
-		operationsComboBox[8] = new JComboBox<Object>();
+		operationsComboBox[8] = new JComboBox<String>();
 		operationsComboBox[8].setBounds(407, 148, 93, 20);
 		contentPane.add(operationsComboBox[8]);
 
@@ -118,7 +119,7 @@ public class SelectOpsWindow extends JFrame
 		lblOperation_8.setBounds(407, 118, 67, 14);
 		contentPane.add(lblOperation_8);
 
-		operationsComboBox[9] = new JComboBox<Object>();
+		operationsComboBox[9] = new JComboBox<String>();
 		operationsComboBox[9].setBounds(528, 148, 93, 20);
 		contentPane.add(operationsComboBox[9]);
 

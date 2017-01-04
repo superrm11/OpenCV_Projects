@@ -4,7 +4,6 @@ import java.awt.TextArea;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
-import javax.swing.JTextArea;
 
 public class DisplayWindow
 {

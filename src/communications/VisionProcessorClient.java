@@ -64,7 +64,7 @@ public class VisionProcessorClient
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		image = new Mat();
 		cap = new VideoCapture();
-		cap.open("http://Ryan-Laptop.mshome.net:8000/video.mjpg");//0);//"http://10.3.39.11/mjpg/video.mjpg");
+		cap.open("http://10.3.39.11/mjpg/video.mjpg");
 		System.out.println(cap.isOpened());
 
 		int command;

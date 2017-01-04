@@ -15,9 +15,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
-
 import javax.swing.JButton;
 
 public class ThresholdWindows implements OperationWindows

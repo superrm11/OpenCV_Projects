@@ -74,11 +74,6 @@ public class VisionProcessor extends Thread
 	 */
 	public volatile boolean blobsAreNew = false;
 
-	/**
-	 * @deprecated
-	 */
-	public boolean isRunningContinuously = false;
-
 	@SuppressWarnings(
 	{ "unchecked" })
 	public void run()
