@@ -45,14 +45,16 @@ public class VisionProcessorClient
 		String ip = "";
 		try
 		{
+			//Names log files by date and time
 			Date d = Calendar.getInstance().getTime();
 			String date = d.toString().replaceAll(" ", "_").replaceAll(":", ";");
 			File logFile = new File("/home/pi/logs/log_" + date + ".txt");
 			logFile.createNewFile();
 			PrintStream outputStream = new PrintStream(logFile);
-
+			//Sets the system.out stream to a file
 			System.setOut(outputStream);
-
+			//inputs the server ip from a text file named ip.txt . If this file does not exist,
+			//set the ip to be on the local machine. Useful for testing.
 			FileReader fr = new FileReader("/home/pi/ip.txt");
 			BufferedReader bfr = new BufferedReader(fr);
 			ip = bfr.readLine();
@@ -64,8 +66,9 @@ public class VisionProcessorClient
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		image = new Mat();
 		cap = new VideoCapture();
+		//The ip of the camera image stream
 		cap.open("http://10.3.39.11/mjpg/video.mjpg");
-		System.out.println(cap.isOpened());
+		System.out.println("Camera is enabled? >" + cap.isOpened());
 
 		int command;
 		int port = 2001;
@@ -307,18 +310,22 @@ public class VisionProcessorClient
 			ArrayList<int[]> blobs = new ArrayList<int[]>();
 			Mat m;
 
+			//Makes sure the operations array list has been received
 			if (operations.isEmpty())
 			{
 				System.out.println("No operations present!");
 				return null;
 			}
 
+			//Makes sure the camera is opened and has returned an image to the processor
 			m = VisionProcessorClient.getCapturedImage();
 			if (m == null)
 			{
 				return null;
 			}
 
+			//Saves an image before processing based on the destination given.
+			//If the processor is restarted, images WILL overwrite each other.
 			if (saveRawImage)
 			{
 				Mat m1 = m.clone();
@@ -329,6 +336,7 @@ public class VisionProcessorClient
 				saveRawImage = false;
 			}
 
+			//Loops through the operations list and applies the operation to the image
 			for (int i = 0; i < operations.size(); i++)
 			{
 				if (operations.get(i)[0] == 1)
@@ -347,10 +355,13 @@ public class VisionProcessorClient
 					m = removeSmallObjects(m, operations.get(i)[1]);
 				}
 			}
+			
+			//Finds the contours of the image
 			ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 			Imgproc.findContours(m, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 			for (int i = 0; i < contours.size(); i++)
 			{
+				//Gets bounding rectangles for each contour and stores into an ArrayList
 				Rect rect = Imgproc.boundingRect(contours.get(i));
 				blobs.add(new int[]
 				{ rect.x, rect.y, rect.width, rect.height });
@@ -358,6 +369,8 @@ public class VisionProcessorClient
 
 			}
 
+			//Saves an image after processing to view results.
+			//Images WILL be overwritten if processor is restarted
 			if (saveProcessedImage)
 			{
 				Imgproc.drawContours(m, contours, -1, new Scalar(200, 0, 0), Core.FILLED);
@@ -377,6 +390,7 @@ public class VisionProcessorClient
 				saveProcessedImage = false;
 			}
 			isProcessingImage = false;
+			//records the amount of time it took to process the image
 			long endTime = System.currentTimeMillis();
 			System.out.println("Time it took: " + (endTime - startTime));
 			return blobs;
