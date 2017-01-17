@@ -386,10 +386,13 @@ public class VisionProcessor extends Thread
 	 */
 	public void getParticleReport()
 	{
-		ParticleReport[] particles = new ParticleReport[blobs.size()];
-		for (int i = 0; i < this.blobs.size(); i++)
+		ArrayList<int[]> blobsCopy = (ArrayList<int[]>) this.blobs.clone();
+		if(blobsCopy == null)
+			return;
+		ParticleReport[] particles = new ParticleReport[blobsCopy.size()];
+		for (int i = 0; i < blobsCopy.size(); i++)
 		{
-			particles[i] = new ParticleReport(blobs.get(i));
+			particles[i] = new ParticleReport(blobsCopy.get(i));
 		}
 		this.particleReports = particles;
 	}

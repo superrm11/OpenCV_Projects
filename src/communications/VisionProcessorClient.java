@@ -32,29 +32,80 @@ import org.opencv.imgproc.Imgproc;
 public class VisionProcessorClient
 {
 
+	public static void rebootSystem()
+	{
+		try
+		{
+			Runtime.getRuntime().exec("sudo reboot");
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void restartCode()
+	{
+		// System.out.println("Restarting system...");
+		// try
+		// {
+		// Runtime.getRuntime().exec("java -jar -Xms900M -Xmx900M
+		// \"C:/Users/Ryan McGee/Desktop/Vision_Processor_Client.jar\"");
+		// } catch (IOException e)
+		// {
+		// e.printStackTrace();
+		// }
+		// System.exit(0);
+
+		stopAllThreads = true;
+		if (cap.isOpened())
+			cap.release();
+
+		try
+		{
+			Thread.sleep(500);
+		} catch (InterruptedException e1)
+		{
+			e1.printStackTrace();
+		}
+		stopAllThreads = false;
+		try
+		{
+			main(args);
+		} catch (InterruptedException | IOException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	static String[] args = null;
+
 	/**
 	 * This is the main class that will accept thread requests and create new
 	 * Processor classes for each request.
 	 * 
 	 * @param args
 	 * @throws InterruptedException 
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws InterruptedException
+	public static void main(String[] args) throws InterruptedException, IOException
 	{
+		VisionProcessorClient.args = args;
 
 		String ip = "";
 		try
 		{
-			//Names log files by date and time
+			// Names log files by date and time
 			Date d = Calendar.getInstance().getTime();
 			String date = d.toString().replaceAll(" ", "_").replaceAll(":", ";");
 			File logFile = new File("/home/pi/logs/log_" + date + ".txt");
 			logFile.createNewFile();
 			PrintStream outputStream = new PrintStream(logFile);
-			//Sets the system.out stream to a file
+			// Sets the system.out stream to a file
 			System.setOut(outputStream);
-			//inputs the server ip from a text file named ip.txt . If this file does not exist,
-			//set the ip to be on the local machine. Useful for testing.
+			// inputs the server ip from a text file named ip.txt . If this file
+			// does not exist,
+			// set the ip to be on the local machine. Useful for testing.
 			FileReader fr = new FileReader("/home/pi/ip.txt");
 			BufferedReader bfr = new BufferedReader(fr);
 			ip = bfr.readLine();
@@ -66,20 +117,22 @@ public class VisionProcessorClient
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		image = new Mat();
 		cap = new VideoCapture();
-		//The ip of the camera image stream
-		cap.open("http://10.3.39.11/mjpg/video.mjpg");
+		// The ip of the camera image stream
+		while (cap.isOpened() == false)
+			cap.open(0);// "http://10.3.39.11/mjpg/video.mjpg");
 		System.out.println("Camera is enabled? >" + cap.isOpened());
 
 		int command;
 		int port = 2001;
 
-		ObjectInputStream ois;
-		while (true)
+		ObjectInputStream ois = null;
+		Socket socket = null;
+		while (!stopAllThreads)
 		{
 			try
 			{
 				// Set up the sockets that create the main processing sockets.
-				Socket socket = new Socket(IP_ADDRESS, 2000);
+				socket = new Socket(IP_ADDRESS, 2000);
 				System.out.println("Set up socket");
 
 				ois = new ObjectInputStream(socket.getInputStream());
@@ -97,7 +150,7 @@ public class VisionProcessorClient
 
 		try
 		{
-			while (true)
+			while (!stopAllThreads)
 			{
 
 				// If there is data in the input stream, read it
@@ -119,11 +172,9 @@ public class VisionProcessorClient
 					{
 						System.out.println("Triggering reboot...");
 						Runtime.getRuntime().exec("sudo reboot");
-					} else if (command == 3)
+					}else
 					{
-						System.out.println("Restarting program...");
-						Runtime.getRuntime().exec("java -jar -Xmx900M -Xms900M /home/pi/RpiTest.jar");
-						System.exit(0);
+						command = 0;
 					}
 				}
 				Thread.sleep(100);
@@ -132,7 +183,14 @@ public class VisionProcessorClient
 		} catch (IOException | InterruptedException e)
 		{
 			e.printStackTrace();
-			System.exit(1);
+
+		} finally
+		{
+			if (ois != null)
+				ois.close();
+			if (socket != null)
+				socket.close();
+			restartCode();
 		}
 	}
 
@@ -194,17 +252,20 @@ public class VisionProcessorClient
 		public void run()
 		{
 			ArrayList<int[]> blobs = new ArrayList<int[]>();
+			ObjectOutputStream oos = null;
+			ObjectInputStream ois = null;
+			Socket socket = null;
 			try
 			{
 				// Create the sockets based on the ports given
-				Socket socket = new Socket(IP_ADDRESS, port);
+				socket = new Socket(IP_ADDRESS, port);
 				System.out.println("Sockets created");
-				ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+				oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 				oos.flush();
-				ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+				ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 				System.out.println("I/O streams created");
 				int command = 0;
-				while (!VisionProcessorClient.stopAllThreads)
+				while (!VisionProcessorClient.stopAllThreads && !socket.isClosed())
 				{
 					if (ois.available() > 0)
 					{
@@ -214,11 +275,11 @@ public class VisionProcessorClient
 					if (command == -1)
 					{
 						System.out.println("Received process image command");
-						if (!isProcessingImage)
-							blobs = processImage();
+						blobs = processImage();
 						if (blobs != null)
 						{
 							oos.writeObject(blobs);
+							blobs = null;
 						} else
 							System.out.println("blobs are null!");
 					} else if (command == -4)
@@ -253,6 +314,8 @@ public class VisionProcessorClient
 					} else if (command == -8)
 					{
 						loadConfig((String) ois.readObject());
+					}else{
+						command = 0;
 					}
 
 					if (isRunningContinuously)
@@ -260,19 +323,32 @@ public class VisionProcessorClient
 						blobs = processImage();
 					}
 					oos.flush();
+					
+					Thread.sleep(2);
 
 				}
 
-				ois.close();
-				oos.close();
-				socket.close();
-
 			} catch (IOException |
 
-					ClassNotFoundException e)
+					ClassNotFoundException | InterruptedException e)
 			{
 				e.printStackTrace();
-				System.exit(1);
+				restartCode();
+			} finally
+			{
+				try
+				{
+					if (ois != null)
+						ois.close();
+					if (oos != null)
+						oos.close();
+					if (socket != null)
+						socket.close();
+				} catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+
 			}
 		}
 
@@ -286,7 +362,6 @@ public class VisionProcessorClient
 		boolean saveProcessedImage = false;
 		int fileNumber = 0;
 		String destination;
-		boolean isProcessingImage = false;
 
 		/**
 		 * Will process a mat based on the order set by the RoboRIO
@@ -306,26 +381,26 @@ public class VisionProcessorClient
 		private ArrayList<int[]> processImage()
 		{
 			long startTime = System.currentTimeMillis();
-			isProcessingImage = true;
 			ArrayList<int[]> blobs = new ArrayList<int[]>();
 			Mat m;
 
-			//Makes sure the operations array list has been received
+			// Makes sure the operations array list has been received
 			if (operations.isEmpty())
 			{
 				System.out.println("No operations present!");
 				return null;
 			}
 
-			//Makes sure the camera is opened and has returned an image to the processor
+			// Makes sure the camera is opened and has returned an image to the
+			// processor
 			m = VisionProcessorClient.getCapturedImage();
 			if (m == null)
 			{
 				return null;
 			}
 
-			//Saves an image before processing based on the destination given.
-			//If the processor is restarted, images WILL overwrite each other.
+			// Saves an image before processing based on the destination given.
+			// If the processor is restarted, images WILL overwrite each other.
 			if (saveRawImage)
 			{
 				Mat m1 = m.clone();
@@ -336,7 +411,8 @@ public class VisionProcessorClient
 				saveRawImage = false;
 			}
 
-			//Loops through the operations list and applies the operation to the image
+			// Loops through the operations list and applies the operation to
+			// the image
 			for (int i = 0; i < operations.size(); i++)
 			{
 				if (operations.get(i)[0] == 1)
@@ -349,19 +425,21 @@ public class VisionProcessorClient
 				{
 					m = threshold(m, new Scalar(operations.get(i)[1], operations.get(i)[2], operations.get(i)[3]),
 							new Scalar(operations.get(i)[4], operations.get(i)[5], operations.get(i)[6]),
-							new Scalar(operations.get(i)[7], operations.get(i)[7], operations.get(i)[7]), operations.get(i)[8]);
-				}else if (operations.get(i)[0] == 4)
+							new Scalar(operations.get(i)[7], operations.get(i)[7], operations.get(i)[7]),
+							operations.get(i)[8]);
+				} else if (operations.get(i)[0] == 4)
 				{
 					m = removeSmallObjects(m, operations.get(i)[1]);
 				}
 			}
-			
-			//Finds the contours of the image
+
+			// Finds the contours of the image
 			ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 			Imgproc.findContours(m, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 			for (int i = 0; i < contours.size(); i++)
 			{
-				//Gets bounding rectangles for each contour and stores into an ArrayList
+				// Gets bounding rectangles for each contour and stores into an
+				// ArrayList
 				Rect rect = Imgproc.boundingRect(contours.get(i));
 				blobs.add(new int[]
 				{ rect.x, rect.y, rect.width, rect.height });
@@ -369,8 +447,8 @@ public class VisionProcessorClient
 
 			}
 
-			//Saves an image after processing to view results.
-			//Images WILL be overwritten if processor is restarted
+			// Saves an image after processing to view results.
+			// Images WILL be overwritten if processor is restarted
 			if (saveProcessedImage)
 			{
 				Imgproc.drawContours(m, contours, -1, new Scalar(200, 0, 0), Core.FILLED);
@@ -389,8 +467,7 @@ public class VisionProcessorClient
 				}
 				saveProcessedImage = false;
 			}
-			isProcessingImage = false;
-			//records the amount of time it took to process the image
+			// records the amount of time it took to process the image
 			long endTime = System.currentTimeMillis();
 			System.out.println("Time it took: " + (endTime - startTime));
 			return blobs;
@@ -453,12 +530,12 @@ public class VisionProcessorClient
 			alteredMat = m.clone();
 			System.out.println("Thresholding image");
 			Core.add(alteredMat, brightness, alteredMat);
-			if(colorCode == 1)
+			if (colorCode == 1)
 				Imgproc.cvtColor(alteredMat, alteredMat, Imgproc.COLOR_BGR2HSV);
 			Core.inRange(alteredMat, lowerBound, upperBound, alteredMat);
 			return alteredMat;
 		}
-		
+
 		/** This is to remove small blobs that we don't want to see, without affecting size of other blobs.
 		 * @param m input matrix (image)
 		 * @param size how large the blobs are that you want to remove
@@ -478,12 +555,12 @@ public class VisionProcessorClient
 			{
 				if (rects.get(i)[2] * rects.get(i)[3] > (size * 20))
 				{
-					Imgproc.drawContours(newAlteredMat, contours, i, new Scalar(255,255,255,255), Core.FILLED);
+					Imgproc.drawContours(newAlteredMat, contours, i, new Scalar(255, 255, 255, 255), Core.FILLED);
 				}
 			}
 			return newAlteredMat;
 		}
-		
+
 		private static ArrayList<int[]> toRects(ArrayList<MatOfPoint> contours)
 		{
 			ArrayList<int[]> output = new ArrayList<int[]>();

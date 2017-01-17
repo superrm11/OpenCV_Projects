@@ -60,8 +60,12 @@ public class RaspberryPi extends Thread
 				isConnected = true;
 
 				int command;
+				
+				long safeTime = System.currentTimeMillis();
+				
 				while (true)
 				{
+					
 					// If there is a queue for requesting new threads,
 					// create all of them
 					if (requestNewThread > 0)
@@ -106,7 +110,6 @@ public class RaspberryPi extends Thread
 			} catch (IOException | InterruptedException e)
 			{
 				e.printStackTrace();
-				System.exit(1);
 			}
 		}
 	}

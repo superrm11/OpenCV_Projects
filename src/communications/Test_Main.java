@@ -42,20 +42,22 @@ public class Test_Main
 				endTime = System.currentTimeMillis();
 				System.out.println("Time it took: " + (endTime - startTime) + " millis");
 				vp.getParticleReport();
-				for(int i = 0; i < vp.particleReports.length; i++)
-				{
-					System.out.println(vp.particleReports[i].rectArea);
-				}
+				if (vp.particleReports != null)
+					for (int i = 0; i < vp.particleReports.length; i++)
+					{
+						System.out.println(vp.particleReports[i].rectArea);
+					}
 				count++;
 				startTime = System.currentTimeMillis();
-				vp.requestSingleProcessedImage();
+				
 				vp.blobsAreNew = false;
 
 			}
+			vp.requestSingleProcessedImage();
 
 		}
-		rPi.stopAllThreads();
-		vp.stopThread();
+//		rPi.stopAllThreads();
+//		vp.stopThread();
 
 		// Thread.sleep(1000);
 		//
