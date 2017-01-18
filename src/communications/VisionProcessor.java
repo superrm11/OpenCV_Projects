@@ -34,9 +34,9 @@ public class VisionProcessor extends Thread
 {
 	int port;
 
-	public VisionProcessor(int port)
+	public VisionProcessor(RaspberryPi rPi)
 	{
-		this.port = port;
+		this.port = rPi.port;
 		this.start();
 	}
 
@@ -78,100 +78,114 @@ public class VisionProcessor extends Thread
 	{ "unchecked" })
 	public void run()
 	{
-		try
-		{
-			System.out.println("VisionProcessor output port: " + port);
-			ServerSocket listener = new ServerSocket(port);
-			System.out.println("Vision Processor Listeners Created");
-			Socket socket = listener.accept();
-			System.out.println("Vision Processor Sockets Created");
-			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-			oos.flush();
-			ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
-
-			InputStreamReader iis = new InputStreamReader(ois);
-
-			System.out.println("Vision Processor I/O streams created");
-			Thread.sleep(1000);
-			boolean alreadyRequested = false;
-			Object o = null;
-
-			while (true)
+		ObjectOutputStream oos = null;
+		ObjectInputStream ois = null;
+		InputStreamReader isr = null;
+		Socket socket = null;
+		ServerSocket listener = null;
+		while (true)
+			try
 			{
-				o = iis.getObject();
-				if (blobsAreNew && o != null)
-				{
-					blobs = (ArrayList<int[]>) o;
-				}
-				if (sendOperations)
-				{
-					oos.writeInt(-4);
-					oos.writeObject(operations);
-					sendOperations = false;
-				}
+				System.out.println("VisionProcessor output port: " + port);
+				listener = new ServerSocket(port);
+				System.out.println("Vision Processor Listeners Created");
+				socket = listener.accept();
+				System.out.println("Vision Processor Sockets Created");
+				oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+				oos.flush();
+				ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 
-				if (saveRawImage)
-				{
-					System.out.println("Requesting to save unprocessed image");
-					oos.writeInt(-6);
-					oos.writeObject(destination);
-					saveRawImage = false;
-				}
+				isr = new InputStreamReader(ois);
 
-				if (saveProcessedImage)
+				System.out.println("Vision Processor I/O streams created");
+				Thread.sleep(1000);
+				Object o = null;
+
+				while (true)
 				{
-					System.out.println("Requesting to save processed image");
-					oos.writeInt(-7);
-					oos.writeObject(destination);
-					saveProcessedImage = false;
-				}
-				// Requests an array of rectangles' x and y coordinates
-				if (requestSingleProcessedImage)
-				{
-					if (alreadyRequested == false)
+					o = isr.getObject();
+					if (blobsAreNew && o != null)
+					{
+						blobs = (ArrayList<int[]>) o;
+					}
+					if (sendOperations)
+					{
+						oos.writeInt(-4);
+						oos.writeObject(operations);
+						sendOperations = false;
+					}
+
+					if (saveRawImage)
+					{
+						System.out.println("Requesting to save unprocessed image");
+						oos.writeInt(-6);
+						oos.writeObject(destination);
+						saveRawImage = false;
+					}
+
+					if (saveProcessedImage)
+					{
+						System.out.println("Requesting to save processed image");
+						oos.writeInt(-7);
+						oos.writeObject(destination);
+						saveProcessedImage = false;
+					}
+					// Requests an array of rectangles' x and y coordinates
+					if (requestSingleProcessedImage)
 					{
 						oos.writeInt(-1);
 						// System.out.println("requested processed image");
-						alreadyRequested = true;
+						requestSingleProcessedImage = false;
+
 					}
-					requestSingleProcessedImage = false;
-					alreadyRequested = false;
 
-				}
-
-				if (stopThread)
-				{
-					try
-					{ // Increase this time delay in case of connection abort
-						// error ONLY.
-						Thread.sleep(500);
-					} catch (InterruptedException e)
+					if (stopThread)
 					{
-						e.printStackTrace();
+						try
+						{ // Increase this time delay in case of connection
+							// abort
+							// error ONLY.
+							Thread.sleep(500);
+						} catch (InterruptedException e)
+						{
+							e.printStackTrace();
+						}
+						break;
 					}
-					break;
-				}
 
-				if (loadConfig)
+					if (loadConfig)
+					{
+						oos.writeInt(-8);
+						oos.writeObject(configDestination);
+						System.out.println("Loading configuration from file");
+						loadConfig = false;
+					}
+					oos.flush();
+
+				}
+			} catch (IOException | InterruptedException e)
+			{
+				e.printStackTrace();
+
+			} finally
+			{
+				stopThread = false;
+				try
 				{
-					oos.writeInt(-8);
-					oos.writeObject(configDestination);
-					System.out.println("Loading configuration from file");
-					loadConfig = false;
+					if (oos != null)
+						oos.close();
+					if (ois != null)
+						ois.close();
+					if (isr != null)
+						isr.close();
+					if (listener != null)
+						listener.close();
+
+				} catch (IOException e)
+				{
+					e.printStackTrace();
 				}
-				oos.flush();
-
 			}
-
-			ois.close();
-			oos.close();
-			socket.close();
-			listener.close();
-		} catch (IOException | InterruptedException e)
-		{
-			e.printStackTrace();
-
-		}
 
 	}
 
@@ -386,15 +400,18 @@ public class VisionProcessor extends Thread
 	 */
 	public void getParticleReport()
 	{
-		ArrayList<int[]> blobsCopy = (ArrayList<int[]>) this.blobs.clone();
-		if(blobsCopy == null)
-			return;
-		ParticleReport[] particles = new ParticleReport[blobsCopy.size()];
-		for (int i = 0; i < blobsCopy.size(); i++)
+		if (this.blobs != null)
 		{
-			particles[i] = new ParticleReport(blobsCopy.get(i));
+			ArrayList<int[]> blobsCopy = (ArrayList<int[]>) this.blobs.clone();
+			if (blobsCopy == null)
+				return;
+			ParticleReport[] particles = new ParticleReport[blobsCopy.size()];
+			for (int i = 0; i < blobsCopy.size(); i++)
+			{
+				particles[i] = new ParticleReport(blobsCopy.get(i));
+			}
+			this.particleReports = particles;
 		}
-		this.particleReports = particles;
 	}
 
 	/**
@@ -460,7 +477,7 @@ public class VisionProcessor extends Thread
 
 		public void run()
 		{
-			while (true)
+			while (!closeThread)
 			{
 				try
 				{
@@ -479,6 +496,13 @@ public class VisionProcessor extends Thread
 				}
 			}
 		}
+
+		public void close()
+		{
+			closeThread = true;
+		}
+
+		private boolean closeThread = false;
 
 		private volatile Object o = null;
 

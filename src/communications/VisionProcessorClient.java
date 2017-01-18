@@ -31,31 +31,8 @@ import org.opencv.imgproc.Imgproc;
 
 public class VisionProcessorClient
 {
-
-	public static void rebootSystem()
-	{
-		try
-		{
-			Runtime.getRuntime().exec("sudo reboot");
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
 	public static void restartCode()
 	{
-		// System.out.println("Restarting system...");
-		// try
-		// {
-		// Runtime.getRuntime().exec("java -jar -Xms900M -Xmx900M
-		// \"C:/Users/Ryan McGee/Desktop/Vision_Processor_Client.jar\"");
-		// } catch (IOException e)
-		// {
-		// e.printStackTrace();
-		// }
-		// System.exit(0);
-
 		stopAllThreads = true;
 		if (cap.isOpened())
 			cap.release();
@@ -150,8 +127,14 @@ public class VisionProcessorClient
 
 		try
 		{
+			long safeTime = System.currentTimeMillis();
 			while (!stopAllThreads)
 			{
+				if (System.currentTimeMillis() - safeTime > 4000)
+				{
+					System.out.println("Timed out! Restarting...");
+					restartCode();
+				}
 
 				// If there is data in the input stream, read it
 				if (ois.available() > 0)
@@ -172,7 +155,10 @@ public class VisionProcessorClient
 					{
 						System.out.println("Triggering reboot...");
 						Runtime.getRuntime().exec("sudo reboot");
-					}else
+					} else if (command == 255)
+					{
+						safeTime = System.currentTimeMillis();
+					} else
 					{
 						command = 0;
 					}
@@ -282,6 +268,7 @@ public class VisionProcessorClient
 							blobs = null;
 						} else
 							System.out.println("blobs are null!");
+						command = 0;
 					} else if (command == -4)
 					{
 						System.out.println("Received set operations command");
@@ -314,7 +301,8 @@ public class VisionProcessorClient
 					} else if (command == -8)
 					{
 						loadConfig((String) ois.readObject());
-					}else{
+					} else
+					{
 						command = 0;
 					}
 
@@ -323,7 +311,7 @@ public class VisionProcessorClient
 						blobs = processImage();
 					}
 					oos.flush();
-					
+
 					Thread.sleep(2);
 
 				}

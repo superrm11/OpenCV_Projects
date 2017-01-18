@@ -13,8 +13,7 @@ public class Test_Main
 
 		// -------------------INIT------------------------------------
 		RaspberryPi rPi = new RaspberryPi();
-		VisionProcessor vp = new VisionProcessor(rPi.port);
-		rPi.requestNewThread();
+		VisionProcessor vp = new VisionProcessor(rPi);
 
 		vp.threshold(0, 77, 0, 87, 255, 94, 0, VisionProcessor.BGR);
 		vp.erode(3, 1);
@@ -51,9 +50,9 @@ public class Test_Main
 				startTime = System.currentTimeMillis();
 				
 				vp.blobsAreNew = false;
-
+				vp.requestSingleProcessedImage();
 			}
-			vp.requestSingleProcessedImage();
+			
 
 		}
 //		rPi.stopAllThreads();
