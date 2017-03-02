@@ -16,10 +16,13 @@ public interface OperationWindows
 	
 	/**
 	 * 
-	 * @return the 
+	 * @return the index in which each operation is in.
 	 */
 	public int getOperationIndex();
 	
+	/**
+	 * Displays the parameter windows
+	 */
 	public void displayWindows();
 	
 }
