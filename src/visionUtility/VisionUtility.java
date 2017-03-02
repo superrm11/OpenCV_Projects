@@ -222,6 +222,8 @@ public class VisionUtility implements java.io.Serializable
 		switch (val)
 		{
 		case Start:
+			//See Default JFrame Layout for general information on
+			//starting the frame.
 			frame = new JFrame();
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			menu = new JMenuBar();
