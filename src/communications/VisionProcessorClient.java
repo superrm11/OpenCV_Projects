@@ -89,14 +89,14 @@ public class VisionProcessorClient
 			IP_ADDRESS = ip;
 		} catch (IOException e1)
 		{
+			System.out.println("Normal startup failed...\nStarting in debug mode.");
 			IP_ADDRESS = "localhost";
 		}
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		image = new Mat();
 		cap = new VideoCapture();
 		// The ip of the camera image stream
-		while (cap.isOpened() == false)
-			cap.open(0);// "http://10.3.39.11/mjpg/video.mjpg");
+		cap.open(0);// "http://10.3.39.11/mjpg/video.mjpg");
 		System.out.println("Camera is enabled? >" + cap.isOpened());
 
 		int command;
@@ -144,7 +144,8 @@ public class VisionProcessorClient
 					if (command == -3)
 					{
 						port = ois.readInt();
-						System.out.println(port);
+						System.out.println("Assigning new port:" + port);
+						System.out.println("Starting new vision thread...");
 						(new Processor(port)).start();
 					} else if (command == 1)
 					// The code for stopping all threads is 1
