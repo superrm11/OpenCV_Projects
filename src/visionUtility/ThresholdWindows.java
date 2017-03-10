@@ -46,7 +46,6 @@ public class ThresholdWindows implements OperationWindows
 		createSlideBarLowerBound();
 		createSlideBarUpperBound();
 		this.operationIndex = operationIndex;
-
 	}
 
 	public int getOperationsIndex()
