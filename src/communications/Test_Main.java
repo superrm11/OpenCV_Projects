@@ -1,10 +1,5 @@
 package communications;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Timer;
-
 public class Test_Main
 {
 
@@ -15,83 +10,27 @@ public class Test_Main
 		RaspberryPi rPi = new RaspberryPi();
 		VisionProcessor vp = new VisionProcessor(rPi);
 
-		vp.threshold(0, 77, 0, 87, 255, 94, 0, VisionProcessor.BGR);
-		vp.erode(3, 1);
-		vp.dilate(3, 2);
+		vp.threshold(71, 102, 79, 112, 145, 148, 0, VisionProcessor.BGR);
+		vp.dilate(2, 2);
 		vp.sendOperations();
 
 		vp.saveRawImage("/home/pi/pics");
 		vp.saveProcessedImage("/home/pi/pics");
-
-		// -------------------ENDINIT-----------------------------------
-		long startTime = System.currentTimeMillis();
-		long timerStartTime = System.currentTimeMillis();
-		long newTime = 0;
-		long endTime;
 		vp.requestSingleProcessedImage();
+		// -------------------ENDINIT-----------------------------------
 
 		// ------------------PERIODIC------------------------
-
-		int average = 0;
-		int count = 0;
-		while (count < 100)
+		while (true)
 		{
-			if (vp.blobsAreNew)
+			if (vp.blobsAreNew && vp.blobs != null)
 			{
-				endTime = System.currentTimeMillis();
-				System.out.println("Time it took: " + (endTime - startTime) + " millis");
 				vp.getParticleReport();
-				if (vp.particleReports != null)
-					for (int i = 0; i < vp.particleReports.length; i++)
-					{
-						System.out.println(vp.particleReports[i].rectArea);
-					}
-				count++;
-				startTime = System.currentTimeMillis();
-				
-				vp.blobsAreNew = false;
+				if (vp.particleReports.length > 0)
+					System.out.println("Center x: " + vp.particleReports[0].centerOfRect.getX());
 				vp.requestSingleProcessedImage();
+				vp.blobsAreNew = false;
 			}
-			
-
 		}
-//		rPi.stopAllThreads();
-//		vp.stopThread();
-
-		// Thread.sleep(1000);
-		//
-		// vp = new VisionProcessor(rPi.port);
-		// rPi.requestNewThread();
-		//
-		// vp.threshold(0, 77, 0, 87, 255, 94, 0);
-		// vp.erode(3, 1);
-		// vp.dilate(3, 2);
-		// vp.sendOperations();
-		//
-		// vp.saveRawImage("/home/pi/pics");
-		// vp.saveProcessedImage("/home/pi/pics");
-		//
-		// startTime = System.currentTimeMillis();
-		// timerStartTime = System.currentTimeMillis();
-		// newTime = 0;
-		// vp.requestSingleProcessedImage();
-		// while (newTime < 10 * 1000)
-		// {
-		// if (vp.blobsAreNew)
-		// {
-		// endTime = System.currentTimeMillis();
-		// System.out.println("Time it took: " + (endTime - startTime) + "
-		// millis");
-		// startTime = System.currentTimeMillis();
-		// vp.requestSingleProcessedImage();
-		// vp.blobsAreNew = false;
-		// }
-		// newTime = System.currentTimeMillis() - timerStartTime;
-		// Thread.sleep(1);
-		//
-		// }
-		// rPi.stopAllThreads();
-		// vp.stopThread();
 
 	}
 

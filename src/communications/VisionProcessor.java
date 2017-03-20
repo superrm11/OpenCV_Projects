@@ -3,8 +3,6 @@ package communications;
 import java.awt.Point;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -482,7 +480,8 @@ public class VisionProcessor extends Thread
 				try
 				{
 					o = ois.readObject();
-					blobsAreNew = true;
+					if (o != null)
+						blobsAreNew = true;
 				} catch (ClassNotFoundException | IOException e)
 				{
 					break;

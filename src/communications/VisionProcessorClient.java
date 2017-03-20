@@ -5,14 +5,11 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -94,10 +91,9 @@ public class VisionProcessorClient
 		}
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		image = new Mat();
-		cap = new VideoCapture();
-		// The ip of the camera image stream
-		cap.open(0);// "http://10.3.39.11/mjpg/video.mjpg");
+		cap = new VideoCapture(0);
 		System.out.println("Camera is enabled? >" + cap.isOpened());
+		// The ip of the camera image stream
 
 		int command;
 		int port = 2001;
@@ -432,7 +428,6 @@ public class VisionProcessorClient
 				Rect rect = Imgproc.boundingRect(contours.get(i));
 				blobs.add(new int[]
 				{ rect.x, rect.y, rect.width, rect.height });
-				System.out.println("width of blob " + i + ": " + blobs.get(i)[2]);
 
 			}
 
