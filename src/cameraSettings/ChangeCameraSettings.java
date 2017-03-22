@@ -1,11 +1,11 @@
 package cameraSettings;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-
 import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
+import org.opencv.imgproc.Imgproc;
 
 public class ChangeCameraSettings
 {
@@ -21,47 +21,24 @@ public class ChangeCameraSettings
 		cap.open(0);
 		cap.set(Highgui.CV_CAP_PROP_SETTINGS, 1);
 
-		Resolution windowRes;
-
-		switch ((int) Math.round(screenRes.getWidth()))
-		{
-		case 2560:
-			windowRes = Resolution.k1600x1200;
-			break;
-		case 1920:
-			windowRes = Resolution.k960x720;
-			break;
-		case 1280:
-			windowRes = Resolution.k800x600;
-			break;
-		case 1024:
-			windowRes = Resolution.k800x600;
-			break;
-		case 900:
-			windowRes = Resolution.k640x480;
-			break;
-		default:
-			windowRes = Resolution.k640x480;
-		}
-
-		frame = new ViewWindow(windowRes);
+		frame = new ViewWindow();
 		frame.setVisible(true);
-
+		Mat m = new Mat();
+		Mat newMat = new Mat();
 		while (true)
 		{
+			cap.read(m);
+			if (m != null)
+			{
+				Imgproc.resize(m, newMat, new Size(640, 480));
+				frame.refresh(newMat);
+			}
 			if (frame.isClosing() == true)
 			{
-				System.exit(0);
+				// cap.release();
+				break;
 			}
 		}
 
 	}
-
-	private static Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
-
-	public enum Resolution
-	{
-		k320x240, k480x320, k640x480, k800x600, k960x720, k1600x1200
-	}
-
 }

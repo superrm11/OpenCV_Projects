@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -26,8 +27,16 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.opencv.core.*;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
+import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
 public class VisionUtility implements java.io.Serializable
@@ -37,6 +46,10 @@ public class VisionUtility implements java.io.Serializable
 
 	// public static VideoCapture video;
 	public static Mat mat;
+
+	public static VideoCapture captureDevice;
+
+	public static boolean isUsingCamera = false;
 
 	public static ThresholdWindows thresholdWindows = null;
 
@@ -103,7 +116,7 @@ public class VisionUtility implements java.io.Serializable
 					if (operationsWindow.chckbxOverlayImage.isSelected())
 						Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(0, 0, 255), -1);
 					else
-						Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255,255,255,255), -1);
+						Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 255, 255, 255), -1);
 
 				}
 				hasThreshold = false;
@@ -133,7 +146,7 @@ public class VisionUtility implements java.io.Serializable
 
 		return output;
 	}
-	
+
 	public static ArrayList<int[]> sortRects(ArrayList<int[]> list)
 	{
 		ArrayList<int[]> sortedOutput = new ArrayList<int[]>();
@@ -202,7 +215,9 @@ public class VisionUtility implements java.io.Serializable
 	public static JMenu imageMenu;
 	public static JMenuItem openImage;
 	public static JMenu file;
-	public static JMenuItem saveConfig, openConfig;
+	public static JMenuItem saveConfig, openConfig, openCamera;
+
+	public static CameraSelectWindow cameraSelect = new CameraSelectWindow();
 
 	public static boolean isOpeningImage = false;
 	public static boolean imageIsOpen = false;
@@ -222,14 +237,28 @@ public class VisionUtility implements java.io.Serializable
 		switch (val)
 		{
 		case Start:
-			//See Default JFrame Layout for general information on
-			//starting the frame.
+			// See Default JFrame Layout for general information on
+			// starting the frame.
 			frame = new JFrame();
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			menu = new JMenuBar();
 			frame.setJMenuBar(menu);
 			imageMenu = new JMenu("Image");
 			menu.add(imageMenu);
+
+			openCamera = new JMenuItem("Open Camera");
+
+			imageMenu.add(openCamera);
+
+			openCamera.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent arg0)
+				{
+					cameraSelect.displayWindow();
+					isUsingCamera = true;
+				}
+			});
+
 			openImage = new JMenuItem("Open Image");
 
 			imageMenu.add(openImage);
@@ -238,6 +267,7 @@ public class VisionUtility implements java.io.Serializable
 				public void actionPerformed(ActionEvent arg0)
 				{
 					// video.release();
+					isUsingCamera = false;
 					mat = openImage();
 				}
 			});
@@ -502,7 +532,7 @@ public class VisionUtility implements java.io.Serializable
 		{
 			if (rects.get(i)[2] * rects.get(i)[3] > (size * 20))
 			{
-				Imgproc.drawContours(newAlteredMat, contours, i, new Scalar(255,255,255,255), Core.FILLED);
+				Imgproc.drawContours(newAlteredMat, contours, i, new Scalar(255, 255, 255, 255), Core.FILLED);
 			}
 		}
 		return newAlteredMat;

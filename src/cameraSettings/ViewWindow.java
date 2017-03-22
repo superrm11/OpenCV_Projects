@@ -1,8 +1,6 @@
 package cameraSettings;
 
 import java.awt.BorderLayout;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -10,14 +8,13 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.highgui.Highgui;
-
-import cameraSettings.ChangeCameraSettings.Resolution;
 
 public class ViewWindow extends JFrame
 {
@@ -27,68 +24,15 @@ public class ViewWindow extends JFrame
 	/**
 	 * Create the frame.
 	 */
-	public ViewWindow(Resolution res)
+	public ViewWindow()
 	{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 640, 480);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
-		this.addWindowListener(new WindowListener()
-		{
-
-			@Override
-			public void windowOpened(WindowEvent e)
-			{
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void windowClosing(WindowEvent e)
-			{
-				isClosing = true;
-				dispose();
-			}
-
-			@Override
-			public void windowClosed(WindowEvent e)
-			{
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void windowIconified(WindowEvent e)
-			{
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void windowDeiconified(WindowEvent e)
-			{
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void windowActivated(WindowEvent e)
-			{
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void windowDeactivated(WindowEvent e)
-			{
-				// TODO Auto-generated method stub
-
-			}
-
-		});
-		this.setResolution(res);
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 
 	private boolean isClosing = false;
@@ -98,19 +42,13 @@ public class ViewWindow extends JFrame
 		return isClosing;
 	}
 
-	public void refreshWindow(Mat m)
-	{
-		ImageIcon image = new ImageIcon(convertToImage(m));
-
-	}
-
 	/**
 	 * Converts a Matrix 'Mat' into a buffered image for viewing
 	 * 
 	 * @param m
 	 * @return
 	 */
-	private static BufferedImage convertToImage(Mat m)
+	private BufferedImage convertToImage(Mat m)
 	{
 
 		MatOfByte matOfByte = new MatOfByte();
@@ -129,11 +67,14 @@ public class ViewWindow extends JFrame
 
 	}
 
-	private Resolution viewRes = Resolution.k640x480;
-
-	public void setResolution(Resolution res)
+	public void refresh(Mat m)
 	{
-		this.viewRes = res;
+		ImageIcon image = new ImageIcon(convertToImage(m));
+		JLabel label = new JLabel(image);
+		this.getContentPane().removeAll();
+		this.getContentPane().add(label);
+		this.pack();
+
 	}
 
 }
