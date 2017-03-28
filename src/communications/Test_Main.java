@@ -8,7 +8,7 @@ public class Test_Main
 
 		// -------------------INIT------------------------------------
 		RaspberryPi rPi = new RaspberryPi();
-		VisionProcessor vp = new VisionProcessor(rPi);
+		VisionProcessor vp = new VisionProcessor(/* rPi */);
 
 		vp.threshold(71, 102, 79, 112, 145, 148, 0, VisionProcessor.BGR);
 		vp.dilate(2, 2);

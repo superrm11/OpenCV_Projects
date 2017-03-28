@@ -25,16 +25,126 @@ import java.util.Comparator;
  * <br>			-7: requests to save the processed image to the destination provided
  * <br>			-8: load a configuration file saved from the thresholdutility program
  * </p>
+ * <p>
+ * 		MAIN COMMUNICATION COMMANDS:
+ * <br>			1: request new thread
+ * <br>			2: confirmation of request (sent from client)
+ * </p>
  * @author Ryan McGee
  *
  */
 public class VisionProcessor extends Thread
 {
-	int port;
+	// -------------------MAIN INITIALIZATION----------------------
+	private static ServerSocket mainServerSocket = null;
+	private static Socket mainSocket = null;
+	private static ObjectOutputStream mainOutputStream = null;
+	private static ObjectInputStream mainInputStream = null;
 
-	public VisionProcessor(RaspberryPi rPi)
+	/**
+	 * Determines each port for each VisionProcessor object created. Port 6000 reserved for accepting thread requests.
+	 */
+	private static int currentPort = 6000;
+
+	/**
+	 * Used only in the initialization phase, this is used for connecting to the raspberry pi's multi-thread controller.
+	 */
+	private static final int MAIN_INIT_PORT = currentPort;
+	/**
+	 * Determines whether a socket has been created with the client for multi-threading purposes.
+	 */
+	private volatile static boolean hasInitialized = false;
+
+	/**
+	 * Initializes the main sockets for communication when requesting new threads and such. This will allow the 
+	 * VisionProcessor class and it's communication to be self contained, without the need for Mr. programmer to 
+	 * worry about ports and sockets and things of that sort.
+	 * <br>
+	 * WARNING: This has a recursive call. It will attempt to reconnect if the connection failed.
+	 * <br>
+	 * <b> KEEP THIS OUT OF THE MAIN THREAD! </b>
+	 * 
+	 * @return Whether or not the connection to the Raspberry Pi was successful.
+	 */
+	private static boolean init()
 	{
-		this.port = rPi.port;
+		try
+		{
+			// Connect to the initial server.
+			// This will replace the current "RaspberryPi" class.
+			// Enables communication with the Raspberry Pi for requesting new
+			// threads and ports.
+			mainServerSocket = new ServerSocket(MAIN_INIT_PORT);
+			mainSocket = mainServerSocket.accept();
+			mainOutputStream = new ObjectOutputStream(new BufferedOutputStream(mainSocket.getOutputStream()));
+			mainOutputStream.flush();
+			mainInputStream = new ObjectInputStream(new BufferedInputStream(mainSocket.getInputStream()));
+
+			return true;
+
+		} catch (IOException e)
+		{
+			System.out.println("Unable to connect to the vision processor. Retrying...");
+		}
+		// Makes sure that the program will only try to connect every 3 seconds
+		// if it failed.
+		try
+		{
+			Thread.sleep(3000);
+		} catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+
+		return init();
+	}
+
+	// ==================END MAIN INIT==========================
+
+	private static void requestNewThread()
+	{
+		try
+		{
+			mainOutputStream.writeInt(1);
+			mainOutputStream.flush();
+
+			// Waits for the client to acknowledge that we have requested a new
+			// thread
+			while (mainInputStream.readInt() != 2)
+				;
+
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * The port for this VisionProcessor specifically
+	 */
+	private int port;
+
+	public VisionProcessor()
+	{
+		// Creates a temporary thread for the initial connection to the
+		// Raspberry Pi. ONLY if this is the first setup.
+		// This thread will terminate as soon as the pi has connected.
+		if (hasInitialized == false)
+		{
+			(new Thread(new Runnable()
+			{
+				public void run()
+				{
+					hasInitialized = init();
+				}
+			})).start();
+		}
+		requestNewThread();
+		// Adds one to the current port; port 6000 reserved for accepting thread
+		// requests
+		this.port = ++currentPort;
+		// begin the new thread
 		this.start();
 	}
 
@@ -74,8 +184,13 @@ public class VisionProcessor extends Thread
 
 	@SuppressWarnings(
 	{ "unchecked" })
+	/**
+	 * The main thread for the VisionProcessor. Will run a setup, followed by a loop. Loop will end if communications with 
+	 * the client is cut off.
+	 */
 	public void run()
 	{
+
 		ObjectOutputStream oos = null;
 		ObjectInputStream ois = null;
 		InputStreamReader isr = null;
@@ -85,14 +200,26 @@ public class VisionProcessor extends Thread
 			try
 			{
 				System.out.println("VisionProcessor output port: " + port);
+				// Server Socket listens on that specific port for incomimg
+				// clients.
 				listener = new ServerSocket(port);
 				System.out.println("Vision Processor Listeners Created");
+				// Once a client connects, it is "bound" to that
+				// client.
 				socket = listener.accept();
 				System.out.println("Vision Processor Sockets Created");
+				// binds the output stream to the same as the socket, used for
+				// sending objects over it.
 				oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+				// Flushes the stream to ensure the client can connect
 				oos.flush();
+				// creates and binds the input stream to the socket to input
+				// objects. OutputStream on client must be flushed before
+				// connecting.
 				ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 
+				// Creates a reader so that the input stream can be read without
+				// blocking the thread.
 				isr = new InputStreamReader(ois);
 
 				System.out.println("Vision Processor I/O streams created");
@@ -420,6 +547,8 @@ public class VisionProcessor extends Thread
 	 *				Else if it is set to TOLERANCE, this is the desired aspect ratio.
 	 * @param arg1 If AspectRatio is set to BOUNDARY, this is the upper boundary of acceptable aspect ratios.
 	 * 				Else if it is set to TOLERANCE, this is the tolerance.
+	 * @param a
+	 * 				Whether the user wants a desired ratio and tolerance or boundaries.
 	 * @param useTolerance 
 	 */
 	public void filterAspectRatio(double arg0, double arg1, AspectRatio a)
