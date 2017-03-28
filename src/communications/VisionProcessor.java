@@ -74,11 +74,14 @@ public class VisionProcessor extends Thread
 			// This will replace the current "RaspberryPi" class.
 			// Enables communication with the Raspberry Pi for requesting new
 			// threads and ports.
+			System.out.println("Connecting to Raspberry Pi on port " + MAIN_INIT_PORT);
 			mainServerSocket = new ServerSocket(MAIN_INIT_PORT);
 			mainSocket = mainServerSocket.accept();
+			System.out.println("Connection to Raspberry Pi established!");
 			mainOutputStream = new ObjectOutputStream(new BufferedOutputStream(mainSocket.getOutputStream()));
 			mainOutputStream.flush();
 			mainInputStream = new ObjectInputStream(new BufferedInputStream(mainSocket.getInputStream()));
+			System.out.println("Vision Input/Output Streams Created.");
 
 			return true;
 
@@ -101,10 +104,16 @@ public class VisionProcessor extends Thread
 
 	// ==================END MAIN INIT==========================
 
+	/**
+	 * Will request a new thread on the raspberry pi.
+	 * DO NOT put in the main thread, as this will block 
+	 * the thread it is in until it gets the response. 
+	 */
 	private static void requestNewThread()
 	{
 		try
 		{
+			System.out.println("Requesting new thread from Raspberry Pi...");
 			mainOutputStream.writeInt(1);
 			mainOutputStream.flush();
 
@@ -112,6 +121,7 @@ public class VisionProcessor extends Thread
 			// thread
 			while (mainInputStream.readInt() != 2)
 				;
+			System.out.println("Request for new thread confirmed!");
 
 		} catch (IOException e)
 		{
@@ -140,12 +150,12 @@ public class VisionProcessor extends Thread
 				}
 			})).start();
 		}
-		requestNewThread();
 		// Adds one to the current port; port 6000 reserved for accepting thread
 		// requests
 		this.port = ++currentPort;
 		// begin the new thread
 		this.start();
+		System.out.println("Finished Vision Processor initialization.");
 	}
 
 	private ArrayList<int[]> operations = new ArrayList<int[]>();
@@ -182,14 +192,13 @@ public class VisionProcessor extends Thread
 	 */
 	public volatile boolean blobsAreNew = false;
 
-	@SuppressWarnings(
-	{ "unchecked" })
 	/**
 	 * The main thread for the VisionProcessor. Will run a setup, followed by a loop. Loop will end if communications with 
 	 * the client is cut off.
 	 */
 	public void run()
 	{
+		requestNewThread();
 
 		ObjectOutputStream oos = null;
 		ObjectInputStream ois = null;
@@ -200,7 +209,7 @@ public class VisionProcessor extends Thread
 			try
 			{
 				System.out.println("VisionProcessor output port: " + port);
-				// Server Socket listens on that specific port for incomimg
+				// Server Socket listens on that specific port for incoming
 				// clients.
 				listener = new ServerSocket(port);
 				System.out.println("Vision Processor Listeners Created");
@@ -268,8 +277,7 @@ public class VisionProcessor extends Thread
 					{
 						try
 						{ // Increase this time delay in case of connection
-							// abort
-							// error ONLY.
+							// abort error ONLY.
 							Thread.sleep(500);
 						} catch (InterruptedException e)
 						{

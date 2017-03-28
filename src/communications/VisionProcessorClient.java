@@ -34,16 +34,10 @@ public class VisionProcessorClient
 		if (cap.isOpened())
 			cap.release();
 
-		try
-		{
-			Thread.sleep(500);
-		} catch (InterruptedException e1)
-		{
-			e1.printStackTrace();
-		}
 		stopAllThreads = false;
 		try
 		{
+			Thread.sleep(500);
 			main(args);
 		} catch (InterruptedException | IOException e)
 		{
@@ -65,7 +59,6 @@ public class VisionProcessorClient
 	public static void main(String[] args) throws InterruptedException, IOException
 	{
 		VisionProcessorClient.args = args;
-
 		String ip = "";
 		try
 		{
@@ -86,17 +79,18 @@ public class VisionProcessorClient
 			IP_ADDRESS = ip;
 		} catch (IOException e1)
 		{
+			System.out.println("Missing /home/pi/ip.txt OR /home/pi/logs directory.");
 			System.out.println("Normal startup failed...\nStarting in debug mode.");
 			IP_ADDRESS = "localhost";
 		}
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		image = new Mat();
 		cap = new VideoCapture(0);
-		System.out.println("Camera is enabled? >" + cap.isOpened());
+		System.out.println("Camera is enabled? > " + cap.isOpened());
 		// The ip of the camera image stream
 
 		int command;
-		int port = 2001;
+		int port = 6001;
 
 		ObjectInputStream ois = null;
 		Socket socket = null;
@@ -105,7 +99,7 @@ public class VisionProcessorClient
 			try
 			{
 				// Set up the sockets that create the main processing sockets.
-				socket = new Socket(IP_ADDRESS, 2000);
+				socket = new Socket(IP_ADDRESS, 6000);
 				System.out.println("Set up socket");
 
 				ois = new ObjectInputStream(socket.getInputStream());
@@ -136,22 +130,13 @@ public class VisionProcessorClient
 				if (ois.available() > 0)
 				{
 					command = ois.readInt();
-					// -3 is the code for create new Processor
-					if (command == -3)
+					// 1 is the code for create new Processor
+					if (command == 1)
 					{
 						port = ois.readInt();
 						System.out.println("Assigning new port:" + port);
 						System.out.println("Starting new vision thread...");
-						(new Processor(port)).start();
-					} else if (command == 1)
-					// The code for stopping all threads is 1
-					{
-						stopAllThreads = true;
-						System.out.println("Stopping all threads...");
-					} else if (command == 2)
-					{
-						System.out.println("Triggering reboot...");
-						Runtime.getRuntime().exec("sudo reboot");
+						(new Processor(port++)).start();
 					} else if (command == 255)
 					{
 						safeTime = System.currentTimeMillis();
