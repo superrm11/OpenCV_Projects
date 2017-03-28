@@ -76,6 +76,7 @@ public class VisionProcessorClient
 			FileReader fr = new FileReader("/home/pi/ip.txt");
 			BufferedReader bfr = new BufferedReader(fr);
 			ip = bfr.readLine();
+			bfr.close();
 			IP_ADDRESS = ip;
 		} catch (IOException e1)
 		{
@@ -322,12 +323,6 @@ public class VisionProcessorClient
 			}
 		}
 
-		private Scalar lowerBound = new Scalar(0, 0, 0);
-		private Scalar upperBound = new Scalar(0, 0, 0);
-		private Scalar brightness = new Scalar(0, 0, 0);
-
-		private int brightness_value = 0;
-
 		boolean saveRawImage = false;
 		boolean saveProcessedImage = false;
 		int fileNumber = 0;
@@ -510,7 +505,6 @@ public class VisionProcessorClient
 		 * @param size how large the blobs are that you want to remove
 		 * @return matrix (image) after removing the objects
 		 */
-		@SuppressWarnings("unused")
 		private static Mat removeSmallObjects(Mat m, int size)
 		{
 			Mat alteredMat = m.clone();
@@ -556,6 +550,7 @@ public class VisionProcessorClient
 				ObjectInputStream ois = new ObjectInputStream(fis);
 
 				operations = (ArrayList<int[]>) ois.readObject();
+				ois.close();
 			} catch (IOException | ClassNotFoundException e)
 			{
 				System.out.println("Unable to open the config file!");
