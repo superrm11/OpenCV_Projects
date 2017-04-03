@@ -1,10 +1,7 @@
 package communications;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -21,7 +18,8 @@ import java.util.ArrayList;
  * 
  * 
  * @author Ryan McGee
- *
+ * @deprecated The VisionProcessor class is completely self 
+ * contained now, there is absolutely no reason why you would want to use this class.
  */
 public class RaspberryPi extends Thread
 {
@@ -164,9 +162,9 @@ public class RaspberryPi extends Thread
 		requestNewThread++;
 		updatePorts();
 	}
-	
+
 	private boolean hasDisconnected = false;
-	
+
 	public boolean hasDisconnected()
 	{
 		return hasDisconnected;

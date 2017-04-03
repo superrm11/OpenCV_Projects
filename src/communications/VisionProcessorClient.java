@@ -94,6 +94,7 @@ public class VisionProcessorClient
 		int port = 6001;
 
 		ObjectInputStream ois = null;
+		ObjectOutputStream oos = null;
 		Socket socket = null;
 		while (!stopAllThreads)
 		{
@@ -103,7 +104,9 @@ public class VisionProcessorClient
 				socket = new Socket(IP_ADDRESS, 6000);
 				System.out.println("Set up socket");
 
-				ois = new ObjectInputStream(socket.getInputStream());
+				oos = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+				oos.flush();
+				ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 
 				System.out.println("Set up I/O Streams");
 
@@ -138,9 +141,13 @@ public class VisionProcessorClient
 						System.out.println("Assigning new port:" + port);
 						System.out.println("Starting new vision thread...");
 						(new Processor(port++)).start();
+						oos.writeInt(2);
+						oos.flush();
 					} else if (command == 255)
 					{
 						safeTime = System.currentTimeMillis();
+						oos.writeInt(255);
+						oos.flush();
 					} else
 					{
 						command = 0;

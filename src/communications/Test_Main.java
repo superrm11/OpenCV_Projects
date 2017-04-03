@@ -7,31 +7,28 @@ public class Test_Main
 	{
 
 		// -------------------INIT------------------------------------
-		RaspberryPi rPi = new RaspberryPi();
-		VisionProcessor vp = new VisionProcessor(/* rPi */);
+		// VisionProcessor vp = new VisionProcessor(true);
+		VisionProcessor.sortBySize(new int[]
+		{ 3, 4, 5, 9, 7, 8, 6, 2, 0, 1 });
+		// vp.threshold(0, 0, 0, 255, 255, 255, 0, VisionProcessor.BGR);
+		// vp.sendOperations();
+		//
+		// vp.requestSingleProcessedImage();
 
-		vp.threshold(71, 102, 79, 112, 145, 148, 0, VisionProcessor.BGR);
-		vp.dilate(2, 2);
-		vp.sendOperations();
-
-		vp.saveRawImage("/home/pi/pics");
-		vp.saveProcessedImage("/home/pi/pics");
-		vp.requestSingleProcessedImage();
 		// -------------------ENDINIT-----------------------------------
 
 		// ------------------PERIODIC------------------------
-		while (true)
-		{
-			if (vp.blobsAreNew && vp.blobs != null)
-			{
-				vp.getParticleReport();
-				if (vp.particleReports.length > 0)
-					System.out.println("Center x: " + vp.particleReports[0].centerOfRect.getX());
-				vp.requestSingleProcessedImage();
-				vp.blobsAreNew = false;
-			}
-		}
 
+		// while (true)
+		// {
+		// if (vp.particleReportsAreNew && vp.getParticleReports() != null)
+		// {
+		// System.out.println(vp.getParticleReports().length);
+		// System.out.println(vp.getParticleReports()[0].rectArea);
+		// vp.particleReportsAreNew = false;
+		// vp.requestSingleProcessedImage();
+		// }
+		// }
 	}
 
 }

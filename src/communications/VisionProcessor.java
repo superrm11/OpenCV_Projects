@@ -35,11 +35,13 @@ import java.util.Comparator;
  */
 public class VisionProcessor extends Thread
 {
+	private volatile static boolean isEnabled;
+
 	// -------------------MAIN INITIALIZATION----------------------
 	private static ServerSocket mainServerSocket = null;
 	private static Socket mainSocket = null;
-	private static ObjectOutputStream mainOutputStream = null;
-	private static ObjectInputStream mainInputStream = null;
+	private volatile static ObjectOutputStream mainOutputStream = null;
+	private volatile static ObjectInputStream mainInputStream = null;
 
 	/**
 	 * Determines each port for each VisionProcessor object created. Port 6000 reserved for accepting thread requests.
@@ -115,6 +117,7 @@ public class VisionProcessor extends Thread
 		{
 			System.out.println("Requesting new thread from Raspberry Pi...");
 			mainOutputStream.writeInt(1);
+			mainOutputStream.writeInt(currentPort);
 			mainOutputStream.flush();
 
 			// Waits for the client to acknowledge that we have requested a new
@@ -130,16 +133,47 @@ public class VisionProcessor extends Thread
 
 	}
 
+	private volatile static boolean requestNewThread = false;
+
+	/**
+	 * This sends the client program the integer 255 to tell it that it is still up. If the client program does not
+	 * receive this int, it will close the connection and restart. Handy for when sending code / whenever the 
+	 * roborio gets rebooted.
+	 */
+	private static void updateConnectionProtector()
+	{
+		try
+		{
+			// System.out.println("Updating the connection protector");
+			mainOutputStream.writeInt(255);
+			mainOutputStream.flush();
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			isEnabled = false;
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * The port for this VisionProcessor specifically
 	 */
 	private int port;
 
-	public VisionProcessor()
+	public VisionProcessor(boolean isEnabled)
 	{
+		VisionProcessor.isEnabled = isEnabled;
+		if (isEnabled == false)
+		{
+			// If the vision processor is causing errors and we want to disable
+			// it as quickly as possible, just flip this boolean.
+			System.out.println("The Vision Processor is disabled!");
+			return;
+		}
 		// Creates a temporary thread for the initial connection to the
 		// Raspberry Pi. ONLY if this is the first setup.
-		// This thread will terminate as soon as the pi has connected.
+		// This thread will only feed the connection protector after the first
+		// setup.
 		if (hasInitialized == false)
 		{
 			(new Thread(new Runnable()
@@ -147,6 +181,27 @@ public class VisionProcessor extends Thread
 				public void run()
 				{
 					hasInitialized = init();
+					System.out.println("Finished Vision Processor initialization.");
+					while (true)
+					{
+						if (VisionProcessor.isEnabled == false)
+							break;
+						System.out.println(VisionProcessor.isEnabled);
+
+						if (requestNewThread == true)
+						{
+							requestNewThread();
+							requestNewThread = false;
+						} else
+							updateConnectionProtector();
+						try
+						{
+							Thread.sleep(1000);
+						} catch (InterruptedException e)
+						{
+							e.printStackTrace();
+						}
+					}
 				}
 			})).start();
 		}
@@ -155,7 +210,6 @@ public class VisionProcessor extends Thread
 		this.port = ++currentPort;
 		// begin the new thread
 		this.start();
-		System.out.println("Finished Vision Processor initialization.");
 	}
 
 	private ArrayList<int[]> operations = new ArrayList<int[]>();
@@ -187,10 +241,9 @@ public class VisionProcessor extends Thread
 
 	/**
 	 * Will display true only if the program just received new blobs.
-	 * You can change this if you are finished using this set of blobs
-	 * and want to wait for the next to send.
+	 * This will tell the program if the image is new, so that it knows when and when not to update the reports.
 	 */
-	public volatile boolean blobsAreNew = false;
+	private volatile boolean blobsAreNew = false;
 
 	/**
 	 * The main thread for the VisionProcessor. Will run a setup, followed by a loop. Loop will end if communications with 
@@ -198,7 +251,9 @@ public class VisionProcessor extends Thread
 	 */
 	public void run()
 	{
-		requestNewThread();
+		while (hasInitialized == false)
+			;
+		requestNewThread = true;
 
 		ObjectOutputStream oos = null;
 		ObjectInputStream ois = null;
@@ -208,6 +263,10 @@ public class VisionProcessor extends Thread
 		while (true)
 			try
 			{
+				// If suddenly we lose comms, stop the thread.
+				if (isEnabled == false)
+					return;
+
 				System.out.println("VisionProcessor output port: " + port);
 				// Server Socket listens on that specific port for incoming
 				// clients.
@@ -237,10 +296,14 @@ public class VisionProcessor extends Thread
 
 				while (true)
 				{
+					// Constantly checks if the client has sent blob data. If
+					// so, save the data and set that the data is now old
 					o = isr.getObject();
 					if (blobsAreNew && o != null)
 					{
 						blobs = (ArrayList<int[]>) o;
+						this.updateParticleReport();
+						blobsAreNew = false;
 					}
 					if (sendOperations)
 					{
@@ -298,10 +361,12 @@ public class VisionProcessor extends Thread
 				}
 			} catch (IOException | InterruptedException e)
 			{
+				isEnabled = false;
 				e.printStackTrace();
 
 			} finally
 			{
+				isEnabled = false;
 				stopThread = false;
 				try
 				{
@@ -355,19 +420,45 @@ public class VisionProcessor extends Thread
 	 * 			[2] = width, 
 	 * 			[3] = height
 	 */
-	public int[] getWidestBlob(ArrayList<int[]> blobs)
+	// public ParticleReport getLargestBlob ()
 	{
-		int[] temp =
-		{ 0, 0, 0, 0 };
-		if (blobs != null)
-			for (int i = 0; i < blobs.size(); i++)
+
+	}
+
+	/**
+	 * Sorts the particle reports by size (using the QuickSort algorithm)
+	 * @return true when it has finished sorting, false if it is too short or is null.
+	 */
+	public static boolean sortBySize(int[] array)
+	{
+		if (array == null || array.length < 2)
+			return false;
+		int wall = -1;
+		int pivot = array.length - 1;
+
+		boolean isSorted = true;
+
+		for (int i = 0; i < array.length; i++)
+		{
+			if (array[i] < array[pivot])
 			{
-				if (blobs.get(i)[2] > temp[2])
-				{
-					temp = blobs.get(i);
-				}
+				int temp = array[wall + 1];
+				array[wall + 1] = array[i];
+				array[i] = temp;
+				isSorted = false;
+				wall++;
 			}
-		return temp;
+		}
+
+		if (isSorted)
+		{
+			for (int i : array)
+				System.out.print(i);
+			return true;
+		}
+
+		else
+			return sortBySize(array);
 	}
 
 	/**
@@ -531,7 +622,7 @@ public class VisionProcessor extends Thread
 	/**
 	 * Gets an array of the information of all the blobs
 	 */
-	public void getParticleReport()
+	public void updateParticleReport()
 	{
 		if (this.blobs != null)
 		{
@@ -544,8 +635,17 @@ public class VisionProcessor extends Thread
 				particles[i] = new ParticleReport(blobsCopy.get(i));
 			}
 			this.particleReports = particles;
+			particleReportsAreNew = true;
 		}
+
 	}
+
+	public ParticleReport[] getParticleReports()
+	{
+		return this.particleReports;
+	}
+
+	public volatile boolean particleReportsAreNew = false;
 
 	/**
 	 * Filters out all blobs that do not have the aspect ratio falling in the range of the lowerBound and upperBound specified, or the given
@@ -588,7 +688,7 @@ public class VisionProcessor extends Thread
 		BOUNDARY, TOLERANCE
 	}
 
-	public ParticleReport[] particleReports;
+	public ParticleReport[] particleReports = new ParticleReport[1];
 
 	String destination;
 
