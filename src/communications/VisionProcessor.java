@@ -111,7 +111,7 @@ public class VisionProcessor extends Thread
 	 * DO NOT put in the main thread, as this will block 
 	 * the thread it is in until it gets the response. 
 	 */
-	private static void requestNewThread()
+	protected static void requestNewThread()
 	{
 		try
 		{
@@ -731,11 +731,6 @@ public class VisionProcessor extends Thread
 					e.printStackTrace();
 				}
 			}
-		}
-
-		public void close()
-		{
-			closeThread = true;
 		}
 
 		private boolean closeThread = false;
