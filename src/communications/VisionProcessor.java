@@ -640,6 +640,31 @@ public class VisionProcessor extends Thread
 
 	}
 
+	private void sortReportsBySize()
+	{
+		ArrayList<ParticleReport> oldReports = new ArrayList<ParticleReport>();
+		for (ParticleReport particle : this.particleReports)
+		{
+			oldReports.add(particle);
+		}
+
+		ArrayList<ParticleReport> newReports = new ArrayList<ParticleReport>();
+
+		while (oldReports.size() != 0)
+		{
+			int maxIndex = 0;
+			for (int i = 0; i < oldReports.size(); i++)
+			{
+				if (oldReports.get(i).rectArea > oldReports.get(maxIndex).rectArea)
+				{
+					maxIndex = i;
+				}
+			}
+			newReports.add(oldReports.remove(maxIndex));
+		}
+		this.particleReports = newReports.toArray(this.particleReports);
+	}
+
 	public ParticleReport[] getParticleReports()
 	{
 		return this.particleReports;
@@ -731,6 +756,11 @@ public class VisionProcessor extends Thread
 					e.printStackTrace();
 				}
 			}
+		}
+
+		public void close()
+		{
+			closeThread = true;
 		}
 
 		private boolean closeThread = false;
