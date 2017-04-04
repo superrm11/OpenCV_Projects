@@ -47,7 +47,7 @@ public class VisionUtility implements java.io.Serializable
 	// public static VideoCapture video;
 	public static Mat mat;
 
-	public static VideoCapture captureDevice;
+	public static VideoCapture captureDevice = null;
 
 	public static boolean isUsingCamera = false;
 
@@ -63,7 +63,7 @@ public class VisionUtility implements java.io.Serializable
 	{
 		// Load the main OpenCV libraries
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		mat = null;
+		mat = new Mat();
 		Mat alteredMat = new Mat();
 		Mat displayMat = new Mat();
 
@@ -78,6 +78,9 @@ public class VisionUtility implements java.io.Serializable
 		boolean hasThreshold;
 		while (true)
 		{
+			if (isUsingCamera == true && captureDevice != null && captureDevice.isOpened())
+				captureDevice.read(mat);
+
 			hasThreshold = false;
 			config = operationsWindow.operations;
 			if (config != null && mat != null && !mat.empty())
@@ -349,6 +352,9 @@ public class VisionUtility implements java.io.Serializable
 			} else
 			{
 				Mat m = Highgui.imread(saveName);
+				if (captureDevice != null && captureDevice.isOpened())
+					captureDevice.release();
+				isUsingCamera = false;
 				return m;
 			}
 		}
@@ -536,5 +542,15 @@ public class VisionUtility implements java.io.Serializable
 			}
 		}
 		return newAlteredMat;
+	}
+
+	public static void startVideoCapture(String ip)
+	{
+		captureDevice = new VideoCapture(ip);
+	}
+
+	public static void startVideoCapture(int deviceNum)
+	{
+		captureDevice = new VideoCapture(deviceNum);
 	}
 }

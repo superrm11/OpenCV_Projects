@@ -97,6 +97,10 @@ public class CameraSelectWindow extends JFrame
 			public void actionPerformed(ActionEvent arg0)
 			{
 				saveItems();
+				if (isUsingUsbCam)
+					VisionUtility.startVideoCapture(usbCam);
+				else
+					VisionUtility.startVideoCapture(ip);
 				dispose();
 			}
 		});
@@ -113,6 +117,8 @@ public class CameraSelectWindow extends JFrame
 			}
 
 		});
+		this.ipSel.setEnabled(false);
+
 		this.setVisible(false);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
