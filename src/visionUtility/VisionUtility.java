@@ -44,52 +44,81 @@ public class VisionUtility implements java.io.Serializable
 
 	private static final long serialVersionUID = 1L;
 
-	// public static VideoCapture video;
-	public static Mat mat;
+	// The main original image input from the source
+	public static Mat mat = null;
 
+	// The capture device used to get the original image, mat
 	public static VideoCapture captureDevice;
 
+	// True if the program is using a camera as a source rather than an imported
+	// image
 	public static boolean isUsingCamera = false;
 
-	public static ThresholdWindows thresholdWindows = null;
-
+	// The lower window where the user chooses which operations to go where
 	public static SelectOpsWindow operationsWindow;
 
+	// Gets the dimensions of the main monitor for using relative window scaling
+	// (Relative coordinates * horizontal or vertical resolution)
 	public static Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 
+	// The output from the main "process image" function (findContours)
 	public static ArrayList<MatOfPoint> arrayOfPoints;
 
 	public static void main(String[] args) throws InterruptedException, IOException
 	{
 		// Load the main OpenCV libraries
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		mat = null;
+
+		// The image after the original image gets altered by the user's
+		// operations
 		Mat alteredMat = new Mat();
+
+		// The final image that gets displayed, in it's raw pixel form
 		Mat displayMat = new Mat();
 
+		captureDevice = new VideoCapture();
+
+		// Begin setting up the main display window
 		imShow(ImShowVal.Start, null);
+
 		arrayOfPoints = new ArrayList<MatOfPoint>();
 		operationsWindow = new SelectOpsWindow();
 		operationsWindow.setVisible(true);
 		Thread.sleep(5000);
 
-		ArrayList<int[]> config = new ArrayList<int[]>();
+		ArrayList<int[]> config = new ArrayList<int[]>(); // The operation list
+															// input from the
+															// lower window
 
-		boolean hasThreshold;
+		boolean hasThreshold = false; // Makes sure we are actually using a
+										// binary (thresholded) image before
+										// finding the contours.
 		while (true)
 		{
-			hasThreshold = false;
-			config = operationsWindow.operations;
-			if (config != null && mat != null && !mat.empty())
+			hasThreshold = false;// Reset hasThreshold to make sure the second
+									// run does not cause an error
 
+			config = operationsWindow.operations; // Importing the lower
+													// window's operations
+			// ONLY start processing if there is an image and operations are
+			// present.
+			if (config != null && mat != null && !mat.empty())
 			{
+				// Gets the aspect ration of the original image and resizes it
+				// so that the width is always 320 pixels wide (good for lower
+				// resolution monitors)
 				double ratio = mat.width() / (double) mat.height();
 				Imgproc.resize(mat, mat, new Size(320, (1 / ratio) * 320));
-				arrayOfPoints.clear();
-				alteredMat = mat.clone();
+
+				arrayOfPoints.clear();// Get the images and points ready for
+				alteredMat = mat.clone();// processing
 				displayMat = mat.clone();
+
+				// Run through each operation present and execute it on the
+				// altered image
 				for (int i = 0; i < config.size(); i++)
 				{
+					// identifier for thresholding is 3
 					if (config.get(i)[0] == 3)
 					{
 						hasThreshold = true;
@@ -98,36 +127,46 @@ public class VisionUtility implements java.io.Serializable
 								new Scalar(config.get(i)[4], config.get(i)[5], config.get(i)[6]),
 								new Scalar(config.get(i)[7], config.get(i)[7], config.get(i)[7]), config.get(i)[8]);
 
-					} else if (config.get(i)[0] == 2)
+					} else if (config.get(i)[0] == 2)// Identifier for erode
+														// operation is 2
 					{
 						alteredMat = erode(alteredMat, config.get(i)[1], config.get(i)[2]);
-					} else if (config.get(i)[0] == 1)
+					} else if (config.get(i)[0] == 1)// Identifier for dilate
+														// operation is 1
 					{
 						alteredMat = dilate(alteredMat, config.get(i)[1], config.get(i)[2]);
-					} else if (config.get(i)[0] == 4)
+					} else if (config.get(i)[0] == 4)// Identifier for removing
+														// small particles is 4
 					{
 						alteredMat = removeSmallObjects(alteredMat, config.get(i)[1]);
 					}
 				}
+				// Will only find the contours and draw them on the final image
+				// if the threshold operation has been performed
 				if (hasThreshold == true)
 				{
 					Imgproc.findContours(alteredMat, arrayOfPoints, new Mat(), Imgproc.RETR_LIST,
 							Imgproc.CHAIN_APPROX_SIMPLE);
 					if (operationsWindow.chckbxOverlayImage.isSelected())
+						//Draws the contours on the displayMat (which already contains the original image)
 						Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(0, 0, 255), -1);
 					else
+						//Draws the contours on the alteredMat (which at this point is a binary image)
 						Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 255, 255, 255), -1);
 
 				}
-				hasThreshold = false;
 
+				//If the user checks the box to overlay the image, then display the displayImage
+				//else, just display the altered image
 				if (operationsWindow.chckbxOverlayImage.isSelected())
 					imShow(ImShowVal.Refresh, convertToImage(displayMat));
 				else
 					imShow(ImShowVal.Refresh, convertToImage(alteredMat));
 			}
-			// Determines the FPS value
-			Thread.sleep(33);
+			// Determines the FPS value. FPS = 1 / (millis / 1000)
+			// To determine what millisecond value to set for a certain FPS, use
+			// millis = (1 / FPS) * 1000
+			Thread.sleep(33);// About 30 FPS
 		}
 
 		//
@@ -212,10 +251,8 @@ public class VisionUtility implements java.io.Serializable
 	public static ImageIcon icon;
 	public static JFrame frame;
 	public static JMenuBar menu;
-	public static JMenu imageMenu;
-	public static JMenuItem openImage;
-	public static JMenu file;
-	public static JMenuItem saveConfig, openConfig, openCamera;
+	public static JMenu imageMenu, file;
+	public static JMenuItem openImage, saveConfig, openConfig, openCamera, changeSettings;
 
 	public static CameraSelectWindow cameraSelect = new CameraSelectWindow();
 
@@ -307,6 +344,21 @@ public class VisionUtility implements java.io.Serializable
 					}
 				}
 
+			});
+			changeSettings = new JMenuItem("USB Camera Settings");
+			file.add(changeSettings);
+			changeSettings.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					if (captureDevice.isOpened() == false)
+						JOptionPane.showMessageDialog(null, "Please open a camera first, and retry.");
+					else if (cameraSelect.isUsingUsbCam() == true)
+						captureDevice.set(Highgui.CV_CAP_PROP_SETTINGS, 1);
+					else
+						JOptionPane.showMessageDialog(null,
+								"Settings for IP cameras must be changed through the web interface.");
+				}
 			});
 
 			icon = new ImageIcon();
