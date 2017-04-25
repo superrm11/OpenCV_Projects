@@ -45,7 +45,7 @@ public class VisionUtility implements java.io.Serializable
 	private static final long serialVersionUID = 1L;
 
 	// The main original image input from the source
-	public static Mat mat = null;
+	public static Mat originalMat = null;
 
 	// The capture device used to get the original image, mat
 	public static VideoCapture captureDevice;
@@ -68,6 +68,8 @@ public class VisionUtility implements java.io.Serializable
 	{
 		// Load the main OpenCV libraries
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		
+		originalMat = new Mat();
 
 		// The image after the original image gets altered by the user's
 		// operations
@@ -98,21 +100,24 @@ public class VisionUtility implements java.io.Serializable
 			hasThreshold = false;// Reset hasThreshold to make sure the second
 									// run does not cause an error
 
+			if (isUsingCamera == true && captureDevice != null && captureDevice.isOpened())
+				captureDevice.read(originalMat);
+
 			config = operationsWindow.operations; // Importing the lower
 													// window's operations
 			// ONLY start processing if there is an image and operations are
 			// present.
-			if (config != null && mat != null && !mat.empty())
+			if (config != null && originalMat != null && !originalMat.empty())
 			{
 				// Gets the aspect ration of the original image and resizes it
 				// so that the width is always 320 pixels wide (good for lower
 				// resolution monitors)
-				double ratio = mat.width() / (double) mat.height();
-				Imgproc.resize(mat, mat, new Size(320, (1 / ratio) * 320));
+				double ratio = originalMat.width() / (double) originalMat.height();
+				Imgproc.resize(originalMat, originalMat, new Size(320, (1 / ratio) * 320));
 
 				arrayOfPoints.clear();// Get the images and points ready for
-				alteredMat = mat.clone();// processing
-				displayMat = mat.clone();
+				alteredMat = originalMat.clone();// processing
+				displayMat = originalMat.clone();
 
 				// Run through each operation present and execute it on the
 				// altered image
@@ -305,7 +310,7 @@ public class VisionUtility implements java.io.Serializable
 				{
 					// video.release();
 					isUsingCamera = false;
-					mat = openImage();
+					originalMat = openImage();
 				}
 			});
 
@@ -401,6 +406,9 @@ public class VisionUtility implements java.io.Serializable
 			} else
 			{
 				Mat m = Highgui.imread(saveName);
+				if (captureDevice != null && captureDevice.isOpened())
+					captureDevice.release();
+				isUsingCamera = false;
 				return m;
 			}
 		}
@@ -588,5 +596,15 @@ public class VisionUtility implements java.io.Serializable
 			}
 		}
 		return newAlteredMat;
+	}
+
+	public static void startVideoCapture(String ip)
+	{
+		captureDevice = new VideoCapture(ip);
+	}
+
+	public static void startVideoCapture(int deviceNum)
+	{
+		captureDevice = new VideoCapture(deviceNum);
 	}
 }

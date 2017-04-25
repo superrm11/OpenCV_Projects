@@ -37,6 +37,13 @@ public class VisionProcessor extends Thread
 {
 	private volatile static boolean isEnabled;
 
+	// -------------------CONSTANTS--------------------------------
+	protected double focalLength = 0.0;
+
+	protected double diagonalFOV = 0.0;
+	protected double horizontalFOV = 0.0;
+	protected double verticalFOV = 0.0;
+
 	// -------------------MAIN INITIALIZATION----------------------
 	private static ServerSocket mainServerSocket = null;
 	private static Socket mainSocket = null;
@@ -111,7 +118,7 @@ public class VisionProcessor extends Thread
 	 * DO NOT put in the main thread, as this will block 
 	 * the thread it is in until it gets the response. 
 	 */
-	private static void requestNewThread()
+	protected static void createThread()
 	{
 		try
 		{
@@ -133,7 +140,12 @@ public class VisionProcessor extends Thread
 
 	}
 
-	private volatile static boolean requestNewThread = false;
+	protected static void requestNewThread()
+	{
+		requestNewThread++;
+	}
+
+	private volatile static int requestNewThread = 0;
 
 	/**
 	 * This sends the client program the integer 255 to tell it that it is still up. If the client program does not
@@ -188,10 +200,11 @@ public class VisionProcessor extends Thread
 							break;
 						System.out.println(VisionProcessor.isEnabled);
 
-						if (requestNewThread == true)
+						if (requestNewThread > 0)
 						{
-							requestNewThread();
-							requestNewThread = false;
+							for (int i = 0; i < requestNewThread; i++)
+								createThread();
+							requestNewThread = 0;
 						} else
 							updateConnectionProtector();
 						try
@@ -209,6 +222,8 @@ public class VisionProcessor extends Thread
 		// requests
 		this.port = ++currentPort;
 		// begin the new thread
+
+		requestNewThread();
 		this.start();
 	}
 
@@ -253,7 +268,6 @@ public class VisionProcessor extends Thread
 	{
 		while (hasInitialized == false)
 			;
-		requestNewThread = true;
 
 		ObjectOutputStream oos = null;
 		ObjectInputStream ois = null;
@@ -638,6 +652,31 @@ public class VisionProcessor extends Thread
 			particleReportsAreNew = true;
 		}
 
+	}
+
+	private void sortReportsBySize()
+	{
+		ArrayList<ParticleReport> oldReports = new ArrayList<ParticleReport>();
+		for (ParticleReport particle : this.particleReports)
+		{
+			oldReports.add(particle);
+		}
+
+		ArrayList<ParticleReport> newReports = new ArrayList<ParticleReport>();
+
+		while (oldReports.size() != 0)
+		{
+			int maxIndex = 0;
+			for (int i = 0; i < oldReports.size(); i++)
+			{
+				if (oldReports.get(i).rectArea > oldReports.get(maxIndex).rectArea)
+				{
+					maxIndex = i;
+				}
+			}
+			newReports.add(oldReports.remove(maxIndex));
+		}
+		this.particleReports = newReports.toArray(this.particleReports);
 	}
 
 	public ParticleReport[] getParticleReports()
