@@ -68,7 +68,7 @@ public class VisionUtility implements java.io.Serializable
 	{
 		// Load the main OpenCV libraries
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		
+
 		originalMat = new Mat();
 
 		// The image after the original image gets altered by the user's
@@ -113,7 +113,7 @@ public class VisionUtility implements java.io.Serializable
 				// so that the width is always 320 pixels wide (good for lower
 				// resolution monitors)
 				double ratio = originalMat.width() / (double) originalMat.height();
-				Imgproc.resize(originalMat, originalMat, new Size(320, (1 / ratio) * 320));
+				Imgproc.resize(originalMat, originalMat, new Size(480, (1 / ratio) * 480));
 
 				arrayOfPoints.clear();// Get the images and points ready for
 				alteredMat = originalMat.clone();// processing
@@ -153,16 +153,19 @@ public class VisionUtility implements java.io.Serializable
 					Imgproc.findContours(alteredMat, arrayOfPoints, new Mat(), Imgproc.RETR_LIST,
 							Imgproc.CHAIN_APPROX_SIMPLE);
 					if (operationsWindow.chckbxOverlayImage.isSelected())
-						//Draws the contours on the displayMat (which already contains the original image)
+						// Draws the contours on the displayMat (which already
+						// contains the original image)
 						Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(0, 0, 255), -1);
 					else
-						//Draws the contours on the alteredMat (which at this point is a binary image)
+						// Draws the contours on the alteredMat (which at this
+						// point is a binary image)
 						Imgproc.drawContours(alteredMat, arrayOfPoints, -1, new Scalar(255, 255, 255, 255), -1);
 
 				}
 
-				//If the user checks the box to overlay the image, then display the displayImage
-				//else, just display the altered image
+				// If the user checks the box to overlay the image, then display
+				// the displayImage
+				// else, just display the altered image
 				if (operationsWindow.chckbxOverlayImage.isSelected())
 					imShow(ImShowVal.Refresh, convertToImage(displayMat));
 				else
@@ -174,14 +177,21 @@ public class VisionUtility implements java.io.Serializable
 			Thread.sleep(33);// About 30 FPS
 		}
 
-		//
 	}
 
+	/**
+	 * Converts the default output from the findContours method (ArrayList of MatOfPoint) to 
+	 * Java's rectangle object, in which the coordinates of the upper left corner and length and width
+	 * are stored in an integer array.
+	 * @param contours The input ArrayList from the findContours method
+	 * @return the ArrayList of integer arrays containing rectangle information.
+	 */
 	public static ArrayList<int[]> toRects(ArrayList<MatOfPoint> contours)
 	{
 		ArrayList<int[]> output = new ArrayList<int[]>();
 
 		for (int i = 0; i < contours.size(); i++)
+		// Loops through each contour and converts it to a rectangle
 		{
 			Rect rect = Imgproc.boundingRect(contours.get(i));
 			output.add(new int[]
@@ -191,78 +201,92 @@ public class VisionUtility implements java.io.Serializable
 		return output;
 	}
 
+	/**
+	 * Sorts the raw rectangle information from each given blob in descending order by area (largest is index 0)
+	 * @param list the input unsorted blob information
+	 * @return the sorted blob information
+	 */
 	public static ArrayList<int[]> sortRects(ArrayList<int[]> list)
 	{
 		ArrayList<int[]> sortedOutput = new ArrayList<int[]>();
+		ArrayList<int[]> original = (ArrayList<int[]>) list.clone();
 
 		while (true)
 		{
-			if (list.isEmpty())
+			if (original.isEmpty())
 				break;
-			int tempIndex = 0;
-			for (int i = 0; i < list.size(); i++)
+			// end the loop and continue once all the values have been moved
+			// over.
+			int tempIndex = 0;// the current largest blob's index
+			// Find the next largest
+			for (int i = 0; i < original.size(); i++)
 			{
-				if (list.get(i)[2] * list.get(i)[3] < list.get(tempIndex)[2] * list.get(tempIndex)[3])
+				if (original.get(i)[2] * original.get(i)[3] < original.get(tempIndex)[2] * original.get(tempIndex)[3])
 				{
 					tempIndex = i;
 				}
 			}
-			sortedOutput.add(list.get(tempIndex));
-			list.remove(tempIndex);
+			sortedOutput.add(list.remove(tempIndex));
 		}
 		return sortedOutput;
 	}
 
 	private static MatOfByte matOfByte;
 	private static byte[] byteArray;
-	private static BufferedImage bufImage;
 	private static InputStream in;
 
 	/**
 	 * Converts a Matrix 'Mat' into a buffered image for viewing
 	 * 
-	 * @param m
-	 * @return
+	 * @param m the input matrix
+	 * @return Java's default buffered image
 	 */
 	private static BufferedImage convertToImage(Mat m)
 	{
 		matOfByte = new MatOfByte();
-		Highgui.imencode(".jpg", m, matOfByte);
-		byteArray = matOfByte.toArray();
-		bufImage = null;
+		Highgui.imencode(".jpg", m, matOfByte);// turn the matrix (of pixel
+		byteArray = matOfByte.toArray(); // data) into a matrix of bytes
 		in = new ByteArrayInputStream(byteArray);
+
 		try
 		{
-			bufImage = ImageIO.read(in);
+			return ImageIO.read(in);
 		} catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		return bufImage;
+		return null;
 
 	}
 
+	/**
+	 * Defines states of the imShow method.
+	 * @author Ryan McGee
+	 *
+	 */
 	public static enum ImShowVal
 	{
 		Refresh, Start
 	}
 
+	/**
+	 * Defines states for whether the input image comes from a camera or an imported image.
+	 * @author Ryan McGee
+	 *
+	 */
 	public static enum updateFrameVal
 	{
 		Image, Camera
 	}
 
-	public static JLabel label;
-	public static ImageIcon icon;
-	public static JFrame frame;
-	public static JMenuBar menu;
-	public static JMenu imageMenu, file;
-	public static JMenuItem openImage, saveConfig, openConfig, openCamera, changeSettings;
+	private static JLabel label;
+	private static ImageIcon icon;
+	private static JFrame frame;
+	private static JMenuBar menu;
+	private static JMenu imageMenu, file;
+	private static JMenuItem openImage, saveConfig, openConfig, openCamera, changeSettings;
 
-	public static CameraSelectWindow cameraSelect = new CameraSelectWindow();
-
-	public static boolean isOpeningImage = false;
-	public static boolean imageIsOpen = false;
+	private static CameraSelectWindow cameraSelect = new CameraSelectWindow();
 
 	/**
 	 * Starts or refreshes the main frame showing the altered video
@@ -272,26 +296,24 @@ public class VisionUtility implements java.io.Serializable
 	 *            scratch
 	 * @param i
 	 *            The image that is to be displayed
-	 * @throws Exception
 	 */
 	public static void imShow(ImShowVal val, BufferedImage i)
 	{
 		switch (val)
 		{
 		case Start:
-			// See Default JFrame Layout for general information on
-			// starting the frame.
+			// Start the frame
 			frame = new JFrame();
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			// Start setting up the menu bar and the options
 			menu = new JMenuBar();
 			frame.setJMenuBar(menu);
+
 			imageMenu = new JMenu("Image");
 			menu.add(imageMenu);
 
 			openCamera = new JMenuItem("Open Camera");
-
 			imageMenu.add(openCamera);
-
 			openCamera.addActionListener(new ActionListener()
 			{
 				public void actionPerformed(ActionEvent arg0)
@@ -314,6 +336,7 @@ public class VisionUtility implements java.io.Serializable
 				}
 			});
 
+			// File menu option
 			file = new JMenu("File");
 			menu.add(file);
 
@@ -376,6 +399,9 @@ public class VisionUtility implements java.io.Serializable
 
 			break;
 		case Refresh:
+			// remove the current image displayed and replace it with the new
+			// one
+			// The bufferedImage is contained in a JLabel and an imageIcon
 			frame.getContentPane().remove(label);
 			icon.setImage(i);
 			label = new JLabel(icon);
@@ -388,50 +414,79 @@ public class VisionUtility implements java.io.Serializable
 
 	public static String saveName;
 
+	/**
+	 * Opens a generic open dialog and prompts for a name / lets users choose an image file from the file system.
+	 * This function will recursively call itself until either the user chooses a valid image or cancels.
+	 * @return the raw matrix image file chosen.
+	 */
 	private static Mat openImage()
 	{
 		JFileChooser fileChooser = new JFileChooser();
-
+		// display the dialog; rVal is the option that the user chose: ex. yes /
+		// no / cancel. This will block the code until the user chooses an
+		// option.
 		int rVal = fileChooser.showOpenDialog(fileChooser);
 		if (rVal == JFileChooser.APPROVE_OPTION)
 		{
+			// IF the user chose open, it gets the file given the absolute path.
 			saveName = fileChooser.getSelectedFile().getAbsolutePath();
+
+			// If the user did not specify the file type to be a .jpg, then add
+			// it on.
 			if (!saveName.toLowerCase().contains(".jpg"))
 				saveName = saveName.concat(".jpg");
+
 			File file = new File(saveName);
-			if (!file.exists())
+			if (!file.exists())// IF it does not exist, then say so. and restart
+								// the method
 			{
 				JOptionPane.showMessageDialog(fileChooser, "The File Does Not Exist!");
 				openImage();
 			} else
 			{
+				// If the file DOES exist, then open it and return that image.
 				Mat m = Highgui.imread(saveName);
 				if (captureDevice != null && captureDevice.isOpened())
 					captureDevice.release();
+				// If the camera was previously used, release it and specify
+				// that it
+				// will not be used from now on.
 				isUsingCamera = false;
 				return m;
 			}
 		}
 		return null;
+		// If, for some reason, none of this happens, just return null.
 	}
 
 	private static ObjectOutputStream oos;
 	private static FileOutputStream fos;
 
+	/**
+	 * Opens a generic save window that allows the user to save a given configuration to a file for later use.
+	 * @throws IOException
+	 */
 	private static void saveConfig() throws IOException
 	{
 		JFileChooser fileChooser = new JFileChooser();
+		// Set the filter for the file extension to .cfg and name it
+		// Configuration Files
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("Configuration Files", "cfg");
 		fileChooser.setFileFilter(filter);
 
 		int rVal = fileChooser.showSaveDialog(fileChooser);
+		// Show the window and store what the user chose
 		if (rVal == JFileChooser.APPROVE_OPTION)
 		{
+			// get the path of the file
 			saveName = fileChooser.getSelectedFile().getAbsolutePath();
 			System.out.println(saveName);
+			// If the name does not already have the file extension, then add it
+			// on.
 			if (!saveName.toLowerCase().contains(".cfg"))
 				saveName = saveName.concat(".cfg");
-
+			// Save the file using the objectOutputStream. If it exists, then
+			// ask to overwrite.
 			File file = new File(saveName);
 			if (!file.exists())
 			{
@@ -465,14 +520,20 @@ public class VisionUtility implements java.io.Serializable
 	private static ObjectInputStream ois;
 	private static FileInputStream fis;
 
+	/**
+	 * Opens a generic open file window that allows the user to choose a configuration previously saved.
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private static void openConfig() throws IOException, ClassNotFoundException
 	{
+		// Set the file extension filter and open the window.
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileFilter(new FileFilter()
 		{
-
 			@Override
 			public boolean accept(File arg0)
+			// Only display directories and files that have the extension .cfg
 			{
 				if (arg0.isDirectory())
 					return true;
@@ -486,24 +547,27 @@ public class VisionUtility implements java.io.Serializable
 			@Override
 			public String getDescription()
 			{
-
 				return "Config files (*.cfg)";
 			}
 
 		});
+		// display the window and store the values of the user's choice
 		int rVal = fileChooser.showOpenDialog(fileChooser);
 		if (rVal == JFileChooser.APPROVE_OPTION)
 		{
+			// Get the path and save the files
 			saveName = fileChooser.getSelectedFile().getAbsolutePath();
 			if (!saveName.toLowerCase().contains(".cfg"))
 				saveName = saveName.concat(".cfg");
 			File file = new File(saveName);
 			if (!file.exists())
 			{
+				// If it does not exist, say so and restart the method
 				JOptionPane.showMessageDialog(fileChooser, "The File Does Not Exist!");
 				openImage();
 			} else
 			{
+				// Open the configuration
 				fis = new FileInputStream(saveName);
 				ois = new ObjectInputStream(fis);
 				ArrayList<int[]> config = (ArrayList<int[]>) ois.readObject();
