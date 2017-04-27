@@ -4,13 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.JComboBox;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 public class SelectOpsWindow extends JFrame
 {
@@ -18,12 +18,21 @@ public class SelectOpsWindow extends JFrame
 
 	private JPanel contentPane;
 
-	public static JComboBox<String>[] operationsComboBox = new JComboBox[10];
+	public static JComboBox<String>[] operationsComboBox = new JComboBox[10];// one
+																				// combo
+																				// box
+																				// per
+																				// parameter
+																				// button
 
-	public static OperationWindows[] operationWindows = new OperationWindows[10];
+	public static OperationWindows[] operationWindows = new OperationWindows[10];// one
+																					// window
+																					// per
+																					// parameter
+																					// button
 
-	private JButton[] btnParams = new JButton[10];
-	
+	private JButton[] btnParams = new JButton[10];// Each parameter button
+
 	public JCheckBox chckbxOverlayImage;
 
 	public DisplayWindow displayOutput = new DisplayWindow();
@@ -35,6 +44,8 @@ public class SelectOpsWindow extends JFrame
 	{
 		for (int i = 0; i < 10; i++)
 		{
+			// each operation (int array) needs at least the first number as the
+			// operation identifier.
 			operations.add(new int[1]);
 		}
 
@@ -47,6 +58,7 @@ public class SelectOpsWindow extends JFrame
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
+		// =============SETTING UP COMBOBOXES AND PARAM BUTTONS==========
 		operationsComboBox[0] = new JComboBox<String>();
 		operationsComboBox[0].setBounds(22, 41, 93, 20);
 		contentPane.add(operationsComboBox[0]);
@@ -131,16 +143,23 @@ public class SelectOpsWindow extends JFrame
 		btnParams[0].setBounds(0, 83, 115, 29);
 		contentPane.add(btnParams[0]);
 
+		// ==========SETTING UP ACTION LISTENERS==========
+		/// ...for each button. All buttons follow the same format.
 		btnParams[0].addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
 				switch (operationsComboBox[0].getSelectedIndex())
 				{
+				// Choice zero means no choice, so if that if it is set, no
+				// operation will be applied for that option.
 				case 0:
 					operationWindows[0] = null;
 					VisionUtility.operationsWindow.operations.set(0, new int[1]);
 					break;
+				// Choice 1 is the dilate function. If the window is already set
+				// as dilate, then just display the window. If no operation is
+				// stored, then create the instance in the array
 				case 1:
 					if (operationWindows[0] == null
 							|| !operationWindows[0].getClass().getName().contains("DilateWindow"))
@@ -150,6 +169,7 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[0].displayWindows();
 					break;
 				case 2:
+					// Choice 2 is the Erode window
 					if (operationWindows[0] == null
 							|| !operationWindows[0].getClass().getName().contains("ErodeWindow"))
 					{
@@ -158,6 +178,7 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[0].displayWindows();
 					break;
 				case 3:
+					// Choice 3 is the Threshold window
 					if (operationWindows[0] == null
 							|| !operationWindows[0].getClass().getName().contains("ThresholdWindows"))
 					{
@@ -166,6 +187,7 @@ public class SelectOpsWindow extends JFrame
 					operationWindows[0].displayWindows();
 					break;
 				case 4:
+					// Choice 4 is the Remove Small Objects window
 					if (operationWindows[0] == null
 							|| !operationWindows[0].getClass().getName().contains("RemoveSmObsWindow"))
 					{
@@ -598,12 +620,16 @@ public class SelectOpsWindow extends JFrame
 				if (!displayOutput.isVisible())
 				{
 					displayOutput.displayWindow();
+				} else
+				{
+					displayOutput
+							.setBlobInfo(VisionUtility.sortRects(VisionUtility.toRects(VisionUtility.arrayOfPoints)));
 				}
 			}
 		});
 		btnDisplayOutput.setBounds(478, 225, 145, 25);
 		contentPane.add(btnDisplayOutput);
-		
+
 		chckbxOverlayImage = new JCheckBox("Overlay Image");
 		chckbxOverlayImage.setBounds(336, 225, 113, 25);
 		contentPane.add(chckbxOverlayImage);

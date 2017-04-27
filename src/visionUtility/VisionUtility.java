@@ -155,7 +155,7 @@ public class VisionUtility implements java.io.Serializable
 					if (operationsWindow.chckbxOverlayImage.isSelected())
 						// Draws the contours on the displayMat (which already
 						// contains the original image)
-						Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(0, 0, 255), -1);
+						Imgproc.drawContours(displayMat, arrayOfPoints, -1, new Scalar(30, 30, 255), -1);
 					else
 						// Draws the contours on the alteredMat (which at this
 						// point is a binary image)
@@ -226,7 +226,7 @@ public class VisionUtility implements java.io.Serializable
 					tempIndex = i;
 				}
 			}
-			sortedOutput.add(list.remove(tempIndex));
+			sortedOutput.add(original.remove(tempIndex));
 		}
 		return sortedOutput;
 	}
@@ -567,7 +567,6 @@ public class VisionUtility implements java.io.Serializable
 				openImage();
 			} else
 			{
-				// Open the configuration
 				fis = new FileInputStream(saveName);
 				ois = new ObjectInputStream(fis);
 				ArrayList<int[]> config = (ArrayList<int[]>) ois.readObject();
