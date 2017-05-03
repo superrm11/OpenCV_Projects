@@ -17,6 +17,7 @@ import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
@@ -37,7 +38,7 @@ public class HaarTest
 		// Imgproc.equalizeHist(m, m);
 
 		JFrame frame = new JFrame();
-		imageIcon = new ImageIcon(convertToImage(m));
+		imageIcon = new ImageIcon();
 		label = new JLabel(imageIcon);
 		frame.getContentPane().add(label);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -45,7 +46,7 @@ public class HaarTest
 		frame.setVisible(true);
 
 		CascadeClassifier detector = new CascadeClassifier();
-		if (!detector.load("C:/OpenCV/opencv/sources/data/lbpcascades/lbpcascade_frontalface.xml"))
+		if (!detector.load("C:/Users/Ryan McGee/Desktop/cascade_stuff/data/cascade.xml"))//// "C:/OpenCV/opencv/sources/data/lbpcascades/lbpcascade_frontalface.xml"))
 			System.out.println("Failed to load!");
 		MatOfRect rects = new MatOfRect();
 		Rect[] newRects;
@@ -70,8 +71,10 @@ public class HaarTest
 		while (true)
 		{
 			cap.read(m);
-			// Imgproc.cvtColor(m, m, Imgproc.COLOR_BGR2GRAY);
+			Imgproc.resize(m, m, new Size(320, 240));
+			Imgproc.cvtColor(m, m, Imgproc.COLOR_BGR2GRAY);
 			// Imgproc.equalizeHist(m, m);
+
 			detector.detectMultiScale(m, rects);
 			newRects = rects.toArray();
 			for (int i = 0; i < newRects.length; i++)
