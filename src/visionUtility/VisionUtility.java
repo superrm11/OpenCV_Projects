@@ -284,9 +284,10 @@ public class VisionUtility implements java.io.Serializable
 	private static JFrame frame;
 	private static JMenuBar menu;
 	private static JMenu imageMenu, file;
-	private static JMenuItem openImage, saveConfig, openConfig, openCamera, changeSettings;
+	private static JMenuItem openImage, saveConfig, openConfig, openCamera, changeSettings, trainCascade;
 
 	private static CameraSelectWindow cameraSelect = new CameraSelectWindow();
+	private static CascadeWindow cascadeTrainer = new CascadeWindow();
 
 	/**
 	 * Starts or refreshes the main frame showing the altered video
@@ -333,6 +334,16 @@ public class VisionUtility implements java.io.Serializable
 					// video.release();
 					isUsingCamera = false;
 					originalMat = openImage();
+				}
+			});
+
+			trainCascade = new JMenuItem("Train Cascade");
+			imageMenu.add(trainCascade);
+			trainCascade.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					cascadeTrainer.displayWindow();
 				}
 			});
 
