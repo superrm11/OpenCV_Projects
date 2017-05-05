@@ -5,7 +5,10 @@ import java.awt.Font;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -34,8 +37,7 @@ public class CascadeWindow extends JFrame
 	/*
 	 * Class Variables
 	 */
-	private String vecSavePath, vecOpenPath;
-	private String dataSavePath;
+	private String dataSavePath, imgOpenPath;
 
 	/*
 	 * End Class Variables
@@ -128,7 +130,7 @@ public class CascadeWindow extends JFrame
 
 		// COMMAND TEXT AREA INIT
 		commandOut = new TextArea();
-		commandOut.setEditable(false);
+		commandOut.setEditable(true);
 		commandOut.setBounds(0, 0, 340, 455);
 		contentPane.add(commandOut);
 		// END COMMAND TEXT AREA INIT
@@ -341,22 +343,87 @@ public class CascadeWindow extends JFrame
 		{
 			public void run()
 			{
+				Process currentProcess = null;
+				boolean isProcessing = false;
 				while (true)
 				{
 					if (createSamples)
 					{
 						createSamples = false;
-						commandOut.setText("");
+						commandOut.setText(" ");
 						commandOut.append("Creating Samples...");
+						// currentProcess = createSamples((int)
+						// spinGenNum.getValue(), (int) spinGenWidth.getValue(),
+						// (int) spinGenHeight.getValue(), genOutPrev.getText(),
+						// negativeDirPrev.getText(),
+						// imgOpenPath);
+						currentProcess = createSamples(100, 40, 40, "C:/Users/Ryan McGee/Desktop/data.vec",
+								"C:/Users/Ryan McGee/Desktop/cascade_stuff/neg.txt",
+								"C:/Users/Ryan McGee/Desktop/cascade_stuff/face.jpg");
+						isProcessing = true;
 					} else if (trainCascade)
 					{
 						trainCascade = false;
-						commandOut.setText("");
+						commandOut.setText(" ");
 						commandOut.append("Training Cascade...");
+					}
+
+					if (isProcessing)
+					{
+						String line = null;
+						String out = "";
+						BufferedReader br = new BufferedReader(new InputStreamReader(currentProcess.getInputStream()));
+						try
+						{
+							while ((line = br.readLine()) != null)
+							{
+								commandOut.append(line + "\n");
+							}
+						} catch (IOException e)
+						{
+							e.printStackTrace();
+						} finally
+						{
+							try
+							{
+								br.close();
+							} catch (IOException e)
+							{
+								e.printStackTrace();
+							}
+							isProcessing = false;
+						}
+					}
+
+					try
+					{
+						Thread.sleep(50);
+					} catch (InterruptedException e)
+					{
+						e.printStackTrace();
 					}
 				}
 			}
 		});
+	}
+
+	private static String output(InputStream is) throws IOException
+	{
+		String line = null;
+		String out = "";
+		BufferedReader br = new BufferedReader(new InputStreamReader(is));
+		try
+		{
+			while ((line = br.readLine()) != null)
+			{
+				out += line + "\n";
+			}
+		} finally
+		{
+			br.close();
+		}
+		return out;
+
 	}
 
 	public void displayWindow()
