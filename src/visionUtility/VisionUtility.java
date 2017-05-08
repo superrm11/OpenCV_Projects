@@ -241,7 +241,7 @@ public class VisionUtility implements java.io.Serializable
 	 * @param m the input matrix
 	 * @return Java's default buffered image
 	 */
-	private static BufferedImage convertToImage(Mat m)
+	public static BufferedImage convertToImage(Mat m)
 	{
 		matOfByte = new MatOfByte();
 		Highgui.imencode(".jpg", m, matOfByte);// turn the matrix (of pixel

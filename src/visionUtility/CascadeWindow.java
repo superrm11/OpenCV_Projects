@@ -1,17 +1,19 @@
 package visionUtility;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,6 +23,12 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
 public class CascadeWindow extends JFrame
 {
@@ -37,8 +45,8 @@ public class CascadeWindow extends JFrame
 	/*
 	 * Class Variables
 	 */
-	private String dataSavePath, imgOpenPath;
-
+	private String imgOpenPath = "", negOpenPath = "", vecSavePath = "";
+	private String vecOpenPath = "", trainOutPath = "";
 	/*
 	 * End Class Variables
 	 */
@@ -141,6 +149,7 @@ public class CascadeWindow extends JFrame
 		lblPicturePrev.setBackground(Color.WHITE);
 		lblPicturePrev.setForeground(Color.BLACK);
 		lblPicturePrev.setBounds(346, 43, 139, 96);
+		lblPicturePrev.setLayout(new FlowLayout());
 		contentPane.add(lblPicturePrev);
 
 		JLabel lblWidth = new JLabel("Width:");
@@ -296,6 +305,23 @@ public class CascadeWindow extends JFrame
 				}
 			}
 		});
+		chckbxUseGeneratedImages.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (chckbxUseGeneratedImages.isSelected())
+				{
+					vecOpenPath = vecSavePath;
+					trainVecPrev.setText(vecSavePath);
+					btnSelectVecFile.setEnabled(false);
+				} else
+				{
+					btnSelectVecFile.setEnabled(true);
+					trainVecPrev.setText(" ");
+					vecOpenPath = "";
+				}
+			}
+		});
 		// END CHECK BOX LISTENERS
 
 		// BUTTON LISTENERS
@@ -315,27 +341,92 @@ public class CascadeWindow extends JFrame
 			}
 		});
 
+		btnSelectPositive.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String path = openImage();
+				if (path != null)
+				{
+					imgOpenPath = path;
+					Mat img = Highgui.imread(path);
+					Imgproc.resize(img, img,
+							(img.size().width / img.size().height > 1)
+									? new Size(139, 96 * (img.size().height / img.size().width))
+									: new Size(139 * (img.size().width / img.size().height), 96));
+					lblPicturePrev.setIcon(new ImageIcon(VisionUtility.convertToImage(img)));
+					lblPicturePrev.setText("");
+				}
+			}
+		});
+
+		btnSelectNegative.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String path = openTxt();
+				if (path != null)
+				{
+					negativeDirPrev.setText(path);
+					negOpenPath = path;
+				}
+			}
+		});
+
+		btnGenOutput.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String path = saveVec();
+				if (path != null)
+				{
+					vecSavePath = path;
+					genOutPrev.setText(path);
+				}
+			}
+		});
+
+		btnGenView.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				displayImgs_Gen = true;
+			}
+		});
+
+		btnSelectVecFile.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String path = openVec();
+				if (path != null)
+				{
+					vecOpenPath = path;
+					trainVecPrev.setText(path);
+				}
+			}
+		});
+
+		btnTrainPreview.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				displayImgs_Train = true;
+			}
+		});
 		// END BUTTON LISTENERS
 	}
 
-	private Process createSamples(int numPics, int width, int height, String vecSavePath, String negPath,
-			String imgPath)
+	private String createSamples(int numPics, int width, int height, String vecSavePath, String negPath, String imgPath)
 	{
-		ProcessBuilder out = new ProcessBuilder("opencv_createsamples", "-img " + imgPath,
-				"-vec \"" + vecSavePath + "\"", "-bg \"" + negPath + "\"", "-numPics " + numPics, "-w " + width,
-				"-h " + height);
-		try
-		{
-			return out.start();
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
+		return "opencv_createsamples -img \"" + imgPath + "\" -vec \"" + vecSavePath + "\" -bg \"" + negPath
+				+ "\" -num " + numPics + " -w " + width + " -h " + height;
 	}
 
 	private boolean createSamples = false;
 	private boolean trainCascade = false;
+	private boolean displayImgs_Gen = false;
+	private boolean displayImgs_Train = false;
 
 	private Thread initCommandOutArea()
 	{
@@ -344,6 +435,7 @@ public class CascadeWindow extends JFrame
 			public void run()
 			{
 				Process currentProcess = null;
+				String currentCommand = "";
 				boolean isProcessing = false;
 				while (true)
 				{
@@ -351,27 +443,54 @@ public class CascadeWindow extends JFrame
 					{
 						createSamples = false;
 						commandOut.setText(" ");
-						commandOut.append("Creating Samples...");
-						// currentProcess = createSamples((int)
-						// spinGenNum.getValue(), (int) spinGenWidth.getValue(),
-						// (int) spinGenHeight.getValue(), genOutPrev.getText(),
-						// negativeDirPrev.getText(),
-						// imgOpenPath);
-						currentProcess = createSamples(100, 40, 40, "C:/Users/Ryan McGee/Desktop/data.vec",
-								"C:/Users/Ryan McGee/Desktop/cascade_stuff/neg.txt",
-								"C:/Users/Ryan McGee/Desktop/cascade_stuff/face.jpg");
+						commandOut.append("Creating Samples...\nPlease wait...\n");
+						currentCommand = createSamples((int) spinGenNum.getValue(), (int) spinGenWidth.getValue(),
+								(int) spinGenHeight.getValue(), vecSavePath, negOpenPath, imgOpenPath);
+						btnGenerate.setEnabled(false);
+						btnTrainClassifier.setEnabled(false);
 						isProcessing = true;
 					} else if (trainCascade)
 					{
 						trainCascade = false;
 						commandOut.setText(" ");
-						commandOut.append("Training Cascade...");
+						commandOut.append("Training Cascade...\nPlease wait...\n");
+					} else if (displayImgs_Gen)
+					{
+						displayImgs_Gen = false;
+						commandOut.setText(" ");
+						commandOut.append(
+								"Displaying Vec File...\nTo change images, press any key.\nTo exit, press escape.\n");
+						currentCommand = "opencv_createsamples -vec \"" + vecSavePath + "\" -w "
+								+ (int) spinGenWidth.getValue() + " -h " + (int) spinGenHeight.getValue();
+						commandOut.append(currentCommand + "\n");
+						isProcessing = true;
+					} else if (displayImgs_Train)
+					{
+						displayImgs_Train = false;
+						commandOut.setText(" ");
+						commandOut.append(
+								"Displaying Vec File...\nTo change images, press any key.\nTo exit, press escape.\n");
+						currentCommand = "opencv_createsamples -vec \"" + vecOpenPath + "\" -w "
+								+ (int) spinGenWidth.getValue() + " -h " + (int) spinGenHeight.getValue();
+						commandOut.append(currentCommand + "\n");
+						isProcessing = true;
 					}
 
 					if (isProcessing)
 					{
+						try
+						{
+							currentProcess = Runtime.getRuntime().exec(currentCommand);
+						} catch (IOException e1)
+						{
+							isProcessing = false;
+							e1.printStackTrace();
+							commandOut.append("Failed to run command!\n");
+							continue;
+
+						}
+						commandOut.append("Generated Command:\n" + currentCommand + "\n");
 						String line = null;
-						String out = "";
 						BufferedReader br = new BufferedReader(new InputStreamReader(currentProcess.getInputStream()));
 						try
 						{
@@ -391,6 +510,9 @@ public class CascadeWindow extends JFrame
 							{
 								e.printStackTrace();
 							}
+
+							btnGenerate.setEnabled(true);
+							btnTrainClassifier.setEnabled(true);
 							isProcessing = false;
 						}
 					}
@@ -407,23 +529,62 @@ public class CascadeWindow extends JFrame
 		});
 	}
 
-	private static String output(InputStream is) throws IOException
+	private String openImage()
 	{
-		String line = null;
-		String out = "";
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		try
-		{
-			while ((line = br.readLine()) != null)
-			{
-				out += line + "\n";
-			}
-		} finally
-		{
-			br.close();
-		}
-		return out;
+		JFileChooser fileChooser = new JFileChooser();
+		FileNameExtensionFilter pngFilter = new FileNameExtensionFilter("PNG Image Files", "png");
+		FileNameExtensionFilter jpgFilter = new FileNameExtensionFilter("JPG Image Files", "jpg");
+		fileChooser.addChoosableFileFilter(pngFilter);
+		fileChooser.addChoosableFileFilter(jpgFilter);
+		fileChooser.setFileFilter(pngFilter);
 
+		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+		{
+			return fileChooser.getSelectedFile().getAbsolutePath();
+		} else
+		{
+			return null;
+		}
+	}
+
+	private String openTxt()
+	{
+		JFileChooser fileChooser = new JFileChooser();
+		FileNameExtensionFilter txtFilter = new FileNameExtensionFilter("Text files", "txt");
+		fileChooser.setFileFilter(txtFilter);
+
+		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+		{
+			return fileChooser.getSelectedFile().getAbsolutePath();
+		} else
+		{
+			return null;
+		}
+
+	}
+
+	private String saveVec()
+	{
+		JFileChooser fileChooser = new JFileChooser();
+		FileNameExtensionFilter vecFilter = new FileNameExtensionFilter("Image Collection File", "vec");
+		fileChooser.setFileFilter(vecFilter);
+
+		if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+		{
+			return vecSavePath = fileChooser.getSelectedFile().getAbsolutePath();
+		}
+		return null;
+	}
+
+	private String openVec()
+	{
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter vecFilter = new FileNameExtensionFilter("Image Data File", "vec");
+		chooser.setFileFilter(vecFilter);
+
+		if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+			return chooser.getSelectedFile().getAbsolutePath();
+		return null;
 	}
 
 	public void displayWindow()
