@@ -7,6 +7,7 @@ import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -45,8 +46,8 @@ public class CascadeWindow extends JFrame
 	/*
 	 * Class Variables
 	 */
-	private String imgOpenPath = "", negOpenPath = "", vecSavePath = "";
-	private String vecOpenPath = "", trainOutPath = "";
+	private String imgOpenPath = "", negOpenPath_gen = "", vecSavePath = "";
+	private String vecOpenPath = "", trainOutPath = "", negOpenPath_train;
 	/*
 	 * End Class Variables
 	 */
@@ -58,8 +59,8 @@ public class CascadeWindow extends JFrame
 	// TEXTFIELDS
 	private JTextField genOutPrev, negativeDirPrev, trainVecPrev, trainOutPrev;
 	// BUTTONS
-	private JButton btnSelectPositive, btnGenerate, btnTrainClassifier, btnGenOutput, btnSelectNegative, btnGenView,
-			btnSelectVecFile, btnTrainPreview, btnTrainOut;
+	private JButton btnSelectPositive, btnGenerate, btnTrainClassifier, btnGenOutput, btnSelNeg_Gen, btnGenView,
+			btnSelectVecFile, btnTrainPreview, btnTrainOut, btnSelNeg_Train;
 	// SPINNERS
 	private JSpinner spinGenNum, spinTrainHeight, spinTrainWidth, spinPosSamples, spinNegSamples, spinGenWidth,
 			spinGenHeight;
@@ -88,58 +89,63 @@ public class CascadeWindow extends JFrame
 		// WINDOW INIT
 		setTitle("Cascade Classifier Training");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 741, 502);
+		setBounds(100, 100, 741, 571);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		JSeparator separator = new JSeparator();
-		separator.setBounds(346, 215, 365, 2);
+		separator.setBounds(346, 249, 365, 5);
 		contentPane.add(separator);
 		// END WINDOW INIT
 
 		// BUTTON INIT
 		btnSelectPositive = new JButton("Select positive");
-		btnSelectPositive.setBounds(346, 13, 139, 25);
+		btnSelectPositive.setBounds(346, 47, 139, 25);
 		contentPane.add(btnSelectPositive);
 
 		btnGenerate = new JButton("Generate");
-		btnGenerate.setBounds(563, 177, 96, 25);
+		btnGenerate.setBounds(563, 211, 96, 25);
 		contentPane.add(btnGenerate);
 
 		btnTrainClassifier = new JButton("Train Classifier");
-		btnTrainClassifier.setBounds(574, 417, 137, 25);
+		btnTrainClassifier.setBounds(574, 486, 137, 25);
 		contentPane.add(btnTrainClassifier);
 
-		btnGenOutput = new JButton("Output");
-		btnGenOutput.setBounds(346, 152, 75, 25);
+		btnGenOutput = new JButton("Save As...");
+		btnGenOutput.setBounds(346, 186, 96, 25);
 		contentPane.add(btnGenOutput);
 
 		btnGenView = new JButton("View");
-		btnGenView.setBounds(659, 177, 64, 25);
+		btnGenView.setBounds(659, 211, 64, 25);
 		contentPane.add(btnGenView);
+		btnGenView.setEnabled(false);
 
-		btnSelectNegative = new JButton("Select negatives");
-		btnSelectNegative.setBounds(553, 13, 158, 25);
-		contentPane.add(btnSelectNegative);
+		btnSelNeg_Gen = new JButton("Select negatives");
+		btnSelNeg_Gen.setBounds(553, 47, 158, 25);
+		contentPane.add(btnSelNeg_Gen);
+
+		btnSelNeg_Train = new JButton("Select negatives");
+		btnSelNeg_Train.setBounds(573, 294, 148, 25);
+		contentPane.add(btnSelNeg_Train);
 
 		btnSelectVecFile = new JButton("Select Vec File");
-		btnSelectVecFile.setBounds(346, 256, 139, 23);
+		btnSelectVecFile.setBounds(346, 294, 127, 25);
 		contentPane.add(btnSelectVecFile);
 
 		btnTrainPreview = new JButton("Preview");
-		btnTrainPreview.setBounds(474, 256, 94, 23);
+		btnTrainPreview.setBounds(473, 294, 94, 25);
 		contentPane.add(btnTrainPreview);
 
-		btnTrainOut = new JButton("Output");
-		btnTrainOut.setBounds(346, 395, 75, 23);
+		btnTrainOut = new JButton("Save As...");
+		btnTrainOut.setBounds(346, 461, 96, 25);
 		contentPane.add(btnTrainOut);
 		// END BUTTON INIT
 
 		// COMMAND TEXT AREA INIT
 		commandOut = new TextArea();
 		commandOut.setEditable(true);
-		commandOut.setBounds(0, 0, 340, 455);
+		commandOut.setBounds(0, 0, 340, 524);
 		contentPane.add(commandOut);
 		// END COMMAND TEXT AREA INIT
 
@@ -148,88 +154,88 @@ public class CascadeWindow extends JFrame
 		lblPicturePrev.setFont(new Font("Tahoma", Font.ITALIC, 13));
 		lblPicturePrev.setBackground(Color.WHITE);
 		lblPicturePrev.setForeground(Color.BLACK);
-		lblPicturePrev.setBounds(346, 43, 139, 96);
+		lblPicturePrev.setBounds(346, 77, 139, 96);
 		lblPicturePrev.setLayout(new FlowLayout());
 		contentPane.add(lblPicturePrev);
 
 		JLabel lblWidth = new JLabel("Width:");
-		lblWidth.setBounds(497, 90, 56, 16);
+		lblWidth.setBounds(497, 124, 56, 16);
 		contentPane.add(lblWidth);
 
 		JLabel lblHeight = new JLabel("Height:");
-		lblHeight.setBounds(497, 125, 56, 16);
+		lblHeight.setBounds(497, 159, 56, 16);
 		contentPane.add(lblHeight);
 
-		JLabel lblNumber = new JLabel("Number:");
-		lblNumber.setBounds(595, 90, 56, 16);
+		JLabel lblNumber = new JLabel("Samples to");
+		lblNumber.setBounds(614, 124, 70, 16);
 		contentPane.add(lblNumber);
 
 		JLabel label = new JLabel("Width:");
-		label.setBounds(614, 290, 56, 16);
+		label.setBounds(614, 381, 56, 16);
 		contentPane.add(label);
 
 		JLabel label_1 = new JLabel("Height:");
-		label_1.setBounds(612, 325, 56, 16);
+		label_1.setBounds(612, 416, 56, 16);
 		contentPane.add(label_1);
 
 		JLabel lblNoteWidthAnd = new JLabel("Note: Width and Height \r\nmust match the images\r\n in the .vec file!");
-		lblNoteWidthAnd.setBounds(346, 370, 377, 25);
+		lblNoteWidthAnd.setBounds(346, 439, 377, 25);
 		contentPane.add(lblNoteWidthAnd);
 
 		JLabel lblNumberOfPosotive = new JLabel("Number of Positive samples:");
-		lblNumberOfPosotive.setBounds(346, 310, 169, 14);
+		lblNumberOfPosotive.setBounds(346, 379, 169, 14);
 		contentPane.add(lblNumberOfPosotive);
 
 		JLabel lblNumberOfNegative = new JLabel("Number of Negative samples:");
-		lblNumberOfNegative.setBounds(346, 343, 169, 14);
+		lblNumberOfNegative.setBounds(346, 412, 169, 14);
 		contentPane.add(lblNumberOfNegative);
 
 		JLabel lblIsA = new JLabel("200-400 is a good number");
 		lblIsA.setForeground(Color.GRAY);
 		lblIsA.setFont(new Font("Tahoma", Font.ITALIC, 11));
-		lblIsA.setBounds(346, 322, 139, 14);
+		lblIsA.setBounds(346, 391, 139, 14);
 		contentPane.add(lblIsA);
 
 		JLabel lblGenerallyTwiceAs = new JLabel("Generally twice as many as Positives");
 		lblGenerallyTwiceAs.setForeground(Color.GRAY);
 		lblGenerallyTwiceAs.setFont(new Font("Tahoma", Font.ITALIC, 11));
-		lblGenerallyTwiceAs.setBounds(346, 357, 184, 14);
+		lblGenerallyTwiceAs.setBounds(346, 426, 184, 14);
 		contentPane.add(lblGenerallyTwiceAs);
 		// END JLABEL INIT
 
 		// SPINNER INIT
 		spinGenWidth = new JSpinner();
-		spinGenWidth.setBounds(539, 87, 51, 22);
+		spinGenWidth.setBounds(539, 121, 51, 22);
 		contentPane.add(spinGenWidth);
 		spinGenWidth.setValue(DEFAULT_WIDTH);
 
 		spinGenHeight = new JSpinner();
-		spinGenHeight.setBounds(539, 122, 51, 22);
+		spinGenHeight.setBounds(539, 156, 51, 22);
 		contentPane.add(spinGenHeight);
 		spinGenHeight.setValue(DEFAULT_HEIGHT);
 
 		spinGenNum = new JSpinner();
-		spinGenNum.setBounds(651, 87, 60, 22);
+		spinGenNum.setBounds(614, 156, 60, 22);
 		contentPane.add(spinGenNum);
 		spinGenNum.setValue(DEFAULT_GEN_NUM);
 
 		spinTrainHeight = new JSpinner();
-		spinTrainHeight.setBounds(659, 323, 52, 22);
+		spinTrainHeight.setBounds(659, 414, 52, 22);
 		contentPane.add(spinTrainHeight);
 		spinTrainHeight.setValue(DEFAULT_HEIGHT);
 
 		spinTrainWidth = new JSpinner();
-		spinTrainWidth.setBounds(659, 288, 52, 22);
+		spinTrainWidth.setBounds(659, 379, 52, 22);
 		contentPane.add(spinTrainWidth);
 		spinTrainWidth.setValue(DEFAULT_WIDTH);
 
 		spinPosSamples = new JSpinner();
-		spinPosSamples.setBounds(527, 305, 56, 20);
+		spinPosSamples.setBounds(527, 374, 56, 20);
 		contentPane.add(spinPosSamples);
 		spinPosSamples.setValue(DEFAULT_POS_IMG);
 
 		spinNegSamples = new JSpinner();
-		spinNegSamples.setBounds(527, 338, 56, 20);
+		spinNegSamples.setBounds(527, 407, 56, 20);
 		contentPane.add(spinNegSamples);
 		spinNegSamples.setValue(DEFAULT_NEG_IMG);
 		// END SPINNER INIT
@@ -237,37 +243,58 @@ public class CascadeWindow extends JFrame
 		// TEXT FIELD INIT
 		genOutPrev = new JTextField();
 		genOutPrev.setEditable(false);
-		genOutPrev.setBounds(346, 178, 216, 22);
+		genOutPrev.setBounds(346, 212, 216, 22);
 		contentPane.add(genOutPrev);
 		genOutPrev.setColumns(10);
 
 		negativeDirPrev = new JTextField();
 		negativeDirPrev.setEditable(false);
-		negativeDirPrev.setBounds(553, 52, 158, 22);
+		negativeDirPrev.setBounds(553, 86, 158, 22);
 		contentPane.add(negativeDirPrev);
 		negativeDirPrev.setColumns(10);
 
 		trainVecPrev = new JTextField();
 		trainVecPrev.setEditable(false);
-		trainVecPrev.setBounds(346, 279, 221, 20);
+		trainVecPrev.setBounds(346, 326, 221, 22);
 		contentPane.add(trainVecPrev);
 		trainVecPrev.setColumns(10);
 
 		trainOutPrev = new JTextField();
 		trainOutPrev.setEditable(false);
-		trainOutPrev.setBounds(346, 419, 216, 20);
+		trainOutPrev.setBounds(346, 488, 216, 23);
 		contentPane.add(trainOutPrev);
 		trainOutPrev.setColumns(10);
 		// END TEXT FIELD INIT
 
 		// CHECK BOX INIT
 		chckbxUseGeneratedImages = new JCheckBox("Use generated images (above)");
-		chckbxUseGeneratedImages.setBounds(346, 226, 282, 23);
+		chckbxUseGeneratedImages.setBounds(346, 349, 205, 23);
 		contentPane.add(chckbxUseGeneratedImages);
 
-		chckbxMatchToGenerator = new JCheckBox("Match to Generator");
-		chckbxMatchToGenerator.setBounds(574, 256, 158, 23);
+		chckbxMatchToGenerator = new JCheckBox("Match Size to Generator");
+		chckbxMatchToGenerator.setBounds(553, 349, 170, 23);
 		contentPane.add(chckbxMatchToGenerator);
+
+		textField = new JTextField();
+		textField.setEditable(false);
+		textField.setColumns(10);
+		textField.setBounds(573, 326, 148, 22);
+		contentPane.add(textField);
+
+		JLabel lblGenerate = new JLabel("Generate:");
+		lblGenerate.setBounds(614, 140, 64, 16);
+		contentPane.add(lblGenerate);
+
+		lblTrainingTheClassifier = new JLabel("Training the Classifier");
+		lblTrainingTheClassifier.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lblTrainingTheClassifier.setBounds(345, 257, 257, 35);
+		contentPane.add(lblTrainingTheClassifier);
+
+		lblPreparingTheSamples = new JLabel("Preparing the Samples");
+		lblPreparingTheSamples.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lblPreparingTheSamples.setBounds(345, 13, 257, 35);
+		contentPane.add(lblPreparingTheSamples);
+
 		// END CHECK BOX INIT
 	}
 
@@ -345,7 +372,9 @@ public class CascadeWindow extends JFrame
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				String path = openImage();
+				String path = open(ExtensionType.kFile, new String[]
+				{ "JPG Image Files", "PNG Image Files" }, new String[]
+				{ "jpg", "png" });
 				if (path != null)
 				{
 					imgOpenPath = path;
@@ -360,15 +389,15 @@ public class CascadeWindow extends JFrame
 			}
 		});
 
-		btnSelectNegative.addActionListener(new ActionListener()
+		btnSelNeg_Gen.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				String path = openTxt();
+				String path = open(ExtensionType.kFile, "Text Files", "txt");
 				if (path != null)
 				{
 					negativeDirPrev.setText(path);
-					negOpenPath = path;
+					negOpenPath_gen = path;
 				}
 			}
 		});
@@ -377,7 +406,7 @@ public class CascadeWindow extends JFrame
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				String path = saveVec();
+				String path = save(ExtensionType.kFile, "Image Data File", "vec");
 				if (path != null)
 				{
 					vecSavePath = path;
@@ -398,7 +427,7 @@ public class CascadeWindow extends JFrame
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				String path = openVec();
+				String path = open(ExtensionType.kFile, "Image Data Files", "vec");
 				if (path != null)
 				{
 					vecOpenPath = path;
@@ -414,6 +443,20 @@ public class CascadeWindow extends JFrame
 				displayImgs_Train = true;
 			}
 		});
+
+		btnTrainOut.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String path = save(ExtensionType.kDirectory, "", "");
+				if (path != null)
+				{
+					trainOutPath = path;
+					trainOutPrev.setText(path);
+					System.out.println(path);
+				}
+			}
+		});
 		// END BUTTON LISTENERS
 	}
 
@@ -423,10 +466,20 @@ public class CascadeWindow extends JFrame
 				+ "\" -num " + numPics + " -w " + width + " -h " + height;
 	}
 
+	private String trainCascade(int numPos, int numNeg, int width, int height, String xmlSavePath, String vecOpenPath,
+			String negPath)
+	{
+		return "opencv_traincascade -vec \"" + vecOpenPath + "\" -data \"" + xmlSavePath + "\" -bg \"" + negPath
+				+ "\" -w " + width + " -h " + height + " -numPos " + numPos + " -numNeg " + numNeg;
+	}
+
 	private boolean createSamples = false;
 	private boolean trainCascade = false;
 	private boolean displayImgs_Gen = false;
 	private boolean displayImgs_Train = false;
+	private JTextField textField;
+	private JLabel lblTrainingTheClassifier;
+	private JLabel lblPreparingTheSamples;
 
 	private Thread initCommandOutArea()
 	{
@@ -445,7 +498,7 @@ public class CascadeWindow extends JFrame
 						commandOut.setText(" ");
 						commandOut.append("Creating Samples...\nPlease wait...\n");
 						currentCommand = createSamples((int) spinGenNum.getValue(), (int) spinGenWidth.getValue(),
-								(int) spinGenHeight.getValue(), vecSavePath, negOpenPath, imgOpenPath);
+								(int) spinGenHeight.getValue(), vecSavePath, negOpenPath_gen, imgOpenPath);
 						btnGenerate.setEnabled(false);
 						btnTrainClassifier.setEnabled(false);
 						isProcessing = true;
@@ -453,7 +506,14 @@ public class CascadeWindow extends JFrame
 					{
 						trainCascade = false;
 						commandOut.setText(" ");
-						commandOut.append("Training Cascade...\nPlease wait...\n");
+						commandOut.append("Training Cascade...\nPlease wait: this may take a few minutes...\n");
+						currentCommand = trainCascade((int) spinPosSamples.getValue(), (int) spinNegSamples.getValue(),
+								(int) spinTrainWidth.getValue(), (int) spinTrainHeight.getValue(), trainOutPath,
+								vecOpenPath, negOpenPath_gen);
+						System.out.println(currentCommand);
+						isProcessing = true;
+						btnGenerate.setEnabled(false);
+						btnTrainClassifier.setEnabled(false);
 					} else if (displayImgs_Gen)
 					{
 						displayImgs_Gen = false;
@@ -529,67 +589,102 @@ public class CascadeWindow extends JFrame
 		});
 	}
 
-	private String openImage()
+	private String save(ExtensionType type, String[] description, String[] extension)
 	{
-		JFileChooser fileChooser = new JFileChooser();
-		FileNameExtensionFilter pngFilter = new FileNameExtensionFilter("PNG Image Files", "png");
-		FileNameExtensionFilter jpgFilter = new FileNameExtensionFilter("JPG Image Files", "jpg");
-		fileChooser.addChoosableFileFilter(pngFilter);
-		fileChooser.addChoosableFileFilter(jpgFilter);
-		fileChooser.setFileFilter(pngFilter);
-
-		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
-		{
-			return fileChooser.getSelectedFile().getAbsolutePath();
-		} else
-		{
+		if (description.length != extension.length)
 			return null;
-		}
-	}
 
-	private String openTxt()
-	{
-		JFileChooser fileChooser = new JFileChooser();
-		FileNameExtensionFilter txtFilter = new FileNameExtensionFilter("Text files", "txt");
-		fileChooser.setFileFilter(txtFilter);
-
-		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
-		{
-			return fileChooser.getSelectedFile().getAbsolutePath();
-		} else
-		{
-			return null;
-		}
-
-	}
-
-	private String saveVec()
-	{
-		JFileChooser fileChooser = new JFileChooser();
-		FileNameExtensionFilter vecFilter = new FileNameExtensionFilter("Image Collection File", "vec");
-		fileChooser.setFileFilter(vecFilter);
-
-		if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
-		{
-			return vecSavePath = fileChooser.getSelectedFile().getAbsolutePath();
-		}
-		return null;
-	}
-
-	private String openVec()
-	{
 		JFileChooser chooser = new JFileChooser();
-		FileNameExtensionFilter vecFilter = new FileNameExtensionFilter("Image Data File", "vec");
-		chooser.setFileFilter(vecFilter);
+		if (type == ExtensionType.kFile)
+		{
+			chooser.setFileFilter(new FileNameExtensionFilter(description[0], extension[0]));
+			for (int i = 1; i < description.length; i++)
+				chooser.addChoosableFileFilter(new FileNameExtensionFilter(description[i], extension[i]));
 
-		if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
-			return chooser.getSelectedFile().getAbsolutePath();
+			if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+				return (chooser.getSelectedFile().getAbsolutePath()
+						.endsWith("." + ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0])
+								? chooser.getSelectedFile().getAbsolutePath()
+								: chooser.getSelectedFile().getAbsolutePath() + "."
+										+ ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0]);
+		} else if (type == ExtensionType.kDirectory)
+		{
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+				return chooser.getSelectedFile().getAbsolutePath();
+		}
 		return null;
+	}
+
+	private String save(ExtensionType type, String description, String extension)
+	{
+		return this.save(type, new String[]
+		{ description }, new String[]
+		{ extension });
+	}
+
+	private String open(ExtensionType type, String[] description, String[] extension)
+	{
+		if (description.length != extension.length)
+			return null;
+
+		JFileChooser chooser = new JFileChooser();
+		if (type == ExtensionType.kFile)
+		{
+			chooser.setFileFilter(new FileNameExtensionFilter(description[0], extension[0]));
+			for (int i = 1; i < description.length; i++)
+				chooser.addChoosableFileFilter(new FileNameExtensionFilter(description[i], extension[i]));
+
+			if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+				return (chooser.getSelectedFile().getAbsolutePath()
+						.endsWith("." + ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0])
+								? chooser.getSelectedFile().getAbsolutePath()
+								: chooser.getSelectedFile().getAbsolutePath() + "."
+										+ ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0]);
+		} else if (type == ExtensionType.kDirectory)
+		{
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+				return chooser.getSelectedFile().getAbsolutePath();
+		}
+		return null;
+	}
+
+	private String open(ExtensionType type, String description, String extension)
+	{
+		return this.open(type, new String[]
+		{ description }, new String[]
+		{ extension });
+	}
+
+	private String[] openMulti(String[] description, String[] extension)
+	{
+		if (description.length != extension.length)
+			return null;
+
+		String[] output = null;
+		File[] chosenFiles = null;
+		JFileChooser chooser = new JFileChooser();
+		chooser.setMultiSelectionEnabled(true);
+		chooser.setFileFilter(new FileNameExtensionFilter(description[0], extension[0]));
+		for (int i = 1; i < description.length; i++)
+			chooser.addChoosableFileFilter(new FileNameExtensionFilter(description[i], extension[i]));
+
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+			chosenFiles = chooser.getSelectedFiles();
+		output = new String[chosenFiles.length];
+		for (int i = 0; i < chosenFiles.length; i++)
+			output[i] = chosenFiles[i].getAbsolutePath();
+		return output;
+	}
+
+	private static enum ExtensionType
+	{
+		kDirectory, kFile
 	}
 
 	public void displayWindow()
 	{
 		this.setVisible(true);
 	}
-
 }
