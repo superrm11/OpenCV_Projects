@@ -89,64 +89,78 @@ public class CascadeWindow extends JFrame
 		// WINDOW INIT
 		setTitle("Cascade Classifier Training");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 741, 571);
+		setBounds(100, 100, 910, 571);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		JSeparator separator = new JSeparator();
-		separator.setBounds(346, 249, 365, 5);
+		separator.setBounds(505, 249, 365, 5);
 		contentPane.add(separator);
 		// END WINDOW INIT
 
 		// BUTTON INIT
 		btnSelectPositive = new JButton("Select positive");
-		btnSelectPositive.setBounds(346, 47, 139, 25);
+		btnSelectPositive.setBounds(505, 47, 139, 25);
 		contentPane.add(btnSelectPositive);
 
 		btnGenerate = new JButton("Generate");
-		btnGenerate.setBounds(563, 211, 96, 25);
+		btnGenerate.setBounds(722, 211, 96, 25);
 		contentPane.add(btnGenerate);
 
 		btnTrainClassifier = new JButton("Train Classifier");
-		btnTrainClassifier.setBounds(574, 486, 137, 25);
+		btnTrainClassifier.setBounds(735, 486, 137, 25);
 		contentPane.add(btnTrainClassifier);
 
 		btnGenOutput = new JButton("Save As...");
-		btnGenOutput.setBounds(346, 186, 96, 25);
+		btnGenOutput.setBounds(505, 186, 96, 25);
 		contentPane.add(btnGenOutput);
 
 		btnGenView = new JButton("View");
-		btnGenView.setBounds(659, 211, 64, 25);
+		btnGenView.setBounds(818, 211, 64, 25);
 		contentPane.add(btnGenView);
 		btnGenView.setEnabled(false);
 
 		btnSelNeg_Gen = new JButton("Select negatives");
-		btnSelNeg_Gen.setBounds(553, 47, 158, 25);
+		btnSelNeg_Gen.setBounds(712, 47, 158, 25);
 		contentPane.add(btnSelNeg_Gen);
 
 		btnSelNeg_Train = new JButton("Select negatives");
-		btnSelNeg_Train.setBounds(573, 294, 148, 25);
+		btnSelNeg_Train.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+			}
+		});
+		btnSelNeg_Train.setBounds(734, 294, 148, 25);
 		contentPane.add(btnSelNeg_Train);
 
 		btnSelectVecFile = new JButton("Select Vec File");
-		btnSelectVecFile.setBounds(346, 294, 127, 25);
+		btnSelectVecFile.setBounds(507, 294, 127, 25);
 		contentPane.add(btnSelectVecFile);
 
 		btnTrainPreview = new JButton("Preview");
-		btnTrainPreview.setBounds(473, 294, 94, 25);
+		btnTrainPreview.setBounds(634, 294, 94, 25);
 		contentPane.add(btnTrainPreview);
 
 		btnTrainOut = new JButton("Save As...");
-		btnTrainOut.setBounds(346, 461, 96, 25);
+		btnTrainOut.setBounds(507, 461, 96, 25);
 		contentPane.add(btnTrainOut);
 		// END BUTTON INIT
 
 		// COMMAND TEXT AREA INIT
 		commandOut = new TextArea();
 		commandOut.setEditable(true);
-		commandOut.setBounds(0, 0, 340, 524);
+		commandOut.setBounds(0, 0, 499, 524);
 		contentPane.add(commandOut);
+
+		// Instructions:
+
+		commandOut.append("This part of the utility is designed to train cascade \nclassifiers. This is a type"
+				+ " of object detection built into OpenCV.\n It allows the detection of symbols or shapes by using"
+				+ "\nmachine learning: inputing a picture of what you want to\nsee, and recognizing it from a camera."
+				+ "\n\n");
+
 		// END COMMAND TEXT AREA INIT
 
 		// JLABEL INIT
@@ -154,88 +168,88 @@ public class CascadeWindow extends JFrame
 		lblPicturePrev.setFont(new Font("Tahoma", Font.ITALIC, 13));
 		lblPicturePrev.setBackground(Color.WHITE);
 		lblPicturePrev.setForeground(Color.BLACK);
-		lblPicturePrev.setBounds(346, 77, 139, 96);
+		lblPicturePrev.setBounds(505, 77, 139, 96);
 		lblPicturePrev.setLayout(new FlowLayout());
 		contentPane.add(lblPicturePrev);
 
 		JLabel lblWidth = new JLabel("Width:");
-		lblWidth.setBounds(497, 124, 56, 16);
+		lblWidth.setBounds(656, 124, 56, 16);
 		contentPane.add(lblWidth);
 
 		JLabel lblHeight = new JLabel("Height:");
-		lblHeight.setBounds(497, 159, 56, 16);
+		lblHeight.setBounds(656, 159, 56, 16);
 		contentPane.add(lblHeight);
 
 		JLabel lblNumber = new JLabel("Samples to");
-		lblNumber.setBounds(614, 124, 70, 16);
+		lblNumber.setBounds(773, 124, 70, 16);
 		contentPane.add(lblNumber);
 
 		JLabel label = new JLabel("Width:");
-		label.setBounds(614, 381, 56, 16);
+		label.setBounds(775, 375, 56, 16);
 		contentPane.add(label);
 
 		JLabel label_1 = new JLabel("Height:");
-		label_1.setBounds(612, 416, 56, 16);
+		label_1.setBounds(773, 410, 56, 16);
 		contentPane.add(label_1);
 
 		JLabel lblNoteWidthAnd = new JLabel("Note: Width and Height \r\nmust match the images\r\n in the .vec file!");
-		lblNoteWidthAnd.setBounds(346, 439, 377, 25);
+		lblNoteWidthAnd.setBounds(507, 439, 377, 25);
 		contentPane.add(lblNoteWidthAnd);
 
 		JLabel lblNumberOfPosotive = new JLabel("Number of Positive samples:");
-		lblNumberOfPosotive.setBounds(346, 379, 169, 14);
+		lblNumberOfPosotive.setBounds(507, 379, 169, 14);
 		contentPane.add(lblNumberOfPosotive);
 
 		JLabel lblNumberOfNegative = new JLabel("Number of Negative samples:");
-		lblNumberOfNegative.setBounds(346, 412, 169, 14);
+		lblNumberOfNegative.setBounds(507, 412, 169, 14);
 		contentPane.add(lblNumberOfNegative);
 
 		JLabel lblIsA = new JLabel("200-400 is a good number");
 		lblIsA.setForeground(Color.GRAY);
 		lblIsA.setFont(new Font("Tahoma", Font.ITALIC, 11));
-		lblIsA.setBounds(346, 391, 139, 14);
+		lblIsA.setBounds(507, 391, 139, 14);
 		contentPane.add(lblIsA);
 
 		JLabel lblGenerallyTwiceAs = new JLabel("Generally twice as many as Positives");
 		lblGenerallyTwiceAs.setForeground(Color.GRAY);
 		lblGenerallyTwiceAs.setFont(new Font("Tahoma", Font.ITALIC, 11));
-		lblGenerallyTwiceAs.setBounds(346, 426, 184, 14);
+		lblGenerallyTwiceAs.setBounds(507, 426, 184, 14);
 		contentPane.add(lblGenerallyTwiceAs);
 		// END JLABEL INIT
 
 		// SPINNER INIT
 		spinGenWidth = new JSpinner();
-		spinGenWidth.setBounds(539, 121, 51, 22);
+		spinGenWidth.setBounds(698, 121, 51, 22);
 		contentPane.add(spinGenWidth);
 		spinGenWidth.setValue(DEFAULT_WIDTH);
 
 		spinGenHeight = new JSpinner();
-		spinGenHeight.setBounds(539, 156, 51, 22);
+		spinGenHeight.setBounds(698, 156, 51, 22);
 		contentPane.add(spinGenHeight);
 		spinGenHeight.setValue(DEFAULT_HEIGHT);
 
 		spinGenNum = new JSpinner();
-		spinGenNum.setBounds(614, 156, 60, 22);
+		spinGenNum.setBounds(773, 156, 60, 22);
 		contentPane.add(spinGenNum);
 		spinGenNum.setValue(DEFAULT_GEN_NUM);
 
 		spinTrainHeight = new JSpinner();
-		spinTrainHeight.setBounds(659, 414, 52, 22);
+		spinTrainHeight.setBounds(818, 409, 52, 22);
 		contentPane.add(spinTrainHeight);
 		spinTrainHeight.setValue(DEFAULT_HEIGHT);
 
 		spinTrainWidth = new JSpinner();
-		spinTrainWidth.setBounds(659, 379, 52, 22);
+		spinTrainWidth.setBounds(818, 374, 52, 22);
 		contentPane.add(spinTrainWidth);
 		spinTrainWidth.setValue(DEFAULT_WIDTH);
 
 		spinPosSamples = new JSpinner();
-		spinPosSamples.setBounds(527, 374, 56, 20);
+		spinPosSamples.setBounds(688, 374, 56, 20);
 		contentPane.add(spinPosSamples);
 		spinPosSamples.setValue(DEFAULT_POS_IMG);
 
 		spinNegSamples = new JSpinner();
-		spinNegSamples.setBounds(527, 407, 56, 20);
+		spinNegSamples.setBounds(688, 407, 56, 20);
 		contentPane.add(spinNegSamples);
 		spinNegSamples.setValue(DEFAULT_NEG_IMG);
 		// END SPINNER INIT
@@ -243,57 +257,67 @@ public class CascadeWindow extends JFrame
 		// TEXT FIELD INIT
 		genOutPrev = new JTextField();
 		genOutPrev.setEditable(false);
-		genOutPrev.setBounds(346, 212, 216, 22);
+		genOutPrev.setBounds(505, 212, 216, 22);
 		contentPane.add(genOutPrev);
 		genOutPrev.setColumns(10);
 
 		negativeDirPrev = new JTextField();
 		negativeDirPrev.setEditable(false);
-		negativeDirPrev.setBounds(553, 86, 158, 22);
+		negativeDirPrev.setBounds(712, 86, 158, 22);
 		contentPane.add(negativeDirPrev);
 		negativeDirPrev.setColumns(10);
 
 		trainVecPrev = new JTextField();
 		trainVecPrev.setEditable(false);
-		trainVecPrev.setBounds(346, 326, 221, 22);
+		trainVecPrev.setBounds(507, 326, 221, 22);
 		contentPane.add(trainVecPrev);
 		trainVecPrev.setColumns(10);
 
 		trainOutPrev = new JTextField();
 		trainOutPrev.setEditable(false);
-		trainOutPrev.setBounds(346, 488, 216, 23);
+		trainOutPrev.setBounds(507, 488, 216, 23);
 		contentPane.add(trainOutPrev);
 		trainOutPrev.setColumns(10);
 		// END TEXT FIELD INIT
 
 		// CHECK BOX INIT
 		chckbxUseGeneratedImages = new JCheckBox("Use generated images (above)");
-		chckbxUseGeneratedImages.setBounds(346, 349, 205, 23);
+		chckbxUseGeneratedImages.setBounds(507, 349, 205, 23);
 		contentPane.add(chckbxUseGeneratedImages);
 
-		chckbxMatchToGenerator = new JCheckBox("Match Size to Generator");
-		chckbxMatchToGenerator.setBounds(553, 349, 170, 23);
+		chckbxMatchToGenerator = new JCheckBox("Match Size to Above");
+		chckbxMatchToGenerator.setBounds(714, 349, 170, 23);
 		contentPane.add(chckbxMatchToGenerator);
 
 		textField = new JTextField();
 		textField.setEditable(false);
 		textField.setColumns(10);
-		textField.setBounds(573, 326, 148, 22);
+		textField.setBounds(734, 326, 148, 22);
 		contentPane.add(textField);
 
 		JLabel lblGenerate = new JLabel("Generate:");
-		lblGenerate.setBounds(614, 140, 64, 16);
+		lblGenerate.setBounds(773, 140, 64, 16);
 		contentPane.add(lblGenerate);
 
 		lblTrainingTheClassifier = new JLabel("Training the Classifier");
 		lblTrainingTheClassifier.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblTrainingTheClassifier.setBounds(345, 257, 257, 35);
+		lblTrainingTheClassifier.setBounds(504, 257, 257, 35);
 		contentPane.add(lblTrainingTheClassifier);
 
 		lblPreparingTheSamples = new JLabel("Preparing the Samples");
 		lblPreparingTheSamples.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblPreparingTheSamples.setBounds(345, 13, 257, 35);
+		lblPreparingTheSamples.setBounds(504, 13, 208, 35);
 		contentPane.add(lblPreparingTheSamples);
+
+		btnInstructSamples = new JButton("?");
+		btnInstructSamples.setBounds(712, 21, 38, 20);
+		contentPane.add(btnInstructSamples);
+
+		// Buttons that display instructions
+
+		btnInstructTrain = new JButton("?");
+		btnInstructTrain.setBounds(703, 265, 38, 20);
+		contentPane.add(btnInstructTrain);
 
 		// END CHECK BOX INIT
 	}
@@ -352,6 +376,41 @@ public class CascadeWindow extends JFrame
 		// END CHECK BOX LISTENERS
 
 		// BUTTON LISTENERS
+		btnInstructSamples.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				commandOut.append("\n1: Input a picture of what you want to track using \"Select Positive\""
+						+ "\n2: Input multiple pictures of a background / what you "
+						+ "\n   DON'T want to track using \"Select Negatives\""
+						+ "\n3: Match the width / height to the aspect ratio of the picture, but \n"
+						+ "   remember a lower resolution means faster processing, but a lower success rate."
+						+ "\n4: Select how many samples will be generated. Samples are generated "
+						+ "\n   to emulate different angles the camera may see the positive at, so a "
+						+ "\n   higher number is generally better."
+						+ "\n5: \"Save As...\" will prompt you to choose the location where the sample "
+						+ "\n   file .vec will be stored."
+						+ "\n6: Click \"Generate\" to create and save the file. Use \"View\" to see the output.\n");
+			}
+
+		});
+
+		btnInstructTrain.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				commandOut.append("\nTraining a classifier requires samples inside of a .vec file. If you\n"
+						+ "want to simply use the one you created above, just select \"User Generated Images\".\n"
+						+ "1: Use \"Select Vec File\" to choose your samples. You can preview them if you wish.\n"
+						+ "2: Select multiple negative images so the program has something to compare against\n"
+						+ "3: Make sure the width / height match those in the .vec file\n"
+						+ "4: Select the number of positive / negative samples to use: The more samples, the more\n"
+						+ "   accurate the detection will work (but with performance impacts)."
+						+ "5: Choose the final classifier path, and save the .xml file.\n"
+						+ "6: Move the classifier to the RIO, and setup the code to import said file.");
+			}
+		});
+
 		btnGenerate.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -480,6 +539,8 @@ public class CascadeWindow extends JFrame
 	private JTextField textField;
 	private JLabel lblTrainingTheClassifier;
 	private JLabel lblPreparingTheSamples;
+	private JButton btnInstructTrain;
+	private JButton btnInstructSamples;
 
 	private Thread initCommandOutArea()
 	{
