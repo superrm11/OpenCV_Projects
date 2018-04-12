@@ -31,14 +31,14 @@ import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
-public class CascadeWindow extends JFrame
-{
+public class CascadeWindow extends JFrame {
 	/*
 	 * Constant Variables
 	 */
 	private final int DEFAULT_WIDTH = 40, DEFAULT_HEIGHT = 40;
 	private final int DEFAULT_GEN_NUM = 500;
 	private final int DEFAULT_POS_IMG = 200, DEFAULT_NEG_IMG = 400;
+	private final String tempNegativeTxtPath = (System.getProperty("os.name").contains("Windows")) ? ""
 	/*
 	 * End Constant Variables
 	 */
@@ -46,8 +46,10 @@ public class CascadeWindow extends JFrame
 	/*
 	 * Class Variables
 	 */
-	private String imgOpenPath = "", negOpenPath_gen = "", vecSavePath = "";
+	private String imgOpenPath = "", vecSavePath = "";
 	private String vecOpenPath = "", trainOutPath = "", negOpenPath_train;
+	private String[] negOpenPath_gen = new String[0];\
+	private File negativeTxtFile = new File("");
 	/*
 	 * End Class Variables
 	 */
@@ -77,15 +79,13 @@ public class CascadeWindow extends JFrame
 	/**
 	 * Create the frame.
 	 */
-	public CascadeWindow()
-	{
+	public CascadeWindow() {
 		initWindowComponents();
 		createActionListeners();
 		initCommandOutArea().start();
 	}
 
-	private void initWindowComponents()
-	{
+	private void initWindowComponents() {
 		// WINDOW INIT
 		setTitle("Cascade Classifier Training");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -126,10 +126,8 @@ public class CascadeWindow extends JFrame
 		contentPane.add(btnSelNeg_Gen);
 
 		btnSelNeg_Train = new JButton("Select negatives");
-		btnSelNeg_Train.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent arg0)
-			{
+		btnSelNeg_Train.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
 			}
 		});
 		btnSelNeg_Train.setBounds(734, 294, 148, 25);
@@ -301,7 +299,7 @@ public class CascadeWindow extends JFrame
 
 		lblTrainingTheClassifier = new JLabel("Training the Classifier");
 		lblTrainingTheClassifier.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblTrainingTheClassifier.setBounds(504, 257, 257, 35);
+		lblTrainingTheClassifier.setBounds(504, 257, 194, 35);
 		contentPane.add(lblTrainingTheClassifier);
 
 		lblPreparingTheSamples = new JLabel("Preparing the Samples");
@@ -310,34 +308,29 @@ public class CascadeWindow extends JFrame
 		contentPane.add(lblPreparingTheSamples);
 
 		btnInstructSamples = new JButton("?");
-		btnInstructSamples.setBounds(712, 21, 38, 20);
+		btnInstructSamples.setBounds(712, 21, 61, 20);
 		contentPane.add(btnInstructSamples);
 
 		// Buttons that display instructions
 
 		btnInstructTrain = new JButton("?");
-		btnInstructTrain.setBounds(703, 265, 38, 20);
+		btnInstructTrain.setBounds(703, 265, 70, 20);
 		contentPane.add(btnInstructTrain);
 
 		// END CHECK BOX INIT
 	}
 
-	private void createActionListeners()
-	{
+	private void createActionListeners() {
 		// SPINNER LISTENERS
-		spinGenHeight.addChangeListener(new ChangeListener()
-		{
-			public void stateChanged(ChangeEvent e)
-			{
+		spinGenHeight.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
 				if (chckbxMatchToGenerator.isSelected())
 					spinTrainHeight.setValue(spinGenHeight.getValue());
 			}
 		});
 
-		spinGenWidth.addChangeListener(new ChangeListener()
-		{
-			public void stateChanged(ChangeEvent e)
-			{
+		spinGenWidth.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
 				if (chckbxMatchToGenerator.isSelected())
 					spinTrainWidth.setValue(spinGenWidth.getValue());
 			}
@@ -345,28 +338,21 @@ public class CascadeWindow extends JFrame
 		// END SPINNER LISTENERS
 
 		// CHECK BOX LISTENERS
-		chckbxMatchToGenerator.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				if (chckbxMatchToGenerator.isSelected())
-				{
+		chckbxMatchToGenerator.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (chckbxMatchToGenerator.isSelected()) {
 					spinTrainWidth.setValue(spinGenWidth.getValue());
 					spinTrainHeight.setValue(spinGenHeight.getValue());
 				}
 			}
 		});
-		chckbxUseGeneratedImages.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				if (chckbxUseGeneratedImages.isSelected())
-				{
+		chckbxUseGeneratedImages.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (chckbxUseGeneratedImages.isSelected()) {
 					vecOpenPath = vecSavePath;
 					trainVecPrev.setText(vecSavePath);
 					btnSelectVecFile.setEnabled(false);
-				} else
-				{
+				} else {
 					btnSelectVecFile.setEnabled(true);
 					trainVecPrev.setText(" ");
 					vecOpenPath = "";
@@ -376,10 +362,8 @@ public class CascadeWindow extends JFrame
 		// END CHECK BOX LISTENERS
 
 		// BUTTON LISTENERS
-		btnInstructSamples.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		btnInstructSamples.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				commandOut.append("\n1: Input a picture of what you want to track using \"Select Positive\""
 						+ "\n2: Input multiple pictures of a background / what you "
 						+ "\n   DON'T want to track using \"Select Negatives\""
@@ -395,10 +379,8 @@ public class CascadeWindow extends JFrame
 
 		});
 
-		btnInstructTrain.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		btnInstructTrain.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				commandOut.append("\nTraining a classifier requires samples inside of a .vec file. If you\n"
 						+ "want to simply use the one you created above, just select \"User Generated Images\".\n"
 						+ "1: Use \"Select Vec File\" to choose your samples. You can preview them if you wish.\n"
@@ -411,31 +393,23 @@ public class CascadeWindow extends JFrame
 			}
 		});
 
-		btnGenerate.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		btnGenerate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				createSamples = true;
 			}
 		});
 
-		btnTrainClassifier.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		btnTrainClassifier.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				trainCascade = true;
 			}
 		});
 
-		btnSelectPositive.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				String path = open(ExtensionType.kFile, new String[]
-				{ "JPG Image Files", "PNG Image Files" }, new String[]
-				{ "jpg", "png" });
-				if (path != null)
-				{
+		btnSelectPositive.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String path = open(ExtensionType.kFile, new String[] { "JPG Image Files", "PNG Image Files" },
+						new String[] { "jpg", "png" });
+				if (path != null) {
 					imgOpenPath = path;
 					Mat img = Highgui.imread(path);
 					Imgproc.resize(img, img,
@@ -448,68 +422,54 @@ public class CascadeWindow extends JFrame
 			}
 		});
 
-		btnSelNeg_Gen.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				String path = open(ExtensionType.kFile, "Text Files", "txt");
-				if (path != null)
-				{
-					negativeDirPrev.setText(path);
-					negOpenPath_gen = path;
+		btnSelNeg_Gen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String[] paths = openMulti(new String[] { "PNG Files", "JPEG Files" }, new String[] { "png", "jpeg" });
+				if (paths != null && paths.length > 0) {
+					negativeDirPrev.setText("");
+					for(String str : paths)
+						negativeDirPrev.setText(negativeDirPrev.getText() + "\"" + str + "\",");
+					negOpenPath_gen = paths;
 				}
 			}
 		});
 
-		btnGenOutput.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		btnGenOutput.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				String path = save(ExtensionType.kFile, "Image Data File", "vec");
-				if (path != null)
-				{
+				if (path != null) {
 					vecSavePath = path;
 					genOutPrev.setText(path);
 				}
 			}
 		});
 
-		btnGenView.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		btnGenView.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				displayImgs_Gen = true;
 			}
 		});
 
-		btnSelectVecFile.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		btnSelectVecFile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				String path = open(ExtensionType.kFile, "Image Data Files", "vec");
-				if (path != null)
-				{
+				if (path != null) {
 					vecOpenPath = path;
 					trainVecPrev.setText(path);
 				}
 			}
 		});
 
-		btnTrainPreview.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		btnTrainPreview.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				displayImgs_Train = true;
 			}
 		});
 
-		btnTrainOut.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		btnTrainOut.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				String path = save(ExtensionType.kDirectory, "", "");
-				if (path != null)
-				{
+				if (path != null) {
 					trainOutPath = path;
 					trainOutPrev.setText(path);
 					System.out.println(path);
@@ -519,15 +479,14 @@ public class CascadeWindow extends JFrame
 		// END BUTTON LISTENERS
 	}
 
-	private String createSamples(int numPics, int width, int height, String vecSavePath, String negPath, String imgPath)
-	{
+	private String createSamples(int numPics, int width, int height, String vecSavePath, String negPath,
+			String imgPath) {
 		return "opencv_createsamples -img \"" + imgPath + "\" -vec \"" + vecSavePath + "\" -bg \"" + negPath
 				+ "\" -num " + numPics + " -w " + width + " -h " + height;
 	}
 
 	private String trainCascade(int numPos, int numNeg, int width, int height, String xmlSavePath, String vecOpenPath,
-			String negPath)
-	{
+			String negPath) {
 		return "opencv_traincascade -vec \"" + vecOpenPath + "\" -data \"" + xmlSavePath + "\" -bg \"" + negPath
 				+ "\" -w " + width + " -h " + height + " -numPos " + numPos + " -numNeg " + numNeg;
 	}
@@ -542,19 +501,14 @@ public class CascadeWindow extends JFrame
 	private JButton btnInstructTrain;
 	private JButton btnInstructSamples;
 
-	private Thread initCommandOutArea()
-	{
-		return new Thread(new Runnable()
-		{
-			public void run()
-			{
+	private Thread initCommandOutArea() {
+		return new Thread(new Runnable() {
+			public void run() {
 				Process currentProcess = null;
 				String currentCommand = "";
 				boolean isProcessing = false;
-				while (true)
-				{
-					if (createSamples)
-					{
+				while (true) {
+					if (createSamples) {
 						createSamples = false;
 						commandOut.setText(" ");
 						commandOut.append("Creating Samples...\nPlease wait...\n");
@@ -563,8 +517,7 @@ public class CascadeWindow extends JFrame
 						btnGenerate.setEnabled(false);
 						btnTrainClassifier.setEnabled(false);
 						isProcessing = true;
-					} else if (trainCascade)
-					{
+					} else if (trainCascade) {
 						trainCascade = false;
 						commandOut.setText(" ");
 						commandOut.append("Training Cascade...\nPlease wait: this may take a few minutes...\n");
@@ -575,8 +528,7 @@ public class CascadeWindow extends JFrame
 						isProcessing = true;
 						btnGenerate.setEnabled(false);
 						btnTrainClassifier.setEnabled(false);
-					} else if (displayImgs_Gen)
-					{
+					} else if (displayImgs_Gen) {
 						displayImgs_Gen = false;
 						commandOut.setText(" ");
 						commandOut.append(
@@ -585,8 +537,7 @@ public class CascadeWindow extends JFrame
 								+ (int) spinGenWidth.getValue() + " -h " + (int) spinGenHeight.getValue();
 						commandOut.append(currentCommand + "\n");
 						isProcessing = true;
-					} else if (displayImgs_Train)
-					{
+					} else if (displayImgs_Train) {
 						displayImgs_Train = false;
 						commandOut.setText(" ");
 						commandOut.append(
@@ -597,13 +548,10 @@ public class CascadeWindow extends JFrame
 						isProcessing = true;
 					}
 
-					if (isProcessing)
-					{
-						try
-						{
+					if (isProcessing) {
+						try {
 							currentProcess = Runtime.getRuntime().exec(currentCommand);
-						} catch (IOException e1)
-						{
+						} catch (IOException e1) {
 							isProcessing = false;
 							e1.printStackTrace();
 							commandOut.append("Failed to run command!\n");
@@ -613,22 +561,16 @@ public class CascadeWindow extends JFrame
 						commandOut.append("Generated Command:\n" + currentCommand + "\n");
 						String line = null;
 						BufferedReader br = new BufferedReader(new InputStreamReader(currentProcess.getInputStream()));
-						try
-						{
-							while ((line = br.readLine()) != null)
-							{
+						try {
+							while ((line = br.readLine()) != null) {
 								commandOut.append(line + "\n");
 							}
-						} catch (IOException e)
-						{
+						} catch (IOException e) {
 							e.printStackTrace();
-						} finally
-						{
-							try
-							{
+						} finally {
+							try {
 								br.close();
-							} catch (IOException e)
-							{
+							} catch (IOException e) {
 								e.printStackTrace();
 							}
 
@@ -638,11 +580,9 @@ public class CascadeWindow extends JFrame
 						}
 					}
 
-					try
-					{
+					try {
 						Thread.sleep(50);
-					} catch (InterruptedException e)
-					{
+					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
@@ -650,14 +590,12 @@ public class CascadeWindow extends JFrame
 		});
 	}
 
-	private String save(ExtensionType type, String[] description, String[] extension)
-	{
+	private String save(ExtensionType type, String[] description, String[] extension) {
 		if (description.length != extension.length)
 			return null;
 
 		JFileChooser chooser = new JFileChooser();
-		if (type == ExtensionType.kFile)
-		{
+		if (type == ExtensionType.kFile) {
 			chooser.setFileFilter(new FileNameExtensionFilter(description[0], extension[0]));
 			for (int i = 1; i < description.length; i++)
 				chooser.addChoosableFileFilter(new FileNameExtensionFilter(description[i], extension[i]));
@@ -668,8 +606,7 @@ public class CascadeWindow extends JFrame
 								? chooser.getSelectedFile().getAbsolutePath()
 								: chooser.getSelectedFile().getAbsolutePath() + "."
 										+ ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0]);
-		} else if (type == ExtensionType.kDirectory)
-		{
+		} else if (type == ExtensionType.kDirectory) {
 			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
 				return chooser.getSelectedFile().getAbsolutePath();
@@ -677,21 +614,16 @@ public class CascadeWindow extends JFrame
 		return null;
 	}
 
-	private String save(ExtensionType type, String description, String extension)
-	{
-		return this.save(type, new String[]
-		{ description }, new String[]
-		{ extension });
+	private String save(ExtensionType type, String description, String extension) {
+		return this.save(type, new String[] { description }, new String[] { extension });
 	}
 
-	private String open(ExtensionType type, String[] description, String[] extension)
-	{
+	private String open(ExtensionType type, String[] description, String[] extension) {
 		if (description.length != extension.length)
 			return null;
 
 		JFileChooser chooser = new JFileChooser();
-		if (type == ExtensionType.kFile)
-		{
+		if (type == ExtensionType.kFile) {
 			chooser.setFileFilter(new FileNameExtensionFilter(description[0], extension[0]));
 			for (int i = 1; i < description.length; i++)
 				chooser.addChoosableFileFilter(new FileNameExtensionFilter(description[i], extension[i]));
@@ -702,8 +634,7 @@ public class CascadeWindow extends JFrame
 								? chooser.getSelectedFile().getAbsolutePath()
 								: chooser.getSelectedFile().getAbsolutePath() + "."
 										+ ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0]);
-		} else if (type == ExtensionType.kDirectory)
-		{
+		} else if (type == ExtensionType.kDirectory) {
 			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
 				return chooser.getSelectedFile().getAbsolutePath();
@@ -711,15 +642,11 @@ public class CascadeWindow extends JFrame
 		return null;
 	}
 
-	private String open(ExtensionType type, String description, String extension)
-	{
-		return this.open(type, new String[]
-		{ description }, new String[]
-		{ extension });
+	private String open(ExtensionType type, String description, String extension) {
+		return this.open(type, new String[] { description }, new String[] { extension });
 	}
 
-	private String[] openMulti(String[] description, String[] extension)
-	{
+	private String[] openMulti(String[] description, String[] extension) {
 		if (description.length != extension.length)
 			return null;
 
@@ -739,13 +666,11 @@ public class CascadeWindow extends JFrame
 		return output;
 	}
 
-	private static enum ExtensionType
-	{
+	private static enum ExtensionType {
 		kDirectory, kFile
 	}
 
-	public void displayWindow()
-	{
+	public void displayWindow() {
 		this.setVisible(true);
 	}
 }
