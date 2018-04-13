@@ -38,7 +38,9 @@ public class CascadeWindow extends JFrame {
 	private final int DEFAULT_WIDTH = 40, DEFAULT_HEIGHT = 40;
 	private final int DEFAULT_GEN_NUM = 500;
 	private final int DEFAULT_POS_IMG = 200, DEFAULT_NEG_IMG = 400;
-	private final String tempNegativeTxtPath = (System.getProperty("os.name").contains("Windows")) ? ""
+	private final String tempNegativeTxtPath = (System.getProperty("os.name").toLowerCase().contains("windows"))
+			? "%APPDATA%/v_util_cascade.txt"
+			: "/tmp/v_util_cascade.txt";
 	/*
 	 * End Constant Variables
 	 */
@@ -46,10 +48,9 @@ public class CascadeWindow extends JFrame {
 	/*
 	 * Class Variables
 	 */
-	private String imgOpenPath = "", vecSavePath = "";
+	private String imgOpenPath = "", vecSavePath = "", negOpenPath_gen = "";
 	private String vecOpenPath = "", trainOutPath = "", negOpenPath_train;
-	private String[] negOpenPath_gen = new String[0];\
-	private File negativeTxtFile = new File("");
+	private File negativeTxtFile = new File(tempNegativeTxtPath);
 	/*
 	 * End Class Variables
 	 */
@@ -427,9 +428,10 @@ public class CascadeWindow extends JFrame {
 				String[] paths = openMulti(new String[] { "PNG Files", "JPEG Files" }, new String[] { "png", "jpeg" });
 				if (paths != null && paths.length > 0) {
 					negativeDirPrev.setText("");
-					for(String str : paths)
+					for (String str : paths)
 						negativeDirPrev.setText(negativeDirPrev.getText() + "\"" + str + "\",");
-					negOpenPath_gen = paths;
+					negativeTxtFile.getIn
+					negOpenPath_gen = tempNegativeTxtPath;
 				}
 			}
 		});
