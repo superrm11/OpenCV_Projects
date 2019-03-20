@@ -8,8 +8,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -430,7 +433,16 @@ public class CascadeWindow extends JFrame {
 					negativeDirPrev.setText("");
 					for (String str : paths)
 						negativeDirPrev.setText(negativeDirPrev.getText() + "\"" + str + "\",");
-					//negativeTxtFile.getIn
+
+					try {
+						PrintWriter txtWrite = new PrintWriter(negativeTxtFile);
+						for(String str : paths)
+							txtWrite.println(str);
+						txtWrite.flush();
+						txtWrite.close();
+					} catch (FileNotFoundException e1) {
+						e1.printStackTrace();
+					}
 					negOpenPath_gen = tempNegativeTxtPath;
 				}
 			}
