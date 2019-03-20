@@ -26,7 +26,7 @@ import javax.swing.JMenuItem;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
-import org.opencv.highgui.Highgui;
+import org.opencv.imgcodecs.Imgcodecs;
 
 import visionUtility.VisionUtility.ImShowVal;
 
@@ -71,7 +71,7 @@ public class PiCameraTest
 	private static BufferedImage convertToImage(Mat m)
 	{
 		matOfByte = new MatOfByte();
-		Highgui.imencode(".jpg", m, matOfByte);
+		Imgcodecs.imencode(".jpg", m, matOfByte);
 		byteArray = matOfByte.toArray();
 		bufImage = null;
 		in = new ByteArrayInputStream(byteArray);

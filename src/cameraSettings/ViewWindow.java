@@ -14,7 +14,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
-import org.opencv.highgui.Highgui;
+import org.opencv.imgcodecs.Imgcodecs;
 
 public class ViewWindow extends JFrame
 {
@@ -52,7 +52,7 @@ public class ViewWindow extends JFrame
 	{
 
 		MatOfByte matOfByte = new MatOfByte();
-		Highgui.imencode(".jpg", m, matOfByte);
+		Imgcodecs.imencode(".jpg", m, matOfByte);
 		byte[] byteArray = matOfByte.toArray();
 		BufferedImage bufImage = null;
 		ByteArrayInputStream in = new ByteArrayInputStream(byteArray);

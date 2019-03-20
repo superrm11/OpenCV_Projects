@@ -28,7 +28,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 public class CascadeWindow extends JFrame {
@@ -412,7 +412,7 @@ public class CascadeWindow extends JFrame {
 						new String[] { "jpg", "png" });
 				if (path != null) {
 					imgOpenPath = path;
-					Mat img = Highgui.imread(path);
+					Mat img = Imgcodecs.imread(path);
 					Imgproc.resize(img, img,
 							(img.size().width / img.size().height > 1)
 									? new Size(139, 96 * (img.size().height / img.size().width))
@@ -430,7 +430,7 @@ public class CascadeWindow extends JFrame {
 					negativeDirPrev.setText("");
 					for (String str : paths)
 						negativeDirPrev.setText(negativeDirPrev.getText() + "\"" + str + "\",");
-					negativeTxtFile.getIn
+					//negativeTxtFile.getIn
 					negOpenPath_gen = tempNegativeTxtPath;
 				}
 			}

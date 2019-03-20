@@ -35,9 +35,11 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
-import org.opencv.highgui.VideoCapture;
+import org.opencv.highgui.HighGui;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 public class VisionUtility implements java.io.Serializable
 {
@@ -244,7 +246,7 @@ public class VisionUtility implements java.io.Serializable
 	public static BufferedImage convertToImage(Mat m)
 	{
 		matOfByte = new MatOfByte();
-		Highgui.imencode(".jpg", m, matOfByte);// turn the matrix (of pixel
+		Imgcodecs.imencode(".jpg", m, matOfByte);// turn the matrix (of pixel
 		byteArray = matOfByte.toArray(); // data) into a matrix of bytes
 		in = new ByteArrayInputStream(byteArray);
 
@@ -393,7 +395,7 @@ public class VisionUtility implements java.io.Serializable
 					if (captureDevice.isOpened() == false)
 						JOptionPane.showMessageDialog(null, "Please open a camera first, and retry.");
 					else if (cameraSelect.isUsingUsbCam() == true)
-						captureDevice.set(Highgui.CV_CAP_PROP_SETTINGS, 1);
+						captureDevice.set(Videoio.CAP_PROP_SETTINGS, 1);
 					else
 						JOptionPane.showMessageDialog(null,
 								"Settings for IP cameras must be changed through the web interface.");
@@ -456,7 +458,7 @@ public class VisionUtility implements java.io.Serializable
 			} else
 			{
 				// If the file DOES exist, then open it and return that image.
-				Mat m = Highgui.imread(saveName);
+				Mat m = Imgcodecs.imread(saveName);
 				if (captureDevice != null && captureDevice.isOpened())
 					captureDevice.release();
 				// If the camera was previously used, release it and specify

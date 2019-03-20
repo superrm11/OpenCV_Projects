@@ -22,9 +22,9 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
-import org.opencv.highgui.VideoCapture;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.videoio.VideoCapture;
 
 public class VisionProcessorClient
 {
@@ -377,9 +377,9 @@ public class VisionProcessorClient
 			{
 				Mat m1 = m.clone();
 				if (destination.charAt(destination.length() - 1) == '/')
-					Highgui.imwrite(new String(destination + "rawImage_" + fileNumber + ".jpg"), m1);
+					Imgcodecs.imwrite(new String(destination + "rawImage_" + fileNumber + ".jpg"), m1);
 				else
-					Highgui.imwrite(new String(destination + "/rawImage_" + fileNumber + ".jpg"), m1);
+					Imgcodecs.imwrite(new String(destination + "/rawImage_" + fileNumber + ".jpg"), m1);
 				saveRawImage = false;
 			}
 
@@ -425,16 +425,17 @@ public class VisionProcessorClient
 				Imgproc.drawContours(m, contours, -1, new Scalar(200, 0, 0), Core.FILLED);
 				for (int i = 0; i < blobs.size(); i++)
 				{
-					Core.rectangle(m, new Point(blobs.get(i)[0], blobs.get(i)[1]),
-							new Point(blobs.get(i)[0] + blobs.get(i)[2], blobs.get(i)[1] + blobs.get(i)[3]),
-							new Scalar(200, 0, 0));
+					//TODO fix rectangle
+					//Core.rectangle(m, new Point(blobs.get(i)[0], blobs.get(i)[1]),
+					//		new Point(blobs.get(i)[0] + blobs.get(i)[2], blobs.get(i)[1] + blobs.get(i)[3]),
+					//		new Scalar(200, 0, 0));
 				}
 				if (destination.charAt(destination.length() - 1) == '/')
 				{
-					Highgui.imwrite(new String(destination + "processedImage_" + fileNumber + ".jpg"), m);
+					Imgcodecs.imwrite(new String(destination + "processedImage_" + fileNumber + ".jpg"), m);
 				} else
 				{
-					Highgui.imwrite(new String(destination + "/processedImage_" + fileNumber + ".jpg"), m);
+					Imgcodecs.imwrite(new String(destination + "/processedImage_" + fileNumber + ".jpg"), m);
 				}
 				saveProcessedImage = false;
 			}

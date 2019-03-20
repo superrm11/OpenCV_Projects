@@ -18,10 +18,10 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
-import org.opencv.highgui.VideoCapture;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
+import org.opencv.videoio.VideoCapture;
 
 public class HaarTest
 {
@@ -79,9 +79,10 @@ public class HaarTest
 			newRects = rects.toArray();
 			for (int i = 0; i < newRects.length; i++)
 			{
-				Core.rectangle(m, new Point(newRects[i].x, newRects[i].y),
-						new Point(newRects[i].x + newRects[i].width, newRects[i].y + newRects[i].height),
-						new Scalar(0, 255, 0));
+				//TODO fix rectangle function
+				//Core.rectangle(m, new Point(newRects[i].x, newRects[i].y),
+				//		new Point(newRects[i].x + newRects[i].width, newRects[i].y + newRects[i].height),
+				//		new Scalar(0, 255, 0));
 			}
 			frame.getContentPane().remove(label);
 			imageIcon.setImage(convertToImage(m));
@@ -102,7 +103,7 @@ public class HaarTest
 	private static BufferedImage convertToImage(Mat m)
 	{
 		matOfByte = new MatOfByte();
-		Highgui.imencode(".jpg", m, matOfByte);
+		Imgcodecs.imencode(".jpg", m, matOfByte);
 		byteArray = matOfByte.toArray();
 		bufImage = null;
 		in = new ByteArrayInputStream(byteArray);

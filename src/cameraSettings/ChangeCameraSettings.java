@@ -3,9 +3,9 @@ package cameraSettings;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
-import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 public class ChangeCameraSettings
 {
@@ -19,7 +19,7 @@ public class ChangeCameraSettings
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		VideoCapture cap = new VideoCapture();
 		cap.open(0);
-		cap.set(Highgui.CV_CAP_PROP_SETTINGS, 1);
+		cap.set(Videoio.CAP_PROP_SETTINGS, 1);
 
 		frame = new ViewWindow();
 		frame.setVisible(true);

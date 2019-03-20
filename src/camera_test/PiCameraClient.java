@@ -14,8 +14,8 @@ import javax.imageio.ImageIO;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
-import org.opencv.highgui.Highgui;
-import org.opencv.highgui.VideoCapture;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.videoio.VideoCapture;
 
 public class PiCameraClient
 {
@@ -35,7 +35,7 @@ public class PiCameraClient
 		{
 //			m = Highgui.imread("/home/pi/pic.jpeg");
 			cap.read(m);
-			Highgui.imencode(".jpg", m, matOfByte);
+			Imgcodecs.imencode(".jpg", m, matOfByte);
 			toSend = matOfByte.toArray();
 			
 			oos.writeObject(toSend);
@@ -53,7 +53,7 @@ public class PiCameraClient
 	private static BufferedImage convertToImage(Mat m)
 	{
 		matOfByte = new MatOfByte();
-		Highgui.imencode(".jpg", m, matOfByte);
+		Imgcodecs.imencode(".jpg", m, matOfByte);
 		byteArray = matOfByte.toArray();
 		bufImage = null;
 		in = new ByteArrayInputStream(byteArray);
